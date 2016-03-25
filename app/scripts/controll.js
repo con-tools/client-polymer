@@ -257,6 +257,26 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollEvents.prototype.get = function(id, callback) {
+		this.api.get(this.collection, id, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollEvents.prototype.update = function(id, fields, callback) {
+		this.api.update(this.collection, id, fields, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
 	/**
 	 * ConTroll Managers API
 	 * @param ConTroll api

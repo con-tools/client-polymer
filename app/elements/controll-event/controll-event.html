@@ -1,0 +1,191 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-event">
+<template>
+	<style>
+	:host {
+		display: block;
+	}
+	.large-field {
+		width: 100%;
+	}
+	form {
+		direction: rtl;
+	}
+	paper-input, paper-textarea {
+		direction: rtl;
+	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
+	</style>
+	
+	<form is="iron-form" id="eventForm" action="javascript:">
+		<paper-item>
+			<paper-input class="large-field" name="title" label="Title" value="{{event.title}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="teaser" label="Teaser" value="{{event.teaser}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="description" label="Description" value="{{event.description}}"></paper-input>
+		</paper-item>
+		<paper-item class="non-bidi">
+			<paper-checkbox name="requires-registration" checked="{{event.requires_registration}}">
+				Requires Registration 
+			</paper-checkbox>
+		</paper-item>
+		<paper-item class="non-bidi">
+			<paper-input label="Duration" class="short-field" name="duration" type="number" min="30"
+					value="{{event.duration}}"><div suffix>minutes</div></paper-input>
+		</paper-item>
+		<paper-item class="non-bidi">
+			<paper-input label="Min Attendees" class="short-field" name="min-attendees" type="number" min="1" max="50"
+					value="{{event.min_attendees}}"></paper-input>
+		</paper-item>
+		<paper-item class="non-bidi">
+			<paper-input label="Max Attendees" class="short-field" name="max-attendees" type="number" min="1" max="50"
+					value="{{event.max_attendees}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="notes-to-staff" label="Notes To Staff"
+					value="{{event.notes_to_staff}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="logitsical-requirements" label="Logistical Requirements"
+					value="{{event.logitsical_requirements}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="notes-to-attendees" label="Notes To Attendees"
+					value="{{event.notes_to_attendees}}"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" name="scheduling-constraints" label="Scheduling Constraints"
+					value="{{event.scheduling_constraints}}"></paper-input>
+		</paper-item>
+		<template is="dom-repeat" items="{{tagtypes}}" as="tagtype">
+			<paper-item>
+				<template is="dom-if-else" if="[[tagtype.needCombobox]]">
+					<if-then>
+					<vaadin-combo-box label="[[tagtype.title]]" id="single-tag-[[tagtype.title]]" items="[[tagtype.values]]"
+							allow-custom-value value="[[tagtype.currentValue]]"></vaadin-combo-box>
+					</if-then>
+					<if-else>
+						<paper-input-tags id="multi-tag-[[tagtype.title]]" label="[[tagtype.title]]" tags="[[tagtype.currentValue]]"></paper-input-tags>
+					</if-else>
+				</template>
+			</paper-item>
+		</template>
+		
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="updateEvent"><iron-icon icon="check-circle"></iron-icon>Update</paper-button>
+			<paper-button raised on-tap="gotoEvents"><iron-icon icon="done"></iron-icon>Close</paper-button>
+		</paper-item>
+	</form> 
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-event',
+	properties : {
+		eventId : {
+			type: Number,
+			observer: '_updateEventForm'
+		},
+		event : {
+			type: Object,
+			notify: true
+		},
+		tagtypes : {
+			type: Array,
+			notify: true
+		}
+	},
+	
+	ready : function() {
+	},
+	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this._updateEventForm.bind(this), false);
+		this.$.eventForm.addEventListener('iron-form-presubmit', (function(event){
+			event.preventDefault();
+		}).bind(this));
+	},
+	
+	populateForm : function(eventData) {
+		for (var field in eventData) {
+			if (field.match(/-/)) { 
+				// convert '-' separated fields to '_' separated fields so polymer will like me
+				eventData[field.replace(/-/g,'_')] = eventData[field];
+			}
+		}
+		// copy original tag values aside, so I can decide if any were removed, when I need to submit them
+		eventData.old_tags = {};
+		for (var tagtitle in eventData.tags) {
+			eventData.old_tags[tagtitle] = (eventData.tags[tagtitle] instanceof Array) ? eventData.tags[tagtitle].slice() : eventData.tags[tagtitle];
+		}
+		this.set('event', eventData);
+		ConTroll.tags.catalog(this.populateTags.bind(this));
+	},
+	
+	populateTags : function(tagtypes) {
+		var event = this.event;
+		// reset combox boxes so it can be filled correctly in case the user set a custom value
+		var currentHost = this;
+		boxes = document.getElementsByTagName('vaadin-combo-box');
+		[].slice.call(boxes).forEach(function(box){
+			if (box.domHost != currentHost) return;
+			box.value = event.tags[box.name];
+		})
+		// send the tagtypes up
+		this.set('tagtypes', tagtypes.map(function(tagtype){
+			tagtype.currentValue = event.tags[tagtype.title];
+			tagtype.needCombobox = !(tagtype.currentValue instanceof Array);
+			return tagtype;
+		}));
+	},
+	
+	_updateEventForm : function() {
+		console.log('Loading event data for',this.get('eventId'));
+		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this))
+	},
+	
+	updateEvent : function(event) {
+		var formdata = this.$.eventForm.serialize();
+		formdata.tags = {};
+		formdata.remove_tags = {};
+		this.get('tagtypes').forEach((function(tag){
+			// calculate current tag values
+			if (tag.requirement == '1') {
+				var elmId = 'single-tag-' + tag.title;
+				formdata.tags[tag.title] = document.getElementById(elmId).value;
+			} else {
+				var elmId = 'multi-tag-' + tag.title;
+				formdata.tags[tag.title] = document.getElementById(elmId).tags;
+				// calculate tags to remove
+				this.event.old_tags[tag.title].forEach(function(tagval){
+					if (formdata.tags[tag.title].indexOf(tagval) < 0) {// not found
+						if (!formdata.remove_tags[tag.title])
+							formdata.remove_tags[tag.title] = [];
+						formdata.remove_tags[tag.title].push(tagval);
+					}
+				});
+			} 
+		}).bind(this));
+		
+		console.log('Event data:',formdata);
+		ConTroll.events.update(this.event.id, formdata, this.gotoEvents.bind(this));
+	},
+	
+	gotoEvents : function() {
+		page.show('/events');
+	}
+
+});
+</script>

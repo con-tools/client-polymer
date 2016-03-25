@@ -1,0 +1,89 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
+
+<dom-module id="tag-item">
+
+  <style>
+      :host {
+        display: inline-block;
+        box-sizing: border-box;
+        font-family: 'Roboto', 'Noto', sans-serif;
+      }
+      .default-icon{
+        color: #4285f4;
+        width: 20px;
+        height: 20px;
+        padding:0;
+      }
+      .default-tag{
+        margin-bottom: 5px;
+        border: 1px solid #03A9F4;
+        font-size: 13px;
+        color: #616161;
+        border-radius: 4px;
+      }
+      .readonly-no{
+        padding: 5px 5px 5px 10px;
+      }
+      .readonly-ok{
+        padding: 5px 10px;
+      }
+  </style>
+
+  <template>
+
+    <div class$="{{ styletag }}">
+      <span class="value-tag">[[ value ]]</span>
+      <paper-icon-button icon="icons:close" class$="{{ styleicon }}" hidden="{{ readonly }}" on-tap="_removeTag"></paper-icon-button>
+    </div>
+      
+  </template>
+
+</dom-module>
+
+<script>
+  Polymer({
+    is: 'tag-item',
+    properties: {
+      styletag: {
+        type: String,
+        value: 'default-tag'
+      },
+      styleicon: {
+        type: String,
+        value: 'default-icon'
+      },
+      value: String,
+      readonly: {
+        type: Boolean,
+        value: false,
+        observer: '_readonlyChanged'
+      },
+      tags: {
+        type: Array,
+        notify: true
+      },
+      index: Number
+    },
+    _readonlyChanged: function(newValue, oldValue) {
+      if (newValue) {
+        this.styletag = this.styletag + ' readonly-ok';
+      } else {
+        this.styletag = this.styletag + ' readonly-no';
+      }
+    },
+    _removeTag: function(event) {
+      this.fire('tag-removed');
+      var parent = event.target.parentElement.parentElement.parentElement;
+      if (this.tags == undefined) {
+        parent.remove();
+      } else {
+        var index = parent.index;
+        this.tags.splice(index, 1);
+        this.tags = this.tags.slice();
+      }
+    }
+  });
+</script>

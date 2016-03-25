@@ -18,12 +18,15 @@
 	.flexchild { 
 		@apply (--layout-flex);
 	}
+	.large-field {
+		width: 100%;
+	}
 	</style>
 	
 	<template is="dom-repeat" items="{{events}}" as="event">
 		<paper-item class="container flex-horizontal">
 			<paper-item class="flexchild">
-				<paper-input style="width: 100%" label="Title" readonly value="{{event.title}}"></paper-input>
+				<paper-input class="large-field" label="Title" readonly value="{{event.title}}"></paper-input>
 			</paper-item>
 			<div>
 				<paper-input readonly label="Submitter" value="{{event.user.name}}"></paper-input>

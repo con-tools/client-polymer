@@ -41,10 +41,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        */
       elementIsScrollLocked: function(element) {
         var currentLockingElement = this.currentLockingElement;
-
-        if (currentLockingElement === undefined)
-          return false;
-
         var scrollLocked;
 
         if (this._hasCachedLockedElement(element)) {
@@ -79,11 +75,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
        * @param {HTMLElement} element The element that should lock scroll.
        */
       pushScrollLock: function(element) {
-        // Prevent pushing the same element twice
-        if (this._lockingElements.indexOf(element) >= 0) {
-          return;
-        }
-
         if (this._lockingElements.length === 0) {
           this._lockScrollInteractions();
         }
@@ -175,11 +166,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       },
 
       _scrollInteractionHandler: function(event) {
-        var scrolledElement =
-            /** @type {HTMLElement} */(Polymer.dom(event).rootTarget);
         if (Polymer
               .IronDropdownScrollManager
-              .elementIsScrollLocked(scrolledElement)) {
+              .elementIsScrollLocked(event.target)) {
           if (event.type === 'keydown' &&
               !Polymer.IronDropdownScrollManager._isScrollingKeypress(event)) {
             return;
@@ -206,13 +195,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.body.style.overflowY = 'hidden';
 
         // Modern `wheel` event for mouse wheel scrolling:
-        document.addEventListener('wheel', this._scrollInteractionHandler, true);
+        window.addEventListener('wheel', this._scrollInteractionHandler, true);
         // Older, non-standard `mousewheel` event for some FF:
-        document.addEventListener('mousewheel', this._scrollInteractionHandler, true);
+        window.addEventListener('mousewheel', this._scrollInteractionHandler, true);
         // IE:
-        document.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        window.addEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
         // Mobile devices can scroll on touch move:
-        document.addEventListener('touchmove', this._scrollInteractionHandler, true);
+        window.addEventListener('touchmove', this._scrollInteractionHandler, true);
         // Capture keydown to prevent scrolling keys (pageup, pagedown etc.)
         document.addEventListener('keydown', this._scrollInteractionHandler, true);
       },
@@ -222,10 +211,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         document.body.style.overflowX = this._originalBodyStyles.overflowX;
         document.body.style.overflowY = this._originalBodyStyles.overflowY;
 
-        document.removeEventListener('wheel', this._scrollInteractionHandler, true);
-        document.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
-        document.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
-        document.removeEventListener('touchmove', this._scrollInteractionHandler, true);
+        window.removeEventListener('wheel', this._scrollInteractionHandler, true);
+        window.removeEventListener('mousewheel', this._scrollInteractionHandler, true);
+        window.removeEventListener('DOMMouseScroll', this._scrollInteractionHandler, true);
+        window.removeEventListener('touchmove', this._scrollInteractionHandler, true);
         document.removeEventListener('keydown', this._scrollInteractionHandler, true);
       }
     };

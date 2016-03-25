@@ -119,8 +119,6 @@ element.
        * Content type to use when sending data. If the `contentType` property
        * is set and a `Content-Type` header is specified in the `headers`
        * property, the `headers` property value will take precedence.
-       *
-       * Varies the handling of the `body` param.
        */
       contentType: {
         type: String,
@@ -293,20 +291,13 @@ element.
        * many backends will mitigate this by prefixing all JSON response bodies
        * with a string that would be nonsensical to a JavaScript parser.
        *
+       * In the case where the server returns a prefix via the `X-JSON-Prefix`
+       * header, this attribute can be omitted as the value of the header will
+       * supercede the value passed here.
        */
       jsonPrefix: {
         type: String,
         value: ''
-      },
-
-      /**
-       * By default, these events do not bubble largely because the `error` event has special
-       * meaning in the window object. Setting this attribute will cause iron-ajax's request,
-       * response, and error events to bubble to the window object.
-       */
-      bubbles: {
-        type: Boolean,
-        value: false
       },
 
       _boundHandleResponse: {
@@ -450,7 +441,7 @@ element.
       this.fire('request', {
         request: request,
         options: requestOptions
-      }, {bubbles: this.bubbles});
+      }, {bubbles: false});
 
       return request;
     },
@@ -461,7 +452,7 @@ element.
         this._setLastError(null);
         this._setLoading(false);
       }
-      this.fire('response', request, {bubbles: this.bubbles});
+      this.fire('response', request, {bubbles: false});
     },
 
     _handleError: function(request, error) {
@@ -480,7 +471,7 @@ element.
       this.fire('error', {
         request: request,
         error: error
-      }, {bubbles: this.bubbles});
+      }, {bubbles: false});
     },
 
     _discardRequest: function(request) {
