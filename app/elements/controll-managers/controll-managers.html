@@ -1,0 +1,169 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-managers">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	</style>
+	
+	<template is="dom-repeat" items="{{managers}}" as="manager">
+		<paper-item>
+			<div>
+			<paper-input label="Name" readonly value="{{manager.name}}"></paper-input>
+			</div>
+			<div>
+			<paper-input label="E-Mail" readonly value="{{manager.email}}"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button icon="remove-circle" label="Remove Manager" on-tap="startRemoveManager"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+		
+	<paper-item class="container flex-horizontal">
+		<paper-button raised on-tap="startAddManager"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+	</paper-item>
+	
+	<paper-dialog id="addManagerDialog">
+		<h3>Add a convention manager</h3>
+		<paper-item>
+			<div>
+			<vaadin-combo-box label="Name" id="addManagerName" items="[[usersNames]]" 
+					on-value-changed="syncAddManagerForm"></vaadin-combo-box>
+			</div>
+			<div>
+			<vaadin-combo-box label="E-Mail" id="addManagerEmail" items="[[usersEmails]]" 
+					on-value-changed="syncAddManagerForm"></vaadin-combo-box>
+			</div>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveAddManager"><iron-icon icon="check"></iron-icon>Add</paper-button>
+			<paper-button raised on-tap="cancelAddManager"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmRemoveManager">
+		<h3>Are you sure you want to remove {{managerName}} ({{managerEmail}}) from managing the convention?</h3>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="approveDeleteManager" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="closeDeleteDialog" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-managers',
+	properties : {
+		managers : {
+			type: Array,
+			observer: '_updateManagers'
+		},
+		users : Array,
+		usersNames : Array,
+		usersEmails : Array,
+	},
+	
+	ready : function(event) {
+		console.log("Loading managers");
+		ConTroll.managers.catalog(this.showManagers.bind(this));
+	},
+	
+	showManagers : function(managers) {
+		this.set('managers', managers);
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	_updateManagers : function() {
+		console.log('On-update managers happened');
+	},
+	
+	startAddManager : function(){
+		ConTroll.users.catalog(function(users){
+			console.log("Listing users, got",users.length);
+			this.set('users', users);
+			this.set('usersNames', users.map(function(user){
+				return user.name;
+			}));
+			this.set('usersEmails', users.map(function(user){
+				return user.email;
+			}));
+			this.$.addManagerDialog.toggle();
+		}.bind(this));
+	},
+	
+	syncAddManagerForm : function(event) {
+		if (!this.users) // could happen during init
+			return;
+		var inputElId = event.target.id;
+		var value = event.target.value;
+		var user = this.users.find(function(user){
+			return (inputElId == 'addManagerName' && user.name == value) ||
+					(inputElId == 'addManagerEmail' && user.email == value);
+		});
+		
+		if (!user) { // not found, clear everything and leave
+			this.$.addManagerName.value = null;
+			this.$.addManagerEmail.value = null;
+			this.userIdToAdd = null;
+			return;
+		}
+		
+		// store value for add
+		this.userIdtoAdd = user.id;
+		// sync found user between comboboxes
+		if (inputElId == 'addManagerName')
+			this.$.addManagerEmail.value = user.email;
+		else if (inputElId == 'addManagerEmail')
+			this.$.addManagerName.value = user.name;
+	},
+	
+	approveAddManager : function(){
+		this.$.addManagerDialog.toggle();
+		if (!this.userIdtoAdd)
+			return;
+		ConTroll.managers.add({id: this.userIdtoAdd}, this.ready.bind(this));
+	},
+	
+	cancelAddManager : function(){
+		this.$.addManagerEmail.value = null;
+		this.$.addManagerName.value = null;
+		this.$.addManagerDialog.toggle();
+	},
+	
+	startRemoveManager : function(event) {
+		this.set('managerName', event.model.manager.name)
+		this.set('managerEmail', event.model.manager.email);
+		this.set('managerId', event.model.manager.id);
+		this.$.confirmRemoveManager.toggle();
+	},
+	
+	closeDeleteDialog : function() {
+		this.$.confirmRemoveManager.toggle();
+	},
+	
+	approveDeleteManager : function() {
+		this.$.confirmRemoveManager.toggle();
+		ConTroll.managers.remove(this.get('managerId'), this.ready.bind(this));
+	}
+});
+</script>

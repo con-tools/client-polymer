@@ -45,12 +45,13 @@
 	</paper-item>
 
 	<paper-dialog id="addTagValueDialog">
+		<h3>Add a tag value:</h3>
 		<paper-item>
 			<div>
 				<paper-input label="Value" id="addTagValue"></paper-input>
 			</div>
 		</paper-item>
-		<paper-item>
+		<paper-item class="container flex-horizontal">
 			<paper-button on-tap="approveAddTagValue" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button on-tap="toggleAddTagValue" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
 		</paper-item>

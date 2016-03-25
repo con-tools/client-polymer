@@ -137,11 +137,12 @@ var ConTroll = (function(w,d){
 	 */
 	var ConTrollTags = function(api) {
 		this.api = api;
+		this.collection = {convention: true, collection: 'tagtypes'};
 		return this;
 	};
 	
 	ConTrollTags.prototype.catalog = function(callback) {
-		this.api.get({convention: true, collection: 'tagtypes'}, '', function(res, err) {
+		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -151,7 +152,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.getType = function(title, callback) {
-		this.api.get({convention: true, collection: 'tagtypes'}, title, function(res, err) {
+		this.api.get(this.collection, title, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -161,7 +162,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.addType = function(title, requirement, ispublic, callback) {
-		this.api.create({convention: true, collection: 'tagtypes'}, {
+		this.api.create(this.collection, {
 			title: title,
 			requirement: requirement,
 			"public": ispublic
@@ -175,7 +176,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.updateType = function(oldtitle, newtitle, requirement, ispublic, callback) {
-		this.api.update({convention: true, collection: 'tagtypes'}, oldtitle, {
+		this.api.update(this.collection, oldtitle, {
 			title: newtitle,
 			requirement: requirement,
 			"public": ispublic
@@ -189,7 +190,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.deleteType = function(title, callback) {
-		this.api.del({convention: true, collection: 'tagtypes'}, title, function(res, err) {
+		this.api.del(this.collection, title, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -201,7 +202,7 @@ var ConTroll = (function(w,d){
 	ConTrollTags.prototype.replaceValue = function(title, oldvalue, newvalue, callback) {
 		var replace_values = {};
 		replace_values[oldvalue] = newvalue;
-		this.api.update({convention: true, collection: 'tagtypes'}, title, {
+		this.api.update(this.collection, title, {
 			"replace-values": replace_values
 		}, function(res, err) {
 			if (err) {
@@ -213,7 +214,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.addValue = function(title, newvalue, callback) {
-		this.api.update({convention: true, collection: 'tagtypes'}, title, {
+		this.api.update(this.collection, title, {
 			values: [ newvalue ]
 		}, function(res, err) {
 			if (err) {
@@ -225,9 +226,89 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTags.prototype.deleteValue = function(title, value, callback) {
-		this.api.update({convention: true, collection: 'tagtypes'}, title, {
+		this.api.update(this.collection, title, {
 			"remove-values": [ value ]
 		}, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * ConTroll Events API
+	 * @param ConTroll api
+	 */
+	var ConTrollEvents = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'events'};
+		return this;
+	};
+	
+	ConTrollEvents.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * ConTroll Managers API
+	 * @param ConTroll api
+	 */
+	var ConTrollManagers = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'managers'};
+		return this;
+	};
+	
+	ConTrollManagers.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollManagers.prototype.add = function(userObj, callback) {
+		this.api.create(this.collection, userObj, function(res,err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	ConTrollManagers.prototype.remove = function(id, callback) {
+		this.api.del(this.collection, id, function(res,err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	/**
+	 * ConTroll Users API
+	 * @param ConTroll api
+	 */
+	var ConTrollUsers = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'users'};
+		return this;
+	};
+	
+	ConTrollUsers.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -494,6 +575,9 @@ var ConTroll = (function(w,d){
 	 */
 	ConTroll.records = new ConTrollRecords(api);
 	ConTroll.tags = new ConTrollTags(api);
+	ConTroll.events = new ConTrollEvents(api);
+	ConTroll.managers = new ConTrollManagers(api);
+	ConTroll.users = new ConTrollUsers(api);
 	
 	api.handleAuth();
 	return ConTroll;

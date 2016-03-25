@@ -121,7 +121,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <span class="space"></span>
 
           <!-- Toolbar icons -->
-          <paper-icon-button icon="refresh"></paper-icon-button>
+          <paper-icon-button icon="refresh" on-tap="sendRefreshEvent"></paper-icon-button>
           <paper-icon-button icon="search"></paper-icon-button>
 
           <!-- Application name -->
@@ -164,28 +164,27 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
             <section data-route="event-form" tabindex="-1">
               <paper-material elevation="1">
-                <h2 class="page-title" tabindex="-1">Event: {{params.id}}</h2>
+                <h2 class="page-title" tabindex="-1">Edit Event</h2>
+                <controll-event event-id="{{params.id}}"></controll-event>
               </paper-material>
             </section>
 
             <section data-route="locations" tabindex="-1">
               <paper-material elevation="1">
-                <h1 class="page-title" tabindex="-1">Scheduling</h1>
-                <p>This is the contact section</p>
+                <h2 class="page-title" tabindex="-1">Locations</h2>
               </paper-material>
             </section>
 
             <section data-route="scheduling" tabindex="-1">
               <paper-material elevation="1">
-                <h1 class="page-title" tabindex="-1">Scheduling</h1>
-                <p>This is the contact section</p>
+                <h2 class="page-title" tabindex="-1">Scheduling</h2>
               </paper-material>
             </section>
 
             <section data-route="managers" tabindex="-1">
               <paper-material elevation="1">
-                <h1 class="page-title" tabindex="-1">Scheduling</h1>
-                <p>This is the contact section</p>
+                <h2 class="page-title" tabindex="-1">Managers</h2>
+                <controll-managers></controll-managers>
               </paper-material>
             </section>
 

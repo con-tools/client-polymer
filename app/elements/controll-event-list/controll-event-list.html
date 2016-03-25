@@ -8,7 +8,32 @@
 		display: block;
 		box-sizing: border-box;
 	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
 	</style>
+	
+	<template is="dom-repeat" items="{{events}}" as="event">
+		<paper-item class="container flex-horizontal">
+			<paper-item class="flexchild">
+				<paper-input style="width: 100%" label="Title" readonly value="{{event.title}}"></paper-input>
+			</paper-item>
+			<div>
+				<paper-input readonly label="Submitter" value="{{event.user.name}}"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button title="Edit" icon="create" on-tap="gotoEditEvent"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+	
 </template>
 </dom-module>
 
@@ -22,14 +47,25 @@ Polymer({
 		}
 	},
 	
-	ready : function(values) {
-		/*ConTroll.events.catalog(function(events){
-			this.events = events;
-		});*/
+	ready : function(event) {
+		console.log("Loading events");
+		ConTroll.events.catalog(this.populateEvents.bind(this));
+	},
+	
+	populateEvents : function(events) {
+		this.set('events', events);
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 	},
 	
 	_updateEvents : function() {
-		consoloe.log('On update events happened');
+		console.log('On update events happened');
+	},
+	
+	gotoEditEvent : function(event) {
+		page.show('/events/' + event.model.event.id);
 	}
 });
 </script>

@@ -71,6 +71,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     app.$.paperDrawerPanel.closeDrawer();
   };
   
+  app.sendRefreshEvent = function() {
+	  console.log("Refreshing from server");
+	  app.fire('please-refresh-lists');
+  };
+  
   ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ');
   ConTroll.ifAuth(function(){
 	  ConTroll.getUserEmail(function(email){

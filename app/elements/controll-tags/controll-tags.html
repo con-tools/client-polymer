@@ -111,6 +111,7 @@
 			},
 
 			ready : function() {
+				console.log("Loading tag types");
 				ConTroll.tags.catalog((function(tags) {
 					this.items = tags.map(function(tag){
 						tag.preventUpdate = true;
@@ -126,6 +127,7 @@
 			
 			attached : function() {
 				app.addEventListener('reload-tag-types', this.ready.bind(this), false);
+				app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 			},
 			
 			allowTagTypeUpdate : function(event) {
