@@ -26,6 +26,10 @@
 	
 	<form is="iron-form" id="eventForm" action="javascript:">
 		<paper-item>
+			<vaadin-combo-box label="Status" name="status" items="[[event_status_list]]"
+					value="{{event.status}}"></vaadin-combo-box>
+		</paper-item>
+		<paper-item>
 			<paper-input class="large-field" name="title" label="Title" value="{{event.title}}"></paper-input>
 		</paper-item>
 		<paper-item>
@@ -50,6 +54,10 @@
 		<paper-item class="non-bidi">
 			<paper-input label="Max Attendees" class="short-field" name="max-attendees" type="number" min="1" max="50"
 					value="{{event.max_attendees}}"></paper-input>
+		</paper-item>
+		<paper-item class="non-bidi">
+			<paper-input label="Price" class="short-field" name="price" type="number" min="1" max="200"
+					value="{{event.price}}"></paper-input>
 		</paper-item>
 		<paper-item>
 			<paper-textarea class="large-field" name="notes-to-staff" label="Notes To Staff"
@@ -105,6 +113,17 @@ Polymer({
 		tagtypes : {
 			type: Array,
 			notify: true
+		},
+		event_status_list : {
+			value: [
+			        { value: '0', label: 'Submitted' },
+			        { value: '1', label: 'Has Teaser' },
+			        { value: '2', label: 'Content Approved' },
+			        { value: '3', label: 'Logistics Approved' },
+			        { value: '4', label: 'Scheduled' },
+			        { value: '5', label: 'Approved' },
+			        { value: '6', label: 'Cancelled' }
+			]
 		}
 	},
 	
@@ -140,7 +159,7 @@ Polymer({
 		var currentHost = this;
 		boxes = document.getElementsByTagName('vaadin-combo-box');
 		[].slice.call(boxes).forEach(function(box){
-			if (box.domHost != currentHost) return;
+			if (box.domHost != currentHost || !event.tags[box.name]) return;
 			box.value = event.tags[box.name];
 		})
 		// send the tagtypes up
