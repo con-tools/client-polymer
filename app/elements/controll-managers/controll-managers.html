@@ -98,6 +98,12 @@ Polymer({
 	},
 	
 	startAddManager : function(){
+		this.userIdToAdd = null;
+		this.$.addManagerEmail.value = null;
+		this.$.addManagerName.value = null;
+		this.set('users', null);
+		this.set('usersName', null);
+		this.set('usersEmails', null);
 		ConTroll.users.catalog(function(users){
 			console.log("Listing users, got",users.length);
 			this.set('users', users);
@@ -112,7 +118,9 @@ Polymer({
 	},
 	
 	syncAddManagerForm : function(event) {
-		if (!this.users) // could happen during init
+		if (!this.users || (!this.$.addManagerName.value && !this.$.addManagerEmail.value)) // could happen during init
+			return;
+		if (this.userIdToAdd)
 			return;
 		var inputElId = event.target.id;
 		var value = event.target.value;
@@ -129,24 +137,22 @@ Polymer({
 		}
 		
 		// store value for add
-		this.userIdtoAdd = user.id;
+		this.userIdToAdd = user.id;
 		// sync found user between comboboxes
-		if (inputElId == 'addManagerName')
+		if (inputElId == 'addManagerName' && this.$.addManagerEmail.value != user.email)
 			this.$.addManagerEmail.value = user.email;
-		else if (inputElId == 'addManagerEmail')
+		else if (inputElId == 'addManagerEmail' && this.$.addManagerName.value != user.name)
 			this.$.addManagerName.value = user.name;
 	},
 	
 	approveAddManager : function(){
 		this.$.addManagerDialog.toggle();
-		if (!this.userIdtoAdd)
+		if (!this.userIdToAdd)
 			return;
-		ConTroll.managers.add({id: this.userIdtoAdd}, this.ready.bind(this));
+		ConTroll.managers.add({id: this.userIdToAdd}, this.ready.bind(this));
 	},
 	
 	cancelAddManager : function(){
-		this.$.addManagerEmail.value = null;
-		this.$.addManagerName.value = null;
 		this.$.addManagerDialog.toggle();
 	},
 	
