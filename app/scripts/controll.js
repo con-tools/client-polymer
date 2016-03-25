@@ -278,6 +278,64 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * ConTroll Locations API
+	 * @param ConTroll api
+	 */
+	var ConTrollLocations = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'locations'};
+		return this;
+	};
+	
+	ConTrollLocations.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollLocations.prototype.add = function(title, area, max_attendees, callback) {
+		this.api.create(this.collection, {
+			title: title,
+			area: area,
+			"max-attendees": max_attendees
+		}, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	ConTrollLocations.prototype.update = function(id, title, area, max_attendees, callback) {
+		this.api.update(this.collection, id, {
+			title: title,
+			area: area,
+			"max-attendees": max_attendees
+		}, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	ConTrollLocations.prototype.remove = function(id, callback) {
+		this.api.del(this.collection, id, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	/**
 	 * ConTroll Managers API
 	 * @param ConTroll api
 	 */
@@ -598,6 +656,7 @@ var ConTroll = (function(w,d){
 	ConTroll.events = new ConTrollEvents(api);
 	ConTroll.managers = new ConTrollManagers(api);
 	ConTroll.users = new ConTrollUsers(api);
+	ConTroll.locations = new ConTrollLocations(api);
 	
 	api.handleAuth();
 	return ConTroll;

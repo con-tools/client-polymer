@@ -1,0 +1,165 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-location-list">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	</style>
+	
+	<template is="dom-repeat" items="{{locations}}" as="location">
+	
+		<paper-item>
+			<div>
+				<paper-input name="title" label="Title" value="{{location.title}}"
+						 on-value-changed="allowLocationUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-input name="area" label="Area" value="{{location.area}}"
+						on-value-changed="allowLocationUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-input name="max-attendees" label="Max Attendees" value="{{location.max_attendees}}"
+						type="number" min="1" max="500" on-value-changed="allowLocationUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button icon="check" title="Apply" disabled="{{location.preventUpdate}}"
+					on-tap="applyUpdateLocation"></paper-icon-button>
+			</div>
+			<div>
+				<paper-icon-button icon="clear" title="Remove" on-tap="removeLocation"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+		
+	<paper-item>
+		<paper-button raised on-tap="addLocation"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+	</paper-item>
+	
+	<paper-dialog id="addLocationDialog">
+		<paper-item>
+			<div>
+				<paper-input label="Title" id="addLocationTitle"></paper-input>
+			</div>
+			<div>
+				<paper-input label="Area" id="addLocationArea"></paper-input>
+			</div>
+			<div>
+				<paper-input label="Max Attendees" type="number" min="1" max="500" id="addLocationMax"></paper-input>
+			</div>
+		</paper-item>
+		<paper-item>
+			<paper-button on-tap="approveAddLocation" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button on-tap="cancelAddLocation" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+			
+	<paper-dialog id="confirmDeleteDialog">
+		<h2>Are you sure you want to delete location "{{titleToDelete}}"?</h2>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="reallyDeleteLocation" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="closeDeleteDialog" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
+
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-location-list',
+	Properties : {
+		locations: {
+			type: Array,
+			readonly: true,
+			notify: true,
+			observer: '_updatedLocationList'
+		}
+	},
+	
+	ready : function() {
+		ConTroll.locations.catalog((function(locations){
+			this.set('locations', locations.map(function(location){
+				var loaded_data = {};
+				for (var field in location) {
+					safe_field = field.replace(/-/g,'_');
+					loaded_data[field] = location[field];
+					if (field != safe_field) {
+						loaded_data[safe_field] = location[field];
+						location[safe_field] = location[field];
+					}
+				}
+				location.loaded_data = loaded_data;
+				location.preventUpdate = true;
+				return location;
+			}));
+		}).bind(this));
+	},
+	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+
+	_updateLocationList: function(event) {
+	},
+	
+	allowLocationUpdate : function(event) {
+		if (!event.model.location)
+			return;
+		var preventUpdate = true;
+		for (var field in event.model.location.loaded_data) {
+			if (event.model.location.loaded_data[field] != event.model.location[field])
+				preventUpdate = false;
+		}
+		event.model.set('location.preventUpdate',preventUpdate);
+	},
+	
+	addLocation : function() {
+		this.$.addLocationTitle.value = null;
+		this.$.addLocationArea.value = null;
+		this.$.addLocationMax.value = null;
+		this.$.addLocationDialog.toggle();
+	},
+	
+	cancelAddLocation : function() {
+		this.$.addLocationDialog.toggle();
+	},
+	
+	approveAddLocation : function() {
+		this.$.addLocationDialog.toggle();
+		ConTroll.locations.add(this.$.addLocationTitle.value,
+				this.$.addLocationArea.value,
+				this.$.addLocationMax.value,
+				this.ready.bind(this)
+				);
+	},
+	
+	applyUpdateLocation : function(event) {
+		var loc = event.model.location;
+		ConTroll.locations.update(loc.slug, loc.title, log.area, loc.max_attendees, this.ready.bind(this));
+	},
+	
+	removeLocation : function(event) {
+		this.titleToDelete = event.model.location.title
+		this.slugToDelete = event.model.location.slug;
+		this.$.confirmDeleteDialog.toggle();
+	},
+	
+	reallyDeleteLocation : function() {
+		this.$.confirmDeleteDialog.toggle();
+		this.titleToDelete = null;
+		ConTroll.locations.remove(this.slugToDelete, this.ready.bind(this));
+		this.slugToDelete = null;
+	},
+	
+	closeDeleteDialog : function() {
+		this.$.confirmDeleteDialog.toggle();
+	}
+});
+</script>
