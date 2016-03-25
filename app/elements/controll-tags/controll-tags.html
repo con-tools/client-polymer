@@ -1,0 +1,181 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-tags">
+	<template>
+		<style>
+		:host {
+			display: block;
+		}
+		
+		span { 
+			@apply (--paper-font-body1);
+		}
+		
+		paper-item div {
+			margin: 0 1em 0;
+		}
+		
+		.flex-horizontal { 
+			@apply (--layout-horizontal);
+		}
+		
+		.flexchild { 
+			@apply (--layout-flex);
+		}
+		
+		paper-menu {
+			width: 12em;
+		}
+		</style>
+
+		<template is="dom-repeat" items="{{items}}" observe="{{items.*}}"> 
+			<paper-item>
+				<div>
+					<paper-input label="Title" value="{{item.title}}" on-value-changed="allowTagTypeUpdate"></paper-input>
+				</div>
+				<div>
+					<paper-dropdown-menu label="Required?" horizontal-align="left">
+					<paper-menu class="dropdown-content" attr-for-selected="value" 
+							selected="{{item.requirement}}" on-selected-changed="allowTagTypeUpdate">
+						<paper-item value="1">Required One</paper-item>
+						<paper-item value="+">One or More</paper-item>
+						<paper-item value="*">Any (Optional)</paper-item>
+					</paper-menu>
+					</paper-dropdown-menu>
+				</div>
+				<div>
+					<paper-checkbox checked="{{item.public}}" on-tap="allowTagTypeUpdate"> public</paper-checkbox>
+				</div>
+				<div>
+					<paper-icon-button icon="check" title="Apply" id="updateTagType" disabled="{{item.preventUpdate}}" on-tap="applyUpdateTagType"></paper-icon-button>
+				</div>
+				<div>
+					<paper-icon-button icon="clear" title="Remove" on-tap="removeTagType"></paper-icon-button>
+				</div>
+				<div>
+					<paper-button raised title="Edit Values" on-tap="gotoEditValues">{{item.values.length}} Values</paper-button>
+				</div>
+			</paper-item>
+		</template>
+		
+		<paper-item>
+			<paper-button raised on-tap="addTagType"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+		</paper-item>
+		
+		<paper-dialog id="addTagTypeDialog">
+			<paper-item>
+				<div>
+					<paper-input label="Title" id="addTagTypeTitle"></paper-input>
+				</div>
+				<div>
+					<paper-dropdown-menu label="Required?" horizontal-align="left">
+					<paper-menu class="dropdown-content" id="addTagTypeRequirement">
+						<paper-item value="1">Required One</paper-item>
+						<paper-item value="+">One or More</paper-item>
+						<paper-item value="*">Any (Optional)</paper-item>
+					</paper-menu>
+					</paper-dropdown-menu>
+				</div>
+				<div>
+					<paper-checkbox checked id="addTagTypePublic"> public</paper-checkbox>
+				</div>
+			</paper-item>
+			<paper-item>
+				<paper-button on-tap="approveAddTagType" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+				<paper-button on-tap="cancelAddTagType" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+			</paper-item>
+		</paper-dialog>
+		
+		<paper-dialog id="confirmDeleteDialog">
+			<h2>Are you sure you want to delete custom field "{{titleToDelete}}"?</h2>
+			<paper-item class="container flex-horizontal">
+				<paper-button class="flexchild" on-tap="reallyDeleteTagType" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+				<paper-button class="flexchild" on-tap="closeDeleteDialog" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+			</paper-item>
+		</paper-dialog>
+	</template>
+	
+	<script>
+	(function() {
+		'use strict';
+
+		Polymer({
+			is : 'controll-tags',
+
+			properties : {
+				items : {
+					type : Array,
+					notify : true,
+				}
+			},
+
+			ready : function() {
+				ConTroll.tags.catalog((function(tags) {
+					this.items = tags.map(function(tag){
+						tag.preventUpdate = true;
+						tag.loaded_data = {
+								title: tag.title,
+								"public": tag["public"],
+								requirement: tag.requirement
+						};
+						return tag;
+					});
+				}).bind(this));
+			},
+			
+			attached : function() {
+				app.addEventListener('reload-tag-types', this.ready.bind(this), false);
+			},
+			
+			allowTagTypeUpdate : function(event) {
+				event.model.set('item.preventUpdate',false);
+			},
+			
+			applyUpdateTagType : function(event) {
+				var it = event.model.item;
+				ConTroll.tags.updateType(it.loaded_data.title, it.title, it.requirement, it['public'], this.ready.bind(this));
+			},
+			
+			addTagType: function() {
+				this.$.addTagTypeDialog.toggle();
+			},
+			
+			approveAddTagType : function(event){
+				if (!this.$.addTagTypeTitle.value) return;
+				this.$.addTagTypeDialog.toggle();
+				ConTroll.tags.addType(this.$.addTagTypeTitle.value, this.$.addTagTypeRequirement.value, 
+						this.$.addTagTypePublic.checked, this.ready.bind(this));
+			},
+			
+			cancelAddTagType : function(event){
+				this.$.addTagTypeTitle.value = '';
+				this.$.addTagTypeRequirement.selected = null;
+				this.$.addTagTypePublic.checked = true;
+				this.$.addTagTypeDialog.toggle();
+			},
+			
+			removeTagType : function(event) {
+				event.model.item.allowUpdate = true;
+				this.titleToDelete = event.model.item.title;
+				this.$.confirmDeleteDialog.toggle();
+			},
+			
+			reallyDeleteTagType : function(event) {
+				this.$.confirmDeleteDialog.toggle();
+				var toDelete = this.titleToDelete;
+				this.titleToDelete = null; // don't delete anything else by mistake
+				ConTroll.tags.deleteType(toDelete, this.ready.bind(this));
+			},
+			
+			closeDeleteDialog: function(event) {
+				this.$.confirmDelete.toggle();
+			},
+			
+			gotoEditValues : function(event) {
+				page.show('/tags/' + event.model.item.title);
+			}
+		});
+	})();
+	</script>
+</dom-module>

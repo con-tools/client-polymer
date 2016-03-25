@@ -41,31 +41,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       next();
     });
 
-    page('/', function() {
-      app.route = 'home';
-      setFocus(app.route);
-    });
-
     page(app.baseUrl, function() {
       app.route = 'home';
       setFocus(app.route);
     });
 
-    page('/users', function() {
-      app.route = 'users';
-      setFocus(app.route);
-    });
+    page('/', function() {
+        app.route = 'home';
+        setFocus(app.route);
+      });
 
-    page('/users/:name', function(data) {
-      app.route = 'user-info';
-      app.params = data.params;
-      setFocus(app.route);
-    });
+    page('/home', function() {
+        app.route = 'home';
+        setFocus(app.route);
+      });
 
-    page('/contact', function() {
-      app.route = 'contact';
-      setFocus(app.route);
-    });
+    page('/tags', function() {
+        app.route = 'tags';
+        setFocus(app.route);
+      });
+
+    page('/tags/:title', function(data) {
+        app.route = 'tag-values';
+        app.params = data.params;
+        setFocus(app.route);
+      });
+
+    page('/events', function() {
+        app.route = 'events';
+        setFocus(app.route);
+      });
+
+    page('/events/:id', function(data) {
+        app.route = 'event-form';
+        app.params = data.params;
+        setFocus(app.route);
+      });
+
+    page('/managers', function() {
+        app.route = 'managers';
+        setFocus(app.route);
+      });
+
+    page('/locations', function() {
+        app.route = 'locations';
+        setFocus(app.route);
+      });
+
+    page('/scheduling', function() {
+        app.route = 'scheduling';
+        setFocus(app.route);
+      });
 
     // 404
     page('*', function() {

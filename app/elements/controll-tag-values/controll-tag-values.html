@@ -1,0 +1,150 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-tag-values">
+
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	
+	paper-item div {
+		margin: 0 1em 0;
+	}
+	
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+		
+	</style>
+	
+	<template is="dom-repeat" items="{{values}}"> 
+		<paper-item>
+			<div>
+				<paper-input label="value" value="{{item.value}}" on-value-changed="allowValueUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button icon="check" title="Apply" id="updateTagType" disabled="{{item.preventUpdate}}" 
+						on-tap="updateValue"></paper-icon-button>
+			</div>
+			<div>
+				<paper-icon-button icon="clear" title="Remove" on-tap="removeTagValue"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+	
+	<paper-item class="container flex-horizontal">
+		<paper-button raised on-tap="toggleAddTagValue"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+		<paper-button raised on-tap="gotoTagTypes"><iron-icon icon="done"></iron-icon>Close</paper-button>
+	</paper-item>
+
+	<paper-dialog id="addTagValueDialog">
+		<paper-item>
+			<div>
+				<paper-input label="Value" id="addTagValue"></paper-input>
+			</div>
+		</paper-item>
+		<paper-item>
+			<paper-button on-tap="approveAddTagValue" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button on-tap="toggleAddTagValue" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmDeleteDialog">
+		<h2>Are you sure you want to delete custom field value "{{valueToDelete}}"?</h2>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="reallyDeleteTagValue" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="closeDeleteDialog" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+</template>
+
+</dom-module>
+
+<script>
+Polymer({
+
+	is : 'controll-tag-values',
+	
+	properties : {
+
+		tagType : {
+			type: String,
+			observer: '_updateTitle'
+		},
+		values : {
+			type : Array,
+			notify : true,
+		}
+
+	},
+	
+	ready : function(values) {
+		this.values = (values || [ ]).map(function(value){
+			return {
+				value: value,
+				loaded_value: value,
+				preventUpdate: true
+			}
+		});
+	},
+	
+	handleTagTypeLoaded : function(tagtype) {
+		this.ready(tagtype.values);
+		app.fire('reload-tag-types');
+	},
+	
+	_updateTitle : function() {
+		ConTroll.tags.getType(this.tagType, this.handleTagTypeLoaded.bind(this));
+	},
+	
+	allowValueUpdate : function(event) {
+		event.model.set('item.preventUpdate',false);
+	},
+	
+	updateValue : function(event) {
+		var it = event.model.item;
+		ConTroll.tags.replaceValue(this.tagType, it.loaded_value, it.value, this.handleTagTypeLoaded.bind(this));
+	},
+	
+	toggleAddTagValue : function() {
+		this.$.addTagValue.value = null;
+		this.$.addTagValueDialog.toggle();
+	},
+	
+	approveAddTagValue : function() {
+		this.$.addTagValueDialog.toggle();
+		var newval = this.$.addTagValue.value;
+		ConTroll.tags.addValue(this.tagType, newval, this.handleTagTypeLoaded.bind(this));
+	},
+	
+	removeTagValue : function(event) {
+		this.valueToDelete = event.model.get('item.value');
+		this.$.confirmDeleteDialog.toggle();
+	},
+	
+	closeDeleteDialog : function() {
+		this.valueToDelete = null;
+		this.$.confirmDeleteDialog.toggle();
+	},
+	
+	reallyDeleteTagValue : function() {
+		this.$.confirmDeleteDialog.toggle();
+		var delval = this.valueToDelete;
+		this.valueToDelete = null;
+		ConTroll.tags.deleteValue(this.tagType, delval, this.handleTagTypeLoaded.bind(this));
+	},
+	
+	gotoTagTypes : function() {
+		page.show('/tags');
+	}
+	
+});
+</script>

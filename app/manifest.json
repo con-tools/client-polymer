@@ -1,6 +1,6 @@
 {
-  "name": "Polymer Starter Kit",
-  "short_name": "Polymer Starter Kit",
+  "name": "ConTroll Management",
+  "short_name": "con-troll",
   "icons": [{
         "src": "images/touch/icon-72x72.png",
         "sizes": "72x72",

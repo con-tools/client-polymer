@@ -1,0 +1,35 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-event-list">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	</style>
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-event-list',
+	properties : {
+		events : {
+			type: Array,
+			observer: '_updateEvents'
+		}
+	},
+	
+	ready : function(values) {
+		/*ConTroll.events.catalog(function(events){
+			this.events = events;
+		});*/
+	},
+	
+	_updateEvents : function() {
+		consoloe.log('On update events happened');
+	}
+});
+</script>
