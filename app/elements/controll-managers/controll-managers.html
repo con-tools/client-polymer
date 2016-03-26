@@ -82,7 +82,7 @@ Polymer({
 	
 	ready : function(event) {
 		console.log("Loading managers");
-		ConTroll.managers.catalog(this.showManagers.bind(this));
+		app.getCatalog('managers', this.showManagers.bind(this));
 	},
 	
 	showManagers : function(managers) {
@@ -104,7 +104,7 @@ Polymer({
 		this.set('users', null);
 		this.set('usersName', null);
 		this.set('usersEmails', null);
-		ConTroll.users.catalog(function(users){
+		app.getCatalog('users', function(users){
 			console.log("Listing users, got",users.length);
 			this.set('users', users);
 			this.set('usersNames', users.map(function(user){
@@ -149,6 +149,7 @@ Polymer({
 		this.$.addManagerDialog.toggle();
 		if (!this.userIdToAdd)
 			return;
+		app.invalidateCatalog('managers');
 		ConTroll.managers.add({id: this.userIdToAdd}, this.ready.bind(this));
 	},
 	
@@ -169,6 +170,7 @@ Polymer({
 	
 	approveDeleteManager : function() {
 		this.$.confirmRemoveManager.toggle();
+		app.invalidateCatalog('managers');
 		ConTroll.managers.remove(this.get('managerId'), this.ready.bind(this));
 	}
 });
