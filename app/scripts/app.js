@@ -1,5 +1,42 @@
 (function(document) {
 	'use strict';
+	
+	var Catalog = function(catalogName) {
+		this.catalog = catalogName;
+		this.callbacks = [];
+		this.content = null;
+	};
+	
+	Catalog.prototype.get = function(callback) {
+		if (this.content) {
+			// locally cache content in case we get an invalidation before we can delivery
+			var localContent = this.content;
+			window.setTimeout(function(){ callback(localContent); },0);
+			return;
+		}
+		
+		if (this.callbacks.length > 0) { // already someone waiting, lets wait as well
+			this.callbacks.push(callback);
+			return;
+		}
+		
+		this.callbacks.push(callback);
+		ConTroll[this.catalog].catalog(this.handleCallback.bind(this));
+	};
+	
+	Catalog.prototype.handleCallback = function(content) {
+		this.content = content;
+		this.callbacks.forEach(function(callback){
+			callback(content);
+		});
+		this.callbacks = [];
+	}
+	
+	Catalog.prototype.invalidate = function() {
+		this.content = null;
+		this.callbacks = [];
+	};
+	
 	var app = document.querySelector('#app');
 	app.baseUrl = '/';
 	// Listen for template bound event to know when bindings
@@ -55,13 +92,17 @@
 	
 	app.sendRefreshEvent = function() {
 	  console.log("Refreshing from server");
+	  // first invalidate catalog caches
+	  for (catalog in app.controllCatalogs)
+		  app.controllCatalogs[catalog].invalidate();
 	  app.fire('please-refresh-lists');
 	};
 	
 	app.controllCatalogs = {};
-	app.getCatalog(catalog, callback) {
-		
-	}
+	app.getCatalog = function(catalog, callback) {
+		if (!this.controllCatalogs[catalog]) this.controllCatalogs[catalog] = new Catalog(catalog);
+		this.controllCatalogs[catalog].get(callback);
+	};
 
 	ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ');
 	ConTroll.ifAuth(function(){
