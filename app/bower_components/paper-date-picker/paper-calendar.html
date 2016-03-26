@@ -587,6 +587,7 @@
         this._incrMonth(1);
       },
       _dateChanged: function(date, oldValue) {
+        this.__inDatechanged = true;
         if (!this._isValidDate(date)) {
           console.warn('Invalid date: ' + date);
           this.date = date = oldValue;
@@ -600,11 +601,16 @@
         if (oldValue && date.getTime && oldValue.getTime && date.getTime() === oldValue.getTime()) {
           return;
         }
+        if (this.__inDatechanged) { // avoid stack overflow
+        	this.__inDatechanged = false;
+        	return;
+        }
         // clone the date object so as not to have unintended effects on bindings
         date = new Date(date.getTime());
         date.setHours(0, 0, 0, 0);
         this.set('date', date);
         this._updateSelection();
+        this.__inDatechanged = false;
       },
       _tapDay: function(event) {
         if (!this._withinValidRange(event.model.item.date)) {
