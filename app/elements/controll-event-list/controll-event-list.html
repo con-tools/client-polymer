@@ -186,7 +186,7 @@ Polymer({
 		});
 	},
 	
-	removeLocation : function(event) {
+	removeEvent : function(event) {
 		this.titleToDelete = event.model.event.title;
 		this.eventToDelete = event.model.event.id;
 		this.$.confirmDeleteDialog.toggle();
@@ -195,6 +195,7 @@ Polymer({
 	approveDeleteEvent : function() {
 		this.$.confirmDeleteDialog.toggle();
 		this.titleToDelete = null;
+		app.invalidateCatalog('events');
 		ConTroll.events.remove(this.eventToDelete, this.ready.bind(this));
 		this.eventToDelete = null;
 	},
