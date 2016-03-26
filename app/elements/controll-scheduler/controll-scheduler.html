@@ -2,6 +2,24 @@
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
 <dom-module id="controll-scheduler">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	</style>
+</template>
 </dom-module>
 
 <Script>

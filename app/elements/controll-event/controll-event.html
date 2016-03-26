@@ -24,6 +24,9 @@
 	}
 	paper-material {
 		padding: .7em .2em;
+		margin: 1em 0.2em;
+	}
+	iron-collapse {
 		margin: 1em 0;
 	}
 	</style>
@@ -103,6 +106,88 @@
 	</paper-item>
 	</paper-material>
 	
+	<paper-material elevation="1">
+		<paper-item>
+			<h3>Schedule:</h3>
+		</paper-item>
+		<template is="dom-repeat" items="[[eventTimeslots]]" as="timeslot">
+			<paper-material elevation="2">
+				<paper-item class="container flex-horizontal">
+				<div>
+					<strong>Start Time:</strong>
+					<span>[[timeslot.displayTime]]</span>
+					<strong>Duration:</strong>
+					<span>[[timeslot.duration]] minutes</span>
+				</div>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<div class="flexchild"><strong>Locations:</strong>
+				<template is="dom-repeat" items="[[timeslot.locations]]" as="location">
+					<span>[[location.title]]</span>
+				</template>
+				</div>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<div class="flexchild"><strong>Hosts:</strong>
+				<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
+					<span>[[host.name]]</span>
+				</template>
+				</div>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot"></paper-icon-button>
+				</paper-item>
+			</paper-material>
+		</template>
+		
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="addTimeslot"><iron-icon icon="today"></iron-icon>Add Schedule</paper-button>
+		</paper-item>
+		
+		<iron-collapse id="addTimeslotDialog">
+			<paper-item>
+				<iron-label>
+					Schedule Time:
+					<paper-datetime-input id="addTimeslotTime" value="[[conventionProperties.start_date]]"></paper-datetime-input>
+					<paper-input id="addTimeslotDuration" label="Duration" class="short-field" type="number" min="30"
+						value="{{event.duration}}"><div prefix> minutes</div></paper-input>
+				</iron-label>
+			</paper-item>
+				<h4>Locations:</h4>
+				<template is="dom-repeat" items="{{addTimeslotLocations}}" as="location">
+					<paper-item>
+						<div>{{location.title}}</div>
+						<div>
+							<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslotLocation"></paper-icon-button>
+						</div>
+					</paper-item>
+				</template>
+				<paper-item>
+					<vaadin-combo-box style="width: 30em;" label="Available Locations" id="timestampLocationList" items="[[locations]]"
+							item-value-path="slug" item-label-path="title" on-value-changed="pushTimeslotLocations"></vaadin-combo-box>
+				</paper-item>
+			<paper-item>
+			</paper-item>
+				<h4>Hosts:</h4>
+				<template is="dom-repeat" items="{{addTimeslotHosts}}" as="host">
+					<paper-item>
+						<div>{{host.name}}</div>
+						<div>&lt;{{host.email}}&gt;</div>
+						<div>
+							<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslotHost"></paper-icon-button>
+						</div>
+					</paper-item>
+				</template>
+				<paper-item>
+					<vaadin-combo-box style="width: 30em;" label="Available Users" id="timeslotHostList" items="[[hosts]]"
+							item-value-path="email" item-label-path="label" on-value-changed="pushTimeslotHosts"></vaadin-combo-box>
+				</paper-item>
+			<paper-item>
+			<div class="buttons">
+				<paper-button raised on-tap="cancelAddTimeslot">Cancel</paper-button>
+				<paper-button raised on-tap="approveAddTimeslot">OK</paper-button>
+			</div> 
+			</paper-item>
+		</iron-collapse>
+	</paper-material>
+	
 </template>
 </dom-module>
 
@@ -132,10 +217,25 @@ Polymer({
 			        { value: '5', label: 'Approved' },
 			        { value: '6', label: 'Cancelled' }
 			]
+		},
+		eventTimeslots : Array,
+		conventionProperties: Object,
+		locations: Array,
+		hosts: Array,
+		addTimeslotLocations : {
+			type: Array,
+			value: function() { return new Array(); }
+		},
+		addTimeslotHosts : {
+			type: Array,
+			value: function() { return new Array(); }
 		}
 	},
 	
 	ready : function() {
+		ConTroll.conventions.getCurrent((function(con){
+			this.conventionProperties = app.dejsonify(con);
+		}).bind(this));
 	},
 	
 	attached : function() {
@@ -159,6 +259,7 @@ Polymer({
 		}
 		this.set('event', eventData);
 		app.getCatalog('tags',this.populateTags.bind(this));
+		this.loadSchedule(eventData);
 	},
 	
 	populateTags : function(tagtypes) {
@@ -178,9 +279,29 @@ Polymer({
 		}));
 	},
 	
+	loadSchedule: function(event) {
+		ConTroll.timeslots.forEvent(event.id, this.populateSchedule.bind(this));
+	},
+	
+	populateSchedule : function(timeslots) {
+		this.set('eventTimeslots', timeslots.map(function(timeslot){
+			timeslot.displayTime = moment(timeslot.start).format('MMM Do YYYY, HH:mm');
+			return timeslot;
+		}));
+	},
+	
 	_updateEventForm : function() {
 		console.log('Loading event data for',this.get('eventId'));
-		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this))
+		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this));
+		app.getCatalog('locations', (function(locations){
+			this.set('locations', locations);
+		}).bind(this));
+		app.getCatalog('users', (function(users){
+			this.set('hosts', users.map(function(user){
+				user.label = user.name + ' <' + user.email + '>';
+				return user;
+			}));
+		}).bind(this));
 	},
 	
 	updateEvent : function(event) {
@@ -211,6 +332,70 @@ Polymer({
 		
 		console.log('Event data:',formdata);
 		ConTroll.events.update(this.event.id, formdata, this.gotoEvents.bind(this));
+	},
+	
+	addTimeslot : function() {
+		this.$.addTimeslotDialog.toggle();
+	},
+	
+	pushTimeslotLocations : function(event){
+		var locval = this.$.timestampLocationList.value;
+		if (!this.addTimeslotLocations || !locval) return;
+		if (!this.addTimeslotLocations.find(function(loc){return loc.slug == locval;})) { // not already there
+			this.push('addTimeslotLocations', this.locations.find(function(loc){
+				return loc.slug == locval;
+			}));
+		}
+		window.setTimeout((function(){
+			this.$.timestampLocationList.value = null;
+		}).bind(this),100);
+	},
+	
+	removeTimeslotLocation : function(event) {
+		var loctoremove = this.addTimeslotLocations.indexOf(event.model.location);
+		this.splice('addTimeslotLocations', loctoremove, 1);
+	},
+	
+	pushTimeslotHosts : function(event) {
+		var hostval = this.$.timeslotHostList.value;
+		if (!this.addTimeslotHosts || !hostval) return;
+		if (!this.addTimeslotHosts.find(function(host){return host.email == hostval;})) { // not already there
+			this.push('addTimeslotHosts', this.hosts.find(function(host){
+				return host.email == hostval;
+			}));
+		}
+		window.setTimeout((function(){
+			this.$.timeslotHostList.value = null;
+		}).bind(this),100);
+	},
+	
+	removeTimeslotHost : function(event) {
+		var hosttoremove = this.addTimeslotHosts.indexOf(event.model.host);
+		this.splice('addTimeslotHosts', hosttoremove, 1);
+	},
+	
+	approveAddTimeslot : function(event) {
+		var start_time = this.$.addTimeslotTime.value;
+		var duration = this.$.addTimeslotDuration.value;
+		var locations = this.addTimeslotLocations.map(function(loc){
+			return loc.slug;
+		});
+		var hosts = this.addTimeslotHosts.map(function(host){
+			return host.email;
+		});
+		ConTroll.timeslots.create(this.event.id, start_time, duration, locations, hosts, this._updateEventForm.bind(this));
+		this.cancelAddTimeslot(); // clear form
+	},
+	
+	cancelAddTimeslot : function(event) {
+		this.$.addTimeslotTime.value = this.conventionProperties.start_date;
+		this.set('addTimeslotLocations', []);
+		this.set('addTimeslotHosts', []);
+		this.$.addTimeslotDialog.toggle();
+	},
+	
+	removeTimeslot : function(event) {
+		ConTroll.timeslots.remove(event.model.timeslot.id, this._updateEventForm.bind(this));
 	},
 	
 	gotoEvents : function() {
