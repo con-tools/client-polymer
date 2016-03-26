@@ -112,7 +112,7 @@
 
 			ready : function() {
 				console.log("Loading tag types");
-				app.getcatalog('tags', (function(tags) {
+				app.getCatalog('tags', (function(tags) {
 					this.items = tags.map(function(tag){
 						tag.preventUpdate = true;
 						tag.loaded_data = {
