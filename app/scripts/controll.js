@@ -303,6 +303,26 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * ConTroll Time Slots API
+	 * @param ConTroll api
+	 */
+	var ConTrollTimeslots = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'timeslots'};
+		return this;
+	};
+	
+	ConTrollTimeslots.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll Locations API
 	 * @param ConTroll api
 	 */
