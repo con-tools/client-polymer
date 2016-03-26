@@ -132,6 +132,8 @@
 	app.invalidateCatalog = function(catalog) {
 		app.controllCatalogs[catalog].invalidate();
 	};
+	
+	app.dejsonify = Catalog.prototype.dejsonify; // expose to other modules
 
 	ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ');
 	ConTroll.ifAuth(function(){
