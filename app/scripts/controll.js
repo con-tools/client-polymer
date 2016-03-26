@@ -333,15 +333,17 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTimeslots.prototype.create = function(event_id, start_time, duration, locations, hosts, callback) {
-		this.api.create(this.collection,{
-			event: event_id,
-			start: parseInt(start_time.getTime()/1000),
-			duration: duration,
-			locations: locations,
-			hosts: hosts.map(function(email){
+		var data = {
+				event: event_id,
+				start: parseInt(start_time.getTime()/1000),
+				duration: duration,
+				locations: locations
+			};
+		if (hosts && hosts.length > 0)
+			data.hosts = hosts.map(function(email){
 				return { email: email };
-			})
-		}, function(res, err){
+			});
+		this.api.create(this.collection, data, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
