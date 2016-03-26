@@ -103,6 +103,9 @@
 		if (!this.controllCatalogs[catalog]) this.controllCatalogs[catalog] = new Catalog(catalog);
 		this.controllCatalogs[catalog].get(callback);
 	};
+	app.invalidateCatalog = function(catalog) {
+		app.controllCatalogs[catalog].invalidate();
+	}
 
 	ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ');
 	ConTroll.ifAuth(function(){
