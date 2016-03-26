@@ -84,22 +84,24 @@ Polymer({
 	},
 	
 	ready : function() {
-		ConTroll.locations.catalog((function(locations){
-			this.set('locations', locations.map(function(location){
-				var loaded_data = {};
-				for (var field in location) {
-					safe_field = field.replace(/-/g,'_');
-					loaded_data[field] = location[field];
-					if (field != safe_field) {
-						loaded_data[safe_field] = location[field];
-						location[safe_field] = location[field];
-					}
+		app.getCatalog('locations', this.populateLocations.bind(this));
+	},
+	
+	populateLocations : function(locations) {
+		this.set('locations', locations.map(function(location){
+			var loaded_data = {};
+			for (var field in location) {
+				safe_field = field.replace(/-/g,'_');
+				loaded_data[field] = location[field];
+				if (field != safe_field) {
+					loaded_data[safe_field] = location[field];
+					location[safe_field] = location[field];
 				}
-				location.loaded_data = loaded_data;
-				location.preventUpdate = true;
-				return location;
-			}));
-		}).bind(this));
+			}
+			location.loaded_data = loaded_data;
+			location.preventUpdate = true;
+			return location;
+		}));
 	},
 	
 	attached : function() {
@@ -133,6 +135,7 @@ Polymer({
 	
 	approveAddLocation : function() {
 		this.$.addLocationDialog.toggle();
+		app.invalidateCatalog('locations');
 		ConTroll.locations.add(this.$.addLocationTitle.value,
 				this.$.addLocationArea.value,
 				this.$.addLocationMax.value,
@@ -142,6 +145,7 @@ Polymer({
 	
 	applyUpdateLocation : function(event) {
 		var loc = event.model.location;
+		app.invalidateCatalog('locations');
 		ConTroll.locations.update(loc.slug, loc.title, log.area, loc.max_attendees, this.ready.bind(this));
 	},
 	
@@ -154,6 +158,7 @@ Polymer({
 	reallyDeleteLocation : function() {
 		this.$.confirmDeleteDialog.toggle();
 		this.titleToDelete = null;
+		app.invalidateCatalog('locations');
 		ConTroll.locations.remove(this.slugToDelete, this.ready.bind(this));
 		this.slugToDelete = null;
 	},
