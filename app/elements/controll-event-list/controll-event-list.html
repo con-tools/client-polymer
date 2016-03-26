@@ -27,8 +27,13 @@
 	.short-field {
 		width: 10em;
 	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
 	</style>
 	
+	<paper-material elevation="1">
 	<template is="dom-repeat" items="{{events}}" as="event">
 		<paper-item class="container flex-horizontal">
 			<paper-item class="flexchild">
@@ -45,10 +50,13 @@
 			</div>
 		</paper-item>
 	</template>
+	</paper-material>
 	
+	<paper-material elevation="1">
 	<paper-item>
 		<paper-button raised on-tap="addEvent"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
 	</paper-item>
+	</paper-material>
 	
 	<paper-dialog id="addEventDialog">
 		<paper-item>
