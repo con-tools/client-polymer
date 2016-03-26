@@ -21,6 +21,12 @@
 	.large-field {
 		width: 100%;
 	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
 	</style>
 	
 	<template is="dom-repeat" items="{{events}}" as="event">
@@ -34,8 +40,51 @@
 			<div>
 				<paper-icon-button title="Edit" icon="create" on-tap="gotoEditEvent"></paper-icon-button>
 			</div>
+			<div>
+				<paper-icon-button icon="clear" title="Remove" on-tap="removeEvent"></paper-icon-button>
+			</div>
 		</paper-item>
 	</template>
+	
+	<paper-item>
+		<paper-button raised on-tap="addEvent"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+	</paper-item>
+	
+	<paper-dialog id="addEventDialog">
+		<paper-item>
+			<paper-input class="large-field" label="Title" id="addEventTitle"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" label="Teaser" id="addEventTeaser"></paper-textarea>
+		</paper-item>
+		<paper-item>
+			<paper-input label="Duration" class="short-field" id="addEventDuration" type="number" min="30">
+				<div suffix>minutes</div>
+			</paper-input>
+		</paper-item>
+		<paper-item>
+			<div>
+			<vaadin-combo-box label="Name" id="addOwnerName" items="[[usersNames]]" 
+					on-value-changed="syncAddEventForm"></vaadin-combo-box>
+			</div>
+			<div>
+			<vaadin-combo-box label="E-Mail" id="addOwnerEmail" items="[[usersEmails]]" 
+					on-value-changed="syncAddEventForm"></vaadin-combo-box>
+			</div>
+		</paper-item>
+		<paper-item>
+			<paper-button on-tap="approveAddEvent" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button on-tap="cancelAddEvent" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmDeleteDialog">
+		<h2>Are you sure you want to delete event "{{titleToDelete}}"?</h2>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="approveDeleteEvent" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="closeDeleteDialog" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
 	
 </template>
 </dom-module>
@@ -52,7 +101,7 @@ Polymer({
 	
 	ready : function(event) {
 		console.log("Loading events");
-		ConTroll.events.catalog(this.populateEvents.bind(this));
+		app.getCatalog('events', this.populateEvents.bind(this));
 	},
 	
 	populateEvents : function(events) {
@@ -69,6 +118,90 @@ Polymer({
 	
 	gotoEditEvent : function(event) {
 		page.show('/events/' + event.model.event.id);
+	},
+	
+	addEvent : function(){
+		this.addEventOwnerId = null;
+		this.$.addOwnerEmail.value = null;
+		this.$.addOwnerName.value = null;
+		this.$.addEventTitle.value = null;
+		this.$.addEventTeaser.value = null;
+		this.$.addEventDuration.value = null;
+		this.set('users', null);
+		this.set('usersName', null);
+		this.set('usersEmails', null);
+		app.getCatalog('users', function(users){
+			console.log("Listing users, got",users.length);
+			this.set('users', users);
+			this.set('usersNames', users.map(function(user){
+				return user.name;
+			}));
+			this.set('usersEmails', users.map(function(user){
+				return user.email;
+			}));
+			this.$.addEventDialog.toggle();
+		}.bind(this));
+	},
+	
+	syncAddEventForm : function(event) {
+		if (!this.users || (!this.$.addOwnerName.value && !this.$.addOwnerEmail.value)) // could happen during init
+			return;
+		if (this.addEventOwnerId)
+			return;
+		var inputElId = event.target.id;
+		var value = event.target.value;
+		var user = this.users.find(function(user){
+			return (inputElId == 'addOwnerName' && user.name == value) ||
+					(inputElId == 'addOwnerEmail' && user.email == value);
+		});
+		
+		if (!user) { // not found, clear everything and leave
+			this.$.addOwnerName.value = null;
+			this.$.addOwnerEmail.value = null;
+			this.addEventOwnerId = null;
+			return;
+		}
+		
+		// store value for add
+		this.addEventOwnerId = user.id;
+		// sync found user between comboboxes
+		if (inputElId == 'addOwnerName' && this.$.addOwnerEmail.value != user.email)
+			this.$.addOwnerEmail.value = user.email;
+		else if (inputElId == 'addOwnerEmail' && this.$.addOwnerName.value != user.name)
+			this.$.addOwnerName.value = user.name;
+	},
+	
+	cancelAddEvent : function() {
+		this.$.addEventDialog.toggle();
+	},
+	
+	approveAddEvent : function() {
+		this.$.addEventDialog.toggle();
+		ConTroll.events.create(this.$.addEventTitle.value, this.$.addEventTeaser.value || '',
+				parseInt(this.$.addEventDuration.value), this.addEventOwnerId, function(event){
+			if (event.status)
+				page.show('/events/' + event.id);
+			else
+				alert(event.error);
+		});
+	},
+	
+	removeLocation : function(event) {
+		this.titleToDelete = event.model.event.title;
+		this.eventToDelete = event.model.event.id;
+		this.$.confirmDeleteDialog.toggle();
+	},
+	
+	approveDeleteEvent : function() {
+		this.$.confirmDeleteDialog.toggle();
+		this.titleToDelete = null;
+		ConTroll.events.remove(this.eventToDelete, this.ready.bind(this));
+		this.eventToDelete = null;
+	},
+	
+	closeDeleteDialog : function() {
+		this.$.confirmDeleteDialog.toggle();
 	}
+
 });
 </script>
