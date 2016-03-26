@@ -36,6 +36,5 @@
   },
   "_source": "git://github.com/eumendoza/paper-input-tags.git",
   "_target": "^1.0.0",
-  "_originalSource": "paper-input-tags",
-  "_direct": true
+  "_originalSource": "paper-input-tags"
 }

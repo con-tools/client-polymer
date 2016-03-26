@@ -10,10 +10,18 @@
     "polymer": "Polymer/polymer#^1.2.0",
     "vaadin-combo-box": "^1.0.0-beta1",
     "dom-if-else": "^0.9.0",
-    "paper-input-tags": "^1.0.0"
+    "paper-input-tags": "^1.0.0",
+    "paper-time-picker": "https://github.com/bendavis78/paper-time-picker.git#^1.1.2",
+    "paper-date-picker": "https://github.com/bendavis78/paper-date-picker.git#^1.1.3",
+    "moment": "^2.12.0"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"
   },
-  "ignore": []
+  "ignore": [],
+  "resolutions": {
+    "polymer": "^1.2.1",
+    "paper-input": "^1.0.9",
+    "iron-list": "^1.0.0"
+  }
 }

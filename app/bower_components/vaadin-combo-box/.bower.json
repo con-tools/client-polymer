@@ -53,6 +53,5 @@
   },
   "_source": "git://github.com/vaadin/vaadin-combo-box.git",
   "_target": "^1.0.0-beta1",
-  "_originalSource": "vaadin-combo-box",
-  "_direct": true
+  "_originalSource": "vaadin-combo-box"
 }

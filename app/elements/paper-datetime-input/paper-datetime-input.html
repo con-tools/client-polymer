@@ -1,0 +1,108 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="paper-datetime-input">
+<template>
+	<style>
+	:host {
+		display: block;
+	}
+	</style>
+	<paper-button raised on-tap="startPicker">[[displayValue]]</paper-button>
+	
+	<paper-dialog id="dateDialog" modal class="paper-time-picker-dialog" on-iron-overlay-closed="dismissDialog">
+		<paper-item>
+		<paper-date-picker id="datePicker" date="{{dateValue}}"></paper-date-picker>
+		</paper-item>
+		<paper-item>
+		<div class="buttons">
+			<paper-button dialog-dismiss>Cancel</paper-button>
+			<paper-button dialog-confirm>OK</paper-button>
+		</div>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="timeDialog" modal class="paper-date-picker-dialog" on-iron-overlay-closed="dismissDialog">
+		<paper-item>
+		<paper-time-picker id="timePicker" time="{{timeValue}}"></paper-time-picker>
+		</paper-item>
+		<paper-item>
+		<div class="buttons">
+			<paper-button dialog-dismiss raised>Cancel</paper-button>
+			<paper-button dialog-confirm raised>OK</paper-button>
+		</div>
+		</paper-item>
+	</paper-dialog>
+	
+</template>
+</dom-module>
+<script>
+Polymer({
+	is : 'paper-datetime-input',
+	properties : {
+		value : {
+			type: Date,
+			notify: true,
+			observer: 'onValueChange'
+		},
+		minDate : {
+			type : Date
+		},
+		maxDate : {
+			type : Date
+		},
+		format : {
+			type: String,
+			notify: true,
+			value: 'MMM Do YYYY, HH:mm'
+		},
+		displayValue : {
+			type: String,
+			notify: true,
+			readonly: true,
+			computed: 'formatDisplayValue(format,value)'
+		},
+		timeValue : String,
+		dateValue : String,
+	},
+	
+	formatDisplayValue : function (format,value) {
+		return moment(value).format(format);
+	},
+	
+	ready : function() {
+		
+	},
+	
+	startPicker : function() {
+		this.$.dateDialog.toggle();
+	},
+	
+	dismissDialog : function(event) {
+		if (event.detail.confirmed) {
+			if (event.target == this.$.dateDialog) {
+				this.$.timeDialog.toggle();
+				return;
+			} else {
+				var time = moment(this.get('timeValue'), 'hh:mm a'); // paper-time-picker is annoyingly american
+				var curval = moment(this.get('dateValue'));
+				curval.set('hour', time.hour());
+				curval.set('minute', time.minute());
+				this.set('value', curval.toDate());
+				console.log("got date/time: " + this.value);
+			}
+		}
+		console.log("Date/Time picker dialog closed");
+	},
+	
+	onValueChange: function() {
+		if (!(this.value instanceof Date)) {
+			this.set('value', moment(this.value).toDate());
+			return;
+		}
+		this.set('dateValue', this.value);
+		this.set('timeValue', moment(this.value).format('hh:mm a')); // paper-time-picker is annoyingly american
+		console.log('value changed to ' + this.get('value'));
+	}
+});
+</script>
