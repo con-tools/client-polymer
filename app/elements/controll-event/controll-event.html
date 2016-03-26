@@ -150,7 +150,7 @@ Polymer({
 			eventData.old_tags[tagtitle] = (eventData.tags[tagtitle] instanceof Array) ? eventData.tags[tagtitle].slice() : eventData.tags[tagtitle];
 		}
 		this.set('event', eventData);
-		ConTroll.tags.catalog(this.populateTags.bind(this));
+		app.getCatalog('tags',this.populateTags.bind(this));
 	},
 	
 	populateTags : function(tagtypes) {
@@ -165,7 +165,7 @@ Polymer({
 		// send the tagtypes up
 		this.set('tagtypes', tagtypes.map(function(tagtype){
 			tagtype.currentValue = event.tags[tagtype.title];
-			tagtype.needCombobox = !(tagtype.currentValue instanceof Array);
+			tagtype.needCombobox = (tagtype.requirement == "1");
 			return tagtype;
 		}));
 	},
@@ -188,7 +188,10 @@ Polymer({
 				var elmId = 'multi-tag-' + tag.title;
 				formdata.tags[tag.title] = document.getElementById(elmId).tags;
 				// calculate tags to remove
-				this.event.old_tags[tag.title].forEach(function(tagval){
+				if (!formdata.tags[tag.title]) { // paper-input-tags is a bit broken sometimes
+					formdata.tags[tag.title] = document.getElementById(elmId).$['input-tags']._inputElementValue.split(/\s*,\s*/);
+				}
+				(this.event.old_tags[tag.title] || []).forEach(function(tagval){
 					if (formdata.tags[tag.title].indexOf(tagval) < 0) {// not found
 						if (!formdata.remove_tags[tag.title])
 							formdata.remove_tags[tag.title] = [];
