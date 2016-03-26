@@ -340,9 +340,8 @@ var ConTroll = (function(w,d){
 				locations: locations
 			};
 		if (hosts && hosts.length > 0)
-			data.hosts = hosts.map(function(email){
-				return { email: email };
-			});
+			// submit hosts directly - assumes a host is an object with either email or id fields and optionally a name - like api wants 
+			data.hosts = hosts; 
 		this.api.create(this.collection, data, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
@@ -514,7 +513,8 @@ var ConTroll = (function(w,d){
 	 * Main API private API entry point, 
 	 */
 	var ConTroll = function() {
-		this.endpoint = 'http://api.con-troll.org';
+		//this.endpoint = 'http://api.con-troll.org';
+		this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;

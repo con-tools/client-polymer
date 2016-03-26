@@ -16,6 +16,9 @@
 	paper-input, paper-textarea {
 		direction: rtl;
 	}
+	paper-item div {
+		margin: 0 1em;
+	}
 	.non-bidi * {
 		direction: ltr;
 	}
@@ -168,8 +171,8 @@
 				<h4>Hosts:</h4>
 				<template is="dom-repeat" items="{{addTimeslotHosts}}" as="host">
 					<paper-item>
-						<div>{{host.name}}</div>
-						<div>&lt;{{host.email}}&gt;</div>
+						<div><paper-input label="Display Name" value="{{host.name}}"></paper-input></div>
+						<div><paper-input readonly label="Email" value="[[host.email]]"></paper-input></div>
 						<div>
 							<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslotHost"></paper-icon-button>
 						</div>
@@ -381,7 +384,7 @@ Polymer({
 			return loc.slug;
 		});
 		var hosts = this.addTimeslotHosts.map(function(host){
-			return host.email;
+			return { name: host.name, email: host.email };
 		});
 		ConTroll.timeslots.create(this.event.id, start_time, duration, locations, hosts, this._updateEventForm.bind(this));
 		this.cancelAddTimeslot(); // clear form
