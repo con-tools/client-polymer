@@ -21,6 +21,8 @@
 		}
 		
 		this.callbacks.push(callback);
+		if (!ConTroll[this.catalog])
+			throw new Error("Catalog " + this.catalog + " is not supported!");
 		ConTroll[this.catalog].catalog(this.handleCallback.bind(this));
 	};
 	
