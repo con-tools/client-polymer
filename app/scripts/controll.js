@@ -267,8 +267,33 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollEvents.prototype.create = function(title, teaser, duration, ownerId, callback) {
+		this.api.create(this.collection, {
+			title: title,
+			teaser: teaser,
+			duration: duration,
+			user: { id: ownerId }
+		}, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
 	ConTrollEvents.prototype.update = function(id, fields, callback) {
 		this.api.update(this.collection, id, fields, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollEvents.prototype.remove = function(id, fields, callback) {
+		this.api.del(this.collection, id, fields, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -327,6 +352,36 @@ var ConTroll = (function(w,d){
 	
 	ConTrollLocations.prototype.remove = function(id, callback) {
 		this.api.del(this.collection, id, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	}
+	
+	var ConTrollConventions = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'conventions'};
+		return this;
+	};
+	
+	ConTrollConventions.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * Retrieve the current convention's details
+	 * @param callback
+	 */
+	ConTrollConventions.prototype.getCurrent = function(callback) {
+		this.api.get(this.collection, 'self', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -657,6 +712,7 @@ var ConTroll = (function(w,d){
 	ConTroll.managers = new ConTrollManagers(api);
 	ConTroll.users = new ConTrollUsers(api);
 	ConTroll.locations = new ConTrollLocations(api);
+	ConTroll.conventions = new ConTrollConventions(api);
 	
 	api.handleAuth();
 	return ConTroll;
