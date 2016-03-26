@@ -112,7 +112,7 @@
 
 			ready : function() {
 				console.log("Loading tag types");
-				ConTroll.tags.catalog((function(tags) {
+				app.getcatalog('tags', (function(tags) {
 					this.items = tags.map(function(tag){
 						tag.preventUpdate = true;
 						tag.loaded_data = {
@@ -126,7 +126,10 @@
 			},
 			
 			attached : function() {
-				app.addEventListener('reload-tag-types', this.ready.bind(this), false);
+				app.addEventListener('reload-tag-types', (function(){
+					app.invalidateCatalog('tags');
+					this.ready();
+				}).bind(this), false);
 				app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 			},
 			
@@ -136,6 +139,7 @@
 			
 			applyUpdateTagType : function(event) {
 				var it = event.model.item;
+				app.invalidateCatalog('tags');
 				ConTroll.tags.updateType(it.loaded_data.title, it.title, it.requirement, it['public'], this.ready.bind(this));
 			},
 			
@@ -146,6 +150,7 @@
 			approveAddTagType : function(event){
 				if (!this.$.addTagTypeTitle.value) return;
 				this.$.addTagTypeDialog.toggle();
+				app.invalidateCatalog('tags');
 				ConTroll.tags.addType(this.$.addTagTypeTitle.value, this.$.addTagTypeRequirement.value, 
 						this.$.addTagTypePublic.checked, this.ready.bind(this));
 			},
@@ -167,6 +172,7 @@
 				this.$.confirmDeleteDialog.toggle();
 				var toDelete = this.titleToDelete;
 				this.titleToDelete = null; // don't delete anything else by mistake
+				app.invalidateCatalog('tags');
 				ConTroll.tags.deleteType(toDelete, this.ready.bind(this));
 			},
 			
