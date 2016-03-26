@@ -1,0 +1,33 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-scheduler">
+</dom-module>
+
+<Script>
+Polymer({
+	is: 'controll-scheduler',
+	Properties: {
+		conventionProperties: Object,
+		locations: Array
+	},
+	
+	attached : function() {
+		// handle reload command
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	ready : function() {
+		// load stuff that we need for the scheduler
+		ConTroll.conventions.getCurrent((function(con){
+			this.conventionProperties = con;
+		}).bind(this));
+		app.getCatalog('locations',(function(locations){
+			this.locations = locations;
+		}).bind(this));
+		app.getCatalog('events',(function(events){
+			this.events = events;
+		}).bind(this));
+	},
+});
+</Script>
