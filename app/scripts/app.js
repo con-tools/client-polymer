@@ -26,6 +26,30 @@
 		ConTroll[this.catalog].catalog(this.handleCallback.bind(this));
 	};
 	
+	Catalog.prototype.dejsonify = function(data) {
+		if (data instanceof Array) {
+			for (var i = 0; i < data.length; i++)
+				data[i] = this.dejsonify(data[i]);
+			return;
+		}
+		
+		if (typeof data == 'object') {
+			for (var field in data) {
+				if (field.match(/-/)) {
+					data[field.replace(/-/g,'_')] = this.dejsonify(data[field]);
+					delete data[field];
+				}
+			}
+			return data;
+		}
+		
+		if (typeof data == 'string' && data.match(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[-+]\d{2}:\d{2}$/))
+			// we love ISO-8601
+			return moment(data).toDate();
+		
+		return data;
+	};
+	
 	Catalog.prototype.handleCallback = function(content) {
 		this.content = content;
 		this.callbacks.forEach(function(callback){
