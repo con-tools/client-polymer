@@ -22,8 +22,13 @@
 	.short-field {
 		width: 10em;
 	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
 	</style>
 	
+	<paper-material elevation="1">
 	<form is="iron-form" id="eventForm" action="javascript:">
 		<paper-item>
 			<vaadin-combo-box label="Status" name="status" items="[[event_status_list]]"
@@ -88,12 +93,15 @@
 				</template>
 			</paper-item>
 		</template>
-		
-		<paper-item class="container flex-horizontal">
-			<paper-button raised on-tap="updateEvent"><iron-icon icon="check-circle"></iron-icon>Update</paper-button>
-			<paper-button raised on-tap="gotoEvents"><iron-icon icon="done"></iron-icon>Close</paper-button>
-		</paper-item>
-	</form> 
+	</form>
+	</paper-material>
+
+	<paper-material elevation="1">
+	<paper-item class="container flex-horizontal">
+		<paper-button raised on-tap="updateEvent"><iron-icon icon="check-circle"></iron-icon>Update</paper-button>
+		<paper-button raised on-tap="gotoEvents"><iron-icon icon="done"></iron-icon>Close</paper-button>
+	</paper-item>
+	</paper-material>
 	
 </template>
 </dom-module>
