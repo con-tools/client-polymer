@@ -322,6 +322,44 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollTimeslots.prototype.forEvent = function(event_id, callback) {
+		this.api.get(this.collection, { event: event_id }, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollTimeslots.prototype.create = function(event_id, start_time, duration, locations, hosts, callback) {
+		this.api.create(this.collection,{
+			event: event_id,
+			start: parseInt(start_time.getTime()/1000),
+			duration: duration,
+			locations: locations,
+			hosts: hosts.map(function(email){
+				return { email: email };
+			})
+		}, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollTimeslots.prototype.remove = function(id, fields, callback) {
+		this.api.del(this.collection, id, fields, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+
 	/**
 	 * ConTroll Locations API
 	 * @param ConTroll api
@@ -516,6 +554,13 @@ var ConTroll = (function(w,d){
 		this.send('entities/' + collection + '/' + id, {}, callback, auth, 'DELETE');
 	};
 	
+	/**
+	 * Retreive a record or a catalog of collection from the server
+	 * @param collection Collection to retrieve
+	 * @param record_id records to lookup: a specific ID (Number or String), the entire
+	 * 	collection catalog (falsy value) or a filtered catalog (Object with filter specification)
+	 * @param callback
+	 */
 	ConTroll.prototype.get = function(collection, record_id, callback) {
 		var auth = {};
 		if (typeof collection == 'object') {
@@ -525,7 +570,16 @@ var ConTroll = (function(w,d){
 			}
 			collection = collection.collection;
 		}
-		this.send('entities/' + collection + '/' + record_id, callback, auth);
+		var uri = 'entities/' + collection + '/';
+		if (typeof record_id == 'object') {
+			var filters = [];
+			for (var field in record_id) {
+				filters.push(encodeURIComponent(field) + '=' + encodeURIComponent(record_id[field]));
+			}
+			uri += '?' + filters.join('&');
+		} else if (record_id)
+			uri += record_id
+		this.send(uri, callback, auth);
 	};
 	
 	ConTroll.prototype.send = function(action, data, callback, auth, method) {
