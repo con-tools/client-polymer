@@ -733,6 +733,7 @@ var ConTroll = (function(w,d){
 	ConTroll.users = new ConTrollUsers(api);
 	ConTroll.locations = new ConTrollLocations(api);
 	ConTroll.conventions = new ConTrollConventions(api);
+	ConTroll.timeslots = new ConTrollTimeslots(api);
 	
 	api.handleAuth();
 	return ConTroll;
