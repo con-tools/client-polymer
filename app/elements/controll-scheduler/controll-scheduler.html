@@ -8,7 +8,14 @@
 		display: block;
 		box-sizing: border-box;
 	}
-	paper-item div {
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	paper-item div, paper-item paper-item-body {
 		margin: 0 1em;
 	}
 	.flex-horizontal { 
@@ -18,7 +25,36 @@
 	.flexchild { 
 		@apply (--layout-flex);
 	}
+	paper-material {
+		margin: .3em;
+		background: white;
+	}
+	
+	paper-material.card {
+		padding: .5em;
+	}
 	</style>
+
+	<template is="dom-repeat" items="[[locations]]" as="location">
+		<paper-material elevation="1" class="card">
+			<h3>[[location.title]]</h3>
+			<template is="dom-repeat" items="[[location.timeslots]]" as="timeslot">
+				<paper-material elevation="1">
+					<paper-item  class="container flex-horizontal">
+						<paper-icon-button icon="input"  on-tap="gotoEvent"></paper-icon-button>
+						<paper-item-body>[[timeslot.event.title]]</paper-item-body>
+						<paper-item-body>[[timeslot.displayTime]]</paper-item-body>
+						<paper-item-body class="flexchild">
+							<strong>Hosts:</strong>
+							<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
+								[[host.name]]
+							</template>
+						</paper-item-body>
+					</paper-item>
+				</paper-material>
+			</template>
+		</paper-material>
+	</template>
 </template>
 </dom-module>
 
@@ -53,7 +89,10 @@ Polymer({
 			this.needData -= 1;
 		}).bind(this));
 		app.getCatalog('timeslots',(function(timeslots){
-			this.timeslots = timeslots;
+			this.timeslots = timeslots.map(function(timeslot){
+				timeslot.displayTime = moment(timeslot).format("MMM D, YYYY HH:mm");
+				return timeslot;
+			});
 			this.needData -= 1;
 		}).bind(this));
 		this.waitingToBeReady = window.setInterval(this.waitForDataReady.bind(this),100);
@@ -64,6 +103,10 @@ Polymer({
 			return;
 		window.clearInterval(this.waitingToBeReady);
 		delete this.waitingToBeReady;
+	},
+	
+	gotoEvent : function(event) {
+		page.show('/events/' + event.model.timeslot.event.id);
 	}
 });
 </Script>
