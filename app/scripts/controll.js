@@ -514,6 +514,8 @@ var ConTroll = (function(w,d){
 	 */
 	var ConTroll = function() {
 		this.endpoint = 'http://api.con-troll.org';
+		if (window.location.host.match(/localhost/))
+			this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;
@@ -575,7 +577,7 @@ var ConTroll = (function(w,d){
 		if (typeof record_id == 'object') {
 			var filters = [];
 			for (var field in record_id) {
-				filters.push(encodeURIComponent(field) + '=' + encodeURIComponent(record_id[field]));
+				filters.push(encodeURIComponent('by_' + field) + '=' + encodeURIComponent(record_id[field]));
 			}
 			uri += '?' + filters.join('&');
 		} else if (record_id)
