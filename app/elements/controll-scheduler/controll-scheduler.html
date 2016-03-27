@@ -90,7 +90,7 @@ Polymer({
 		}).bind(this));
 		app.getCatalog('timeslots',(function(timeslots){
 			this.timeslots = timeslots.map(function(timeslot){
-				timeslot.displayTime = moment(timeslot).format("MMM D, YYYY HH:mm");
+				timeslot.displayTime = moment(timeslot.start).format("MMM D, YYYY HH:mm");
 				return timeslot;
 			});
 			this.needData -= 1;
