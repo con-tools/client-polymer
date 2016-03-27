@@ -35,9 +35,12 @@
 		
 		if (typeof data == 'object') {
 			for (var field in data) {
+				var value = this.dejsonify(data[field])
 				if (field.match(/-/)) {
-					data[field.replace(/-/g,'_')] = this.dejsonify(data[field]);
+					data[field.replace(/-/g,'_')] = value;
 					delete data[field];
+				} else {
+					data[field] = value;
 				}
 			}
 			return data;
