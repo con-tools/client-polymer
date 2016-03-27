@@ -300,9 +300,23 @@ Polymer({
 		}));
 	},
 	
+	clearEventForm : function(leave) {
+		if(this.tagtypes)
+			this.tagtypes.forEach(function(tagtype){
+				var el = document.getElementById('single-tag-' + tagtype.title);
+				if (el) el.value = '';
+			});
+		this.set('tagtypes',[]);
+		this.set('eventTimeslots',[]);
+		[].slice.call(this.$$('#eventForm').elements).forEach(function(el){el.value = null;});
+		this.set('event', null);
+		if (leave)
+			this.set('eventId', null);
+	},
+	
 	_updateEventForm : function() {
+		this.clearEventForm(); // clear everything by the event id
 		console.log('Loading event data for',this.get('eventId'));
-		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this));
 		app.getCatalog('locations', (function(locations){
 			this.set('locations', locations);
 		}).bind(this));
@@ -312,6 +326,7 @@ Polymer({
 				return user;
 			}));
 		}).bind(this));
+		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this));
 	},
 	
 	updateEvent : function(event) {
@@ -409,6 +424,7 @@ Polymer({
 	},
 	
 	gotoEvents : function() {
+		this.clearEventForm(true);
 		page.show('/events');
 	}
 
