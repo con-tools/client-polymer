@@ -122,7 +122,7 @@
 	app.sendRefreshEvent = function() {
 	  console.log("Refreshing from server");
 	  // first invalidate catalog caches
-	  for (catalog in app.controllCatalogs)
+	  for (var catalog in app.controllCatalogs)
 		  app.controllCatalogs[catalog].invalidate();
 	  app.fire('please-refresh-lists');
 	};
