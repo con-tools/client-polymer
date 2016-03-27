@@ -43,6 +43,9 @@
 				<paper-input readonly label="Submitter" value="{{event.user.name}}"></paper-input>
 			</div>
 			<div>
+				<paper-input readonly label="Status" value="{{event.statusText}}"></paper-input>
+			</div>
+			<div>
 				<paper-icon-button title="Edit" icon="create" on-tap="gotoEditEvent"></paper-icon-button>
 			</div>
 			<div>
@@ -104,7 +107,18 @@ Polymer({
 		events : {
 			type: Array,
 			observer: '_updateEvents'
-		}
+		},
+		event_status_list : {
+			value: [
+			        { value: '0', label: 'Submitted' },
+			        { value: '1', label: 'Has Teaser' },
+			        { value: '2', label: 'Content Approved' },
+			        { value: '3', label: 'Logistics Approved' },
+			        { value: '4', label: 'Scheduled' },
+			        { value: '5', label: 'Approved' },
+			        { value: '6', label: 'Cancelled' }
+			]
+		},
 	},
 	
 	ready : function(event) {
@@ -113,7 +127,16 @@ Polymer({
 	},
 	
 	populateEvents : function(events) {
-		this.set('events', events);
+		this.set('events', events.sort(function(a,b){
+			if (a.title < b.title)
+				return -1;
+			if (a.title > b.title)
+				return 1;
+			return a.id - b.id;
+		}).map((function(event){
+			event.statusText = this.event_status_list.find(function(st){ return st.value == event.status}).label;
+			return event;
+		}).bind(this)));
 	},
 	
 	attached : function(event) {
