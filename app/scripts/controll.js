@@ -316,6 +316,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error getting time slot catalog: " + err);
 				return;
 			}
 			callback(res);
@@ -326,6 +327,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, { event: event_id }, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error getting time slots for event: " + err);
 				return;
 			}
 			callback(res);
@@ -345,6 +347,7 @@ var ConTroll = (function(w,d){
 		this.api.create(this.collection, data, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error creating a new time slot: " + err);
 				return;
 			}
 			callback(res);
@@ -355,6 +358,7 @@ var ConTroll = (function(w,d){
 		this.api.del(this.collection, id, fields, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error removing a time slot: " + err);
 				return;
 			}
 			callback(res);
@@ -514,8 +518,8 @@ var ConTroll = (function(w,d){
 	 */
 	var ConTroll = function() {
 		this.endpoint = 'http://api.con-troll.org';
-		if (window.location.host.match(/localhost/))
-			this.endpoint = 'http://localhost:8080';
+		//if (window.location.host.match(/localhost/))
+		//	this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;
@@ -599,7 +603,7 @@ var ConTroll = (function(w,d){
 					callback(res, null);
 				else {
 					if (typeof res == 'object')
-						callback(res); // server sent a non-OK status code, but had stuff to say about it
+						callback(null, res); // server sent a non-OK status code, but had stuff to say about it
 					else
 						callback(null, req.responseText || "CORS error");
 				}
