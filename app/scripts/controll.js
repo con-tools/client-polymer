@@ -316,7 +316,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
-				alert("Error getting time slot catalog: " + err);
+				alert("Error getting time slot catalog: " + (err.error||err));
 				return;
 			}
 			callback(res);
@@ -327,7 +327,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, { event: event_id }, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
-				alert("Error getting time slots for event: " + err);
+				alert("Error getting time slots for event: " +(err.error||err));
 				return;
 			}
 			callback(res);
@@ -347,7 +347,7 @@ var ConTroll = (function(w,d){
 		this.api.create(this.collection, data, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
-				alert("Error creating a new time slot: " + err);
+				alert("Error creating a new time slot: " + (err.error||err));
 				return;
 			}
 			callback(res);
@@ -358,7 +358,7 @@ var ConTroll = (function(w,d){
 		this.api.del(this.collection, id, fields, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
-				alert("Error removing a time slot: " + err);
+				alert("Error removing a time slot: " + (err.error||err));
 				return;
 			}
 			callback(res);
