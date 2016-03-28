@@ -39,6 +39,11 @@
 	iron-collapse {
 		margin: 1em 0;
 	}
+	.tagtype-show {
+	}
+	.tagtype-hide {
+		display: none;
+	}
 	</style>
 	
 	<paper-material elevation="1">
@@ -95,15 +100,10 @@
 		</paper-item>
 		<template is="dom-repeat" items="{{tagtypes}}" as="tagtype">
 			<paper-item>
-				<template is="dom-if-else" if="[[tagtype.needCombobox]]">
-					<if-then>
-					<vaadin-combo-box label="[[tagtype.title]]" id="single-tag-[[tagtype.title]]" items="[[tagtype.values]]"
-							allow-custom-value value="[[tagtype.currentValue]]"></vaadin-combo-box>
-					</if-then>
-					<if-else>
-						<paper-input-tags id="multi-tag-[[tagtype.title]]" label="[[tagtype.title]]" tags="[[tagtype.currentValue]]"></paper-input-tags>
-					</if-else>
-				</template>
+				<vaadin-combo-box class$="{{computeSingleClassName(tagtype)}}" label="[[tagtype.title]]" id="single-tag-[[tagtype.title]]"
+						items="[[tagtype.values]]" allow-custom-value value="[[tagtype.currentValue]]"></vaadin-combo-box>
+				<paper-input-tags class$="{{computeMultiClassName(tagtype)}}" id="multi-tag-[[tagtype.title]]"
+						label="[[tagtype.title]]" tags="[[tagtype.taglist]]"></paper-input-tags>
 			</paper-item>
 		</template>
 	</form>
@@ -272,6 +272,14 @@ Polymer({
 		this.loadSchedule(eventData);
 	},
 	
+	computeSingleClassName : function(tagtype) {
+		return tagtype.requirement == "1" ? 'tagtype-show' : 'tagtype-hide';
+	},
+	
+	computeMultiClassName : function(tagtype) {
+		return tagtype.requirement == "1" ? 'tagtype-hide' : 'tagtype-show';
+	},
+	
 	populateTags : function(tagtypes) {
 		var event = this.event;
 		// reset combox boxes so it can be filled correctly in case the user set a custom value
@@ -283,8 +291,17 @@ Polymer({
 		})
 		// send the tagtypes up
 		this.set('tagtypes', tagtypes.map(function(tagtype){
-			tagtype.currentValue = event.tags[tagtype.title];
-			tagtype.needCombobox = (tagtype.requirement == "1");
+			var val = event.tags[tagtype.title];
+			if (tagtype.requirement != "1") { // sanitize
+				if (!val)
+					val = [];
+				if (!(val instanceof Array))
+					val = [val];
+				val = val.filter(function(v) { return v;});
+				tagtype.taglist = val;
+			} else {
+				tagtype.currentValue = val;
+			}
 			return tagtype;
 		}));
 	},
@@ -356,6 +373,8 @@ Polymer({
 		}).bind(this));
 		
 		console.log('Event data:',formdata);
+		// reset events view so we force it to update
+		app.sendRefreshEvent();
 		ConTroll.events.update(this.event.id, formdata, this.gotoEvents.bind(this));
 	},
 	
