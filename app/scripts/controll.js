@@ -602,6 +602,7 @@ var ConTroll = (function(w,d){
 				if (req.status == 200)
 					callback(res, null);
 				else {
+					Rollbar.error("ConTroll API error:", res || req.responseText || req);
 					if (typeof res == 'object')
 						callback(null, res); // server sent a non-OK status code, but had stuff to say about it
 					else
