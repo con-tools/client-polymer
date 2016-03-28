@@ -282,13 +282,6 @@ Polymer({
 	
 	populateTags : function(tagtypes) {
 		var event = this.event;
-		// reset combox boxes so it can be filled correctly in case the user set a custom value
-		var currentHost = this;
-		boxes = document.getElementsByTagName('vaadin-combo-box');
-		[].slice.call(boxes).forEach(function(box){
-			if (box.domHost != currentHost || !event.tags[box.name]) return;
-			box.value = event.tags[box.name];
-		})
 		// send the tagtypes up
 		this.set('tagtypes', tagtypes.map(function(tagtype){
 			var val = event.tags[tagtype.title];
@@ -317,7 +310,7 @@ Polymer({
 		}));
 	},
 	
-	clearEventForm : function(leave) {
+	clearEventForm : function() {
 		if(this.tagtypes)
 			this.tagtypes.forEach(function(tagtype){
 				var el = document.getElementById('single-tag-' + tagtype.title);
@@ -327,8 +320,6 @@ Polymer({
 		this.set('eventTimeslots',[]);
 		[].slice.call(this.$$('#eventForm').elements).forEach(function(el){el.value = null;});
 		this.set('event', null);
-		if (leave)
-			this.set('eventId', null);
 	},
 	
 	_updateEventForm : function() {
@@ -372,10 +363,13 @@ Polymer({
 			} 
 		}).bind(this));
 		
+		
 		console.log('Event data:',formdata);
-		// reset events view so we force it to update
-		app.sendRefreshEvent();
-		ConTroll.events.update(this.event.id, formdata, this.gotoEvents.bind(this));
+		ConTroll.events.update(this.event.id, formdata, (function() {
+			// reset events view so we force it to update
+			app.sendRefreshEvent();
+			this.gotoEvents();
+		}).bind(this));
 	},
 	
 	addTimeslot : function() {
@@ -443,7 +437,9 @@ Polymer({
 	},
 	
 	gotoEvents : function() {
-		this.clearEventForm(true);
+		this.clearEventForm();
+		console.log("Clearing event id because leaving");
+		this.set('eventId', null);
 		page.show('/events');
 	}
 
