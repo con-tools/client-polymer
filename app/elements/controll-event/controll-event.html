@@ -188,6 +188,7 @@
 				<paper-item>
 					<vaadin-combo-box style="width: 30em;" label="Available Users" id="timeslotHostList" items="[[hosts]]"
 							item-value-path="email" item-label-path="label" on-value-changed="pushTimeslotHosts"></vaadin-combo-box>
+					<paper-button on-tap="startAddUser" raised><iron-icon icon="add"></iron-icon>Create a new user</paper-button>
 				</paper-item>
 			<paper-item>
 			<div class="buttons">
@@ -197,6 +198,20 @@
 			</paper-item>
 		</iron-collapse>
 	</paper-material>
+	
+	<paper-dialog id="addUserDialog">
+		<paper-item>
+			<paper-input label="Name" id="addUserName"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-input label="Email" id="addUserEmail"></paper-textarea>
+		</paper-item>
+		<paper-item>
+			<paper-button on-tap="finishAddUser" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button on-tap="startAddUser" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+
 	
 </template>
 </dom-module>
@@ -369,6 +384,35 @@ Polymer({
 			// reset events view so we force it to update
 			app.sendRefreshEvent();
 			this.gotoEvents();
+		}).bind(this));
+	},
+	
+	startAddUser : function() {
+		this.$.addUserName.value = null;
+		this.$.addUserEmail.value = null;
+		this.$.addUserDialog.toggle();
+	},
+	
+	finishAddUser : function() {
+		if (!this.$.addUserName.value) {
+			alert("Invalid user name!");
+			return;
+		}
+		if (!this.$.addUserEmail.value || !this.$.addUserEmail.value.match(/@/)){
+			alert("Invalid user email!");
+			return;
+		}
+		
+		return ConTroll.users.create(this.$.addUserName.value, this.$.addUserEmail.value, (function(res){
+			app.invalidateCatalog('users');
+			app.getCatalog('users', (function(users){
+				this.set('hosts', users.map(function(user){
+					user.label = user.name + ' <' + user.email + '>';
+					return user;
+				}));
+			}).bind(this));
+			this.push('addTimeslotHosts', res);
+			this.startAddUser();
 		}).bind(this));
 	},
 	
