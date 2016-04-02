@@ -232,6 +232,7 @@ var ConTroll = (function(w,d){
 		}, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error: " + (err.error || err));
 				return;
 			}
 			callback(res);
