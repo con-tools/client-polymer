@@ -193,6 +193,7 @@ var ConTroll = (function(w,d){
 		this.api.del(this.collection, title, function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
+				alert("Error: " + (err.error || err));
 				return;
 			}
 			callback(res);
