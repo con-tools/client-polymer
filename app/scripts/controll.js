@@ -368,6 +368,27 @@ var ConTroll = (function(w,d){
 	};
 
 	/**
+	 * ConTroll Tickets API
+	 * @param ConTroll api
+	 */
+	var ConTrollTickets = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'tickets'};
+		return this;
+	};
+	
+	ConTrollTickets.prototype.forEvent = function(eventId, callback) {
+		this.api.get(this.collection, '?all=1&is-valid=1&by_event=' + eventId, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll Locations API
 	 * @param ConTroll api
 	 */
@@ -811,6 +832,7 @@ var ConTroll = (function(w,d){
 	ConTroll.locations = new ConTrollLocations(api);
 	ConTroll.conventions = new ConTrollConventions(api);
 	ConTroll.timeslots = new ConTrollTimeslots(api);
+	ConTroll.tickets = new ConTrollTickets(api);
 	
 	api.handleAuth();
 	return ConTroll;

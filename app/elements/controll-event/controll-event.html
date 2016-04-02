@@ -198,6 +198,28 @@
 			</paper-item>
 		</iron-collapse>
 	</paper-material>
+
+	<paper-material elevation="1">
+		<paper-item>
+			<h3>Tickets Sold:</h3>
+		</paper-item>
+		<template is="dom-repeat" items="[[eventTickets]]" as="ticket">
+			<paper-material elevation="2">
+				<paper-item class="container flex-horizontal">
+				<div>
+					<strong>Time slot:</strong>
+					<span>[[ticket.timeslot.displayTime]]</span>
+					<strong>Status:</strong>
+					<span>[[ticket.status]]</span>
+					<strong>User:</strong>
+					<span>[[ticket.user.name]] &lt;[[ticket.user.email]]&gt;</span>
+					<strong>Reserved:</strong>
+					<span>[[ticket.reserved_time]]</span>
+				</div>
+				</paper-item>
+			</paper-material>
+		</template>
+	</paper-material>
 	
 	<paper-dialog id="addUserDialog">
 		<paper-item>
@@ -247,6 +269,7 @@ Polymer({
 		conventionProperties: Object,
 		locations: Array,
 		hosts: Array,
+		eventTickets: Array,
 		addTimeslotLocations : {
 			type: Array,
 			value: function() { return new Array(); }
@@ -285,6 +308,7 @@ Polymer({
 		this.set('event', eventData);
 		app.getCatalog('tags',this.populateTags.bind(this));
 		this.loadSchedule(eventData);
+		this.loadTickets(eventData);
 	},
 	
 	computeSingleClassName : function(tagtype) {
@@ -322,6 +346,18 @@ Polymer({
 		this.set('eventTimeslots', timeslots.map(function(timeslot){
 			timeslot.displayTime = moment(timeslot.start).format('MMM Do YYYY, HH:mm');
 			return timeslot;
+		}));
+	},
+	
+	loadTickets : function(event) {
+		ConTroll.tickets.forEvent(event.id, this.populateTickets.bind(this));
+	},
+	
+	populateTickets : function(ticketdata) {
+		this.set('eventTickets', ticketdata.map(function(ticket){
+			ticket.timeslot.displayTime = moment(ticket.timeslot.start).format('MMM Do YYYY, HH:mm');
+			ticket.reserved_time = moment(ticket['reserved-time']).fromNow();
+			return ticket;
 		}));
 	},
 	
