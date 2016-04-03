@@ -388,6 +388,59 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollTickets.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * ConTroll Coupon Types API
+	 * @param ConTroll api
+	 */
+	var ConTrollCouponTypes = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'coupontypes'};
+		return this;
+	};
+	
+	ConTrollCouponTypes.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * ConTroll Coupons API
+	 * @param ConTroll api
+	 */
+	var ConTrollCoupons = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'coupons'};
+		return this;
+	};
+	
+	ConTrollCouponTypes.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
 	/**
 	 * ConTroll Locations API
 	 * @param ConTroll api
@@ -833,6 +886,8 @@ var ConTroll = (function(w,d){
 	ConTroll.conventions = new ConTrollConventions(api);
 	ConTroll.timeslots = new ConTrollTimeslots(api);
 	ConTroll.tickets = new ConTrollTickets(api);
+	ConTroll.coupontypes = new ConTrollCouponTypes(api);
+	ConTroll.couons = new ConTrollCoupons(api);
 	
 	api.handleAuth();
 	return ConTroll;
