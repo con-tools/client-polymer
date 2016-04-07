@@ -58,8 +58,8 @@ Polymer({
 	},
 	
 	ready : function(event) {
+		this.set('ticketStatus', {});
 		app.getCatalog('timeslots',this.populateTicketStatus.bind(this));
-
 	},
 	
 	populateTicketStatus : function(timeslots) {
