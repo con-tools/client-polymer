@@ -117,6 +117,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="assignment-ind"></iron-icon>
             <span>Managers</span>
           </a>
+
+          <a data-route="tickets" href="{{baseUrl}}tickets">
+            <iron-icon icon="shopping-cart"></iron-icon>
+            <span>Tickets</span>
+          </a>
         </paper-menu>
       </paper-scroll-header-panel>
 
@@ -166,15 +171,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <section data-route="events" tabindex="-1">
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Events</h2>
-                <controll-event-list></controll-event-list>
               </paper-material>
+              <controll-event-list></controll-event-list>
             </section>
 
             <section data-route="event-form" tabindex="-1">
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Edit Event</h2>
-                <controll-event event-id="{{params.id}}"></controll-event>
               </paper-material>
+              <controll-event event-id="{{params.id}}"></controll-event>
             </section>
 
             <section data-route="locations" tabindex="-1">
@@ -188,21 +193,21 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Scheduling</h2>
               </paper-material>
-               <controll-scheduler></controll-scheduler>
+              <controll-scheduler></controll-scheduler>
             </section>
 
             <section data-route="coupons" tabindex="-1">
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Coupon Types</h2>
               </paper-material>
-               <controll-coupons></controll-coupons>
+              <controll-coupons></controll-coupons>
             </section>
 
             <section data-route="coupon-type" tabindex="-1">
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Coupons</h2>
               </paper-material>
-               <controll-coupon-type coupon-type-id="{{params.coupontypeid}}"></controll-coupon-type>
+              <controll-coupon-type coupon-type-id="{{params.coupontypeid}}"></controll-coupon-type>
             </section>
 
             <section data-route="managers" tabindex="-1">
@@ -210,6 +215,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Managers</h2>
                 <controll-managers></controll-managers>
               </paper-material>
+            </section>
+
+            <section data-route="tickets" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Tickets</h2>
+              </paper-material>
+              <controll-tickets></controll-tickets>
             </section>
 
             <section data-route="users" tabindex="-1">

@@ -1,0 +1,92 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-tickets">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	.large-field {
+		width: 100%;
+	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
+	</style>
+	
+	<paper-material>
+		<paper-item>
+			Tickets Sold: [[ticketStatus.ticketsSold]]
+		</paper-item>
+		<paper-item>
+			Capacity: [[ticketStatus.percentOfCapacity]]% (of max attendees of [[ticketStatus.maxAttends]])
+		</paper-item>
+		<paper-item>
+			Minimum Required: [[ticketStatus.percentOfRequirement]]% (of min attendees of [[ticketStatus.minAttends]])
+		</paper-item>
+	</paper-material>
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-tickets',
+	properties : {
+		ticketStatus: {
+			type: Object,
+			observer: '_updatedTicketStatus'
+		}
+	},
+	
+	ready : function(event) {
+		app.getCatalog('timeslots',this.populateTicketStatus.bind(this));
+
+	},
+	
+	populateTicketStatus : function(timeslots) {
+		var minAttends = 0,
+			maxAttends = 0,
+			ticketsSold = 0;
+		timeslots.forEach(function(timeslot){
+			minAttends += parseInt(timeslot['min-attendees']);
+			maxAttends += parseInt(timeslot['max-attendees']);
+			ticketsSold += parseInt(timeslot['max-attendees']) - parseInt(timeslot['available_tickets']);
+		});
+		this.set("ticketStatus", {
+			minAttends: minAttends,
+			maxAttends: maxAttends,
+			ticketsSold: ticketsSold,
+			percentOfCapacity: parseInt(100 * ticketsSold / maxAttends),
+			percentOfRequirement: parseInt(Math.min(100, (100 * ticketsSold / minAttends)))
+		});
+	},
+	
+	_updatedTicketStatus : function(status) {
+		console.log("Ticket status:",status);
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+});
+</script>
