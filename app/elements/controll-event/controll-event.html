@@ -324,20 +324,29 @@ Polymer({
 	populateTags : function(tagtypes) {
 		var event = this.event;
 		// send the tagtypes up
-		this.set('tagtypes', tagtypes.map(function(tagtype){
-			var val = event.tags[tagtype.title];
-			if (tagtype.requirement != "1") { // sanitize
-				if (!val)
-					val = [];
-				if (!(val instanceof Array))
-					val = [val];
-				val = val.filter(function(v) { return v;});
-				tagtype.taglist = val;
-			} else {
-				tagtype.currentValue = val;
-			}
-			return tagtype;
-		}));
+		try {
+			this.set('tagtypes', tagtypes.map(function(tagtype){
+				if (!event.tags) {
+					throw new Error("Failed to read event tags - reloading")
+				}
+				var val = event.tags[tagtype.title];
+				if (tagtype.requirement != "1") { // sanitize
+					if (!val)
+						val = [];
+					if (!(val instanceof Array))
+						val = [val];
+					val = val.filter(function(v) { return v;});
+					tagtype.taglist = val;
+				} else {
+					tagtype.currentValue = val;
+				}
+				return tagtype;
+			}));
+		} catch (e) {
+			if (e instanceof Error && e.message.match(/Failed to read event tags/))
+				return this._updateEventForm();
+			throw e;
+		}
 	},
 	
 	loadSchedule: function(event) {
