@@ -93,6 +93,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setFocus(app.route);
       });
 
+    page('/coupons', function() {
+        app.route = 'coupons';
+        setFocus(app.route);
+      });
+
+    page('/coupons/:coupontypeid', function(data) {
+        app.route = 'coupon-type';
+        app.params = data.params;
+        setFocus(app.route);
+      });
+
     // 404
     page('*', function() {
       app.$.toast.text = 'Can\'t find: ' + window.location.href  + '. Redirected you to Home Page';

@@ -108,6 +108,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Scheduling</span>
           </a>
 
+          <a data-route="coupons" href="{{baseUrl}}coupons">
+            <iron-icon icon="content-cut"></iron-icon>
+            <span>Coupons</span>
+          </a>
+
           <a data-route="managers" href="{{baseUrl}}managers">
             <iron-icon icon="assignment-ind"></iron-icon>
             <span>Managers</span>
@@ -184,6 +189,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Scheduling</h2>
               </paper-material>
                <controll-scheduler></controll-scheduler>
+            </section>
+
+            <section data-route="coupons" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Coupon Types</h2>
+              </paper-material>
+               <controll-coupons></controll-coupons>
+            </section>
+
+            <section data-route="coupon-type" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Coupons</h2>
+              </paper-material>
+               <controll-coupon-type coupon-type-id="{{params.coupontypeid}}"></controll-coupon-type>
             </section>
 
             <section data-route="managers" tabindex="-1">

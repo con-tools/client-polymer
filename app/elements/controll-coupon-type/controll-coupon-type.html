@@ -1,0 +1,224 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-coupon-type">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	.large-field {
+		width: 100%;
+	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
+	</style>
+	
+	<paper-material>
+		<paper-item>
+			<paper-button on-tap="showAddUser" raised><iron-icon icon="add-circle"></iron-icon>Add Coupon</paper-button>
+			<paper-button on-tap="gotoCoupons" raised><iron-icon icon="close"></iron-icon>Close</paper-button>
+		</paper-item>
+	</paper-material>
+	
+	<paper-material>
+	<template is="dom-repeat" items="{{coupons}}" as="coupon">
+		<paper-item class="container flex-horizontal">
+			<paper-item class="flexchild">
+				<div>
+				[[coupon.user.name]]
+				</div>
+				<div>
+				&lt;[[coupon.user.email]]&gt;
+				</div>
+			</paper-item>
+			<div>
+				<paper-input readonly label="Value" value="{{coupon.value}}"></paper-input>
+			</div>
+			<div>
+				<paper-checkbox disabled label="Value" checked="{{coupon.isConsumed}}">Used</paper-checkbox>
+			</div>
+			<div>
+				<paper-icon-button icon="clear" on-tap="removeCoupon" title="Remove"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+	</paper-material>
+	
+	<paper-dialog id="addUserDialog">
+		<h3>Add a coupon for a user</h3>
+		<paper-item>
+			<div>
+			<vaadin-combo-box label="Name" id="addUserName" items="[[users]]" item-label-path="name" item-value-path="id"
+					on-value-changed="syncAddUserForm"></vaadin-combo-box>
+			</div>
+			<div>
+			<vaadin-combo-box label="E-Mail" id="addUserEmail" items="[[users]]"  item-label-path="email" item-value-path="id"
+					on-value-changed="syncAddUserForm"></vaadin-combo-box>
+			</div>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveAddUser"><iron-icon icon="check"></iron-icon>Add</paper-button>
+			<paper-button raised on-tap="showAddUser"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmRemoveCoupon">
+		<h3>Are you sure you want to remove coupon from {{removeCouponUser}} ?</h3>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="approveRemoveCoupon" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="removeCoupon" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="cannotRemoveCoupon">
+		<h3>You cannot remove a used coupon</h3>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="cannotRemove" raised><iron-icon icon="cancel"></iron-icon>Close</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-coupon-type',
+	properties : {
+		couponTypeId : {
+			type: Number,
+			observer: '_couponTypeIdChanged'
+		},
+		coupons : {
+			type: Array,
+			observer: '_updateCoupons'
+		},
+		users : Array,
+		usersNames : Array,
+		usersEmails : Array,
+		userIdToAdd: String,
+		removeCouponUser: String,
+		removeCouponId: Number
+	},
+	
+	ready : function(event) {
+		console.log("Loading coupons");
+	},
+	
+	populateCoupons : function(coupons) {
+		this.set('coupons', coupons.map(function(c){
+			c.isConsumed = !!c.ticket;
+			return c;
+		}).reverse());
+	},
+	
+	loadCoupons : function() {
+		ConTroll.coupons.forType(this.couponTypeId, this.populateCoupons.bind(this));
+	},
+	
+	_couponTypeIdChanged : function(id) {
+		if (id) {
+			console.log("Loading coupons from coupont type " + id);
+			this.loadCoupons();
+		} else {
+			this.set('coupons', []);
+		}
+	},
+	
+	_updateCoupons : function(coupons) {
+		console.log("Got " + coupons.length + " coupons for type " + this.couponTypeId);
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	syncAddUserForm : function(event) {
+		if (!this.users || (!this.$.addUserName.value && !this.$.addUserEmail.value)) // could happen during init
+			return;
+		if (event.target.id == 'addUserName') {
+			this.$.addUserEmail.value = event.target.value;
+		} else {
+			this.$.addUserName.value = event.target.value;
+		}
+		this.userIdToAdd = event.target.selectedItem.email;
+	},
+	
+	showAddUser : function(event) {
+		this.$.addUserName.value = null;
+		this.$.addUserEmail.value = null;
+		this.set('users', null);
+		this.set('usersName', null);
+		this.set('usersEmails', null);
+		app.getCatalog('users', function(users){
+			console.log("Listing users, got",users.length);
+			this.set('users', users);
+			this.set('usersNames', users.map(function(user){
+				return user.name;
+			}));
+			this.set('usersEmails', users.map(function(user){
+				return user.email;
+			}));
+			this.$.addUserDialog.toggle();
+		}.bind(this));
+		
+	},
+	
+	approveAddUser : function(event) {
+		ConTroll.coupons.add(this.couponTypeId, this.userIdToAdd, (function(){
+			this.showAddUser();
+			this.loadCoupons();
+		}).bind(this));
+	},
+	
+	cannotRemove : function() {
+		this.$.cannotRemoveCoupon.toggle();
+	},
+	
+	removeCoupon : function(event) {
+		if (event && event.model) {
+			if (event.model.coupon.isConsumed)
+				return this.cannotRemove();
+			
+			this.set('removeCouponUser', event.model.coupon.user.name + " <" + event.model.coupon.user.email + ">")
+			this.set('removeCouponId', event.model.coupon.id);
+		} else { // close dialog
+			this.set('removeCouponUser', null)
+			this.set('removeCouponId', null);
+		}
+		this.$.confirmRemoveCoupon.toggle();
+	},
+	
+	approveRemoveCoupon : function() {
+		ConTroll.coupons.remove(this.removeCouponId, (function(){
+			this.removeCoupon();
+			this.loadCoupons();
+		}).bind(this))
+	},
+	
+	gotoCoupons : function(event) {
+		this.set('couponTypeId', null);
+		page.show('/coupons');
+	}
+
+});
+</script>

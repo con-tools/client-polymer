@@ -430,11 +430,48 @@ var ConTroll = (function(w,d){
 		return this;
 	};
 	
-	ConTrollCouponTypes.prototype.catalog = function(callback) {
+	ConTrollCoupons.prototype.catalog = function(callback) {
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
-				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				if (err != 'CORS error') alert("Error getting coupons: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollCoupons.prototype.forType = function(typeId, callback) {
+		this.api.get(this.collection, '?by_type=' + typeId, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting coupons: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollCoupons.prototype.add = function(typeId, user, callback) {
+		var data = {
+				type: typeId,
+				user: user
+			};
+		this.api.create(this.collection, data, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating coupon: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollCoupons.prototype.remove = function(typeId, callback) {
+		this.api.del(this.collection, typeId, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating coupon: " + (err.error||err));
 				return;
 			}
 			callback(res);
@@ -887,7 +924,7 @@ var ConTroll = (function(w,d){
 	ConTroll.timeslots = new ConTrollTimeslots(api);
 	ConTroll.tickets = new ConTrollTickets(api);
 	ConTroll.coupontypes = new ConTrollCouponTypes(api);
-	ConTroll.couons = new ConTrollCoupons(api);
+	ConTroll.coupons = new ConTrollCoupons(api);
 	
 	api.handleAuth();
 	return ConTroll;

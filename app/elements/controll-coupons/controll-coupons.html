@@ -1,0 +1,89 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-coupons">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	.large-field {
+		width: 100%;
+	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
+	</style>
+	
+	<paper-material elevation="1">
+	<template is="dom-repeat" items="{{coupontypes}}" as="coupontype">
+		<paper-item class="container flex-horizontal">
+			<paper-item class="flexchild">
+				<paper-input class="large-field" label="Title" readonly value="{{coupontype.title}}"></paper-input>
+			</paper-item>
+			<div>
+				<paper-input readonly label="Value" value="{{coupontype.value}}"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button title="Edit" icon="create" on-tap="gotoEditCoupons"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+	</paper-material>
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-coupons',
+	properties : {
+		coupontypes : {
+			type: Array,
+			observer: '_updateCoupons'
+		}
+	},
+	
+	ready : function(event) {
+		console.log("Loading coupon types");
+		app.getCatalog('coupontypes', this.populateCouponTypes.bind(this));
+	},
+	
+	populateCouponTypes : function(coupontypes) {
+		this.set('coupontypes', coupontypes);
+	},
+	
+	_updateCoupons : function(ctypes) {
+		console.log("Got " + ctypes.length + " coupon types");
+		ctypes.forEach(function(ctype){
+			ctype.state = {}; // create coupon state
+		});
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	gotoEditCoupons : function(event) {
+		page.show('/coupons/' + event.model.coupontype.id, event.model.coupontype.state);
+	},
+
+});
+</script>
