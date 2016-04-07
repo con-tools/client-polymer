@@ -413,7 +413,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
-				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
+				//if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
 				return;
 			}
 			callback(res);
