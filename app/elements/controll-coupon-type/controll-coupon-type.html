@@ -121,7 +121,6 @@ Polymer({
 	},
 	
 	ready : function(event) {
-		console.log("Loading coupons");
 	},
 	
 	populateCoupons : function(coupons) {
@@ -132,6 +131,7 @@ Polymer({
 	},
 	
 	loadCoupons : function() {
+		console.log("Loading coupons");
 		ConTroll.coupons.forType(this.couponTypeId, this.populateCoupons.bind(this));
 	},
 	
@@ -149,7 +149,7 @@ Polymer({
 	},
 	
 	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+		app.addEventListener('please-refresh-lists', this.loadCoupons.bind(this), false);
 	},
 	
 	syncAddUserForm : function(event) {
