@@ -109,8 +109,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </a>
 
           <a data-route="coupons" href="{{baseUrl}}coupons">
-            <iron-icon icon="content-cut"></iron-icon>
+            <iron-icon icon="redeem"></iron-icon>
             <span>Coupons</span>
+          </a>
+
+          <a data-route="merchandise" href="{{baseUrl}}merchandise">
+            <iron-icon icon="shopping-basket"></iron-icon>
+            <span>Merchandise</span>
           </a>
 
           <a data-route="managers" href="{{baseUrl}}managers">
@@ -208,6 +213,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Coupons</h2>
               </paper-material>
               <controll-coupon-type coupon-type-id="{{params.coupontypeid}}"></controll-coupon-type>
+            </section>
+
+            <section data-route="merchandise" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Merchandise</h2>
+              </paper-material>
+              <controll-merchandise></controll-merchandise>
             </section>
 
             <section data-route="managers" tabindex="-1">

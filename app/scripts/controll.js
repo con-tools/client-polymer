@@ -567,6 +567,69 @@ var ConTroll = (function(w,d){
 	}
 	
 	/**
+	 * ConTroll Merchandise API
+	 * @param ConTroll api
+	 */
+	var ConTrollMerchandise = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'merchandiseskus'};
+		return this;
+	};
+	
+	ConTrollMerchandise.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting merchandise catalog: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollMerchandise.prototype.create = function(title, code, price, description, callback) {
+		var data = {
+				title: title,
+				code: code,
+				price: price,
+				description: description
+			};
+		this.api.create(this.collection, data, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating a new SKU: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollMerchandise.prototype.remove = function(id, callback) {
+		this.api.del(this.collection, id, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error deleting an SKU: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+
+	ConTrollMerchandise.prototype.update = function(id, title, price, callback) {
+		this.api.update(this.collection, id, {
+			title: title,
+			price: price
+		}, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error updating an SKU: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+
+	/**
 	 * ConTroll Managers API
 	 * @param ConTroll api
 	 */
@@ -925,6 +988,7 @@ var ConTroll = (function(w,d){
 	ConTroll.tickets = new ConTrollTickets(api);
 	ConTroll.coupontypes = new ConTrollCouponTypes(api);
 	ConTroll.coupons = new ConTrollCoupons(api);
+	ConTroll.merchandise = new ConTrollMerchandise(api);
 	
 	api.handleAuth();
 	return ConTroll;

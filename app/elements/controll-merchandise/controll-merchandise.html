@@ -1,0 +1,162 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-merchandise">
+<template>
+	<style>
+	:host {
+		display: block;
+		box-sizing: border-box;
+	}
+	paper-item div {
+		margin: 0 1em;
+	}
+	.flex-horizontal { 
+		@apply (--layout-horizontal);
+	}
+	
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	.large-field {
+		width: 100%;
+	}
+	.non-bidi * {
+		direction: ltr;
+	}
+	.short-field {
+		width: 10em;
+	}
+	paper-material {
+		padding: .7em .2em;
+		margin: 1em 0;
+	}
+	paper-dialog {
+		width: 40em;
+	}
+	</style>
+	
+	<paper-material>
+	<template is="dom-repeat" items="{{skus}}" as="sku">
+		<paper-item class="container flex-horizontal">
+			<div>
+				<paper-input label="Title" value="{{sku.title}}" on-value-changed="allowSKUUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-input label="Code" value="{{sku.code}}" readonly></paper-input>
+			</div>
+			<div>
+				<paper-input label="Price" value="{{sku.price}}" on-value-changed="allowSKUUpdate"></paper-input>
+			</div>
+			<div>
+				<paper-icon-button icon="check" title="Apply" id="updateSKU" disabled="{{sku.preventUpdate}}"
+						on-tap="updateSKU"></paper-icon-button>
+			</div>
+			<div>
+				<paper-icon-button icon="clear" title="Remove" on-tap="removeSKU"></paper-icon-button>
+			</div>
+		</paper-item>
+	</template>
+	</paper-material>
+
+	<paper-material>
+		<paper-item>
+			<paper-button on-tap="showAddSKU" raised><iron-icon icon="add-circle"></iron-icon>Add Merchandise SKU</paper-button>
+		</paper-item>
+	</paper-material>
+	
+	<paper-dialog id="addSKUDialog">
+		<h3>Add a merchandise SKU:</h3>
+		<paper-item>
+			<paper-input label="Title" id="addSKUTitle"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-input label="Code" id="addSKUCode"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-input label="Price" id="addSKUPrice"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-textarea class="large-field" label="Description" id="addSKUDescription"></paper-input>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button on-tap="approveAddMerchandise" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button on-tap="showAddSKU" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-merchandise',
+	properties : {
+		skus : {
+			type: Array,
+			observer: '_updateSKUs'
+		},
+	},
+	
+	ready : function(event) {
+		console.log("Loading merchandise SKUs");
+		this.loadSKUs();
+	},
+	
+	populateSKUs : function(skus) {
+		this.set('skus', skus.map(function(sku){
+			sku.preventUpdate = true;
+			return sku;
+		}));
+	},
+	
+	loadSKUs : function() {
+		app.getCatalog('merchandise', this.populateSKUs.bind(this));
+	},
+	
+	_updateSKUs : function(skus) {
+		console.log("Got " + skus.length + " SKUs ");
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	allowSKUUpdate : function(event) {
+		event.model.set('sku.preventUpdate',false);
+	},
+	
+	updateSKU : function(event) {
+		ConTroll.merchandise.update(event.model.sku.id, 
+				event.model.sku.title,
+				event.model.sku.price,
+				this.ready.bind(this));
+		event.model.set('sku.preventUpdate',true);
+	},
+	
+	removeSKU : function(event) {
+		app.invalidateCatalog('merchandise');
+		ConTroll.merchandise.remove(event.model.sku.id, this.ready.bind(this));
+	},
+	
+	showAddSKU : function(event) {
+		this.$.addSKUTitle.value = null;
+		this.$.addSKUCode.value = null;
+		this.$.addSKUPrice.value = null;
+		this.$.addSKUDescription.value = null;
+		this.$.addSKUDialog.toggle();
+	},
+	
+	approveAddMerchandise : function(event) {
+		ConTroll.merchandise.create(this.$.addSKUTitle.value,
+				this.$.addSKUCode.value,
+				this.$.addSKUPrice.value,
+				this.$.addSKUDescription.value, 
+				(function(){
+					app.invalidateCatalog('merchandise');
+					this.showAddSKU();
+					this.ready();
+				}).bind(this));
+	}
+});
+</script>
