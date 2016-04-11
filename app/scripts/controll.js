@@ -717,9 +717,9 @@ var ConTroll = (function(w,d){
 	 * Main API private API entry point, 
 	 */
 	var ConTroll = function() {
-		//this.endpoint = 'http://api.con-troll.org';
+		this.endpoint = 'http://api.con-troll.org';
 		//if (window.location.host.match(/localhost/))
-			this.endpoint = 'http://localhost:8080';
+		//	this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;
