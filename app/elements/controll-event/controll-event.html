@@ -560,11 +560,15 @@ Polymer({
 	confirmRefundTicket : function() {
 		var couponid = this.$.refundCouponSelect.selectedItem.value,
 			id = this.refundTicketId;
+		this.refundTicket(); // hide the dialog
 		if (!id) {
 			alert("Error selecting ticket id");
 			return;
 		}
-		this.refundTicket(); // hide the dialog
+		if (!couponid) {
+			alert("Please select a valid coupon type");
+			return;
+		}
 		ConTroll.tickets.remove(id, couponid, this.loadTickets.bind(this, this.get('event')));
 	},
 	
