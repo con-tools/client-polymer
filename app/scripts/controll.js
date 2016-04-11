@@ -399,6 +399,17 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollTickets.prototype.remove = function(id, refundTypeId, callback) {
+		this.api.del(this.collection, id + '?refund-coupon-type='+ refundTypeId, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error removing a ticket: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
 	/**
 	 * ConTroll Coupon Types API
 	 * @param ConTroll api
@@ -706,9 +717,9 @@ var ConTroll = (function(w,d){
 	 * Main API private API entry point, 
 	 */
 	var ConTroll = function() {
-		this.endpoint = 'http://api.con-troll.org';
+		//this.endpoint = 'http://api.con-troll.org';
 		//if (window.location.host.match(/localhost/))
-		//	this.endpoint = 'http://localhost:8080';
+			this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;
@@ -747,7 +758,7 @@ var ConTroll = (function(w,d){
 			}
 			collection = collection.collection;
 		}
-		this.send('entities/' + collection + '/' + id, {}, callback, auth, 'DELETE');
+		this.send('entities/' + collection + '/' + id, null, callback, auth, 'DELETE');
 	};
 	
 	/**
@@ -805,7 +816,7 @@ var ConTroll = (function(w,d){
 			req.setRequestHeader("Content-type","application/json");
 			//req.setRequestHeader("Access-Control-Request-Method", "POST");
 		} else {
-			req.open('GET', this.endpoint + '/' + action);
+			req.open(method || 'GET', this.endpoint + '/' + action);
 		}
 		//req.setRequestHeader("Origin",window.location.host);
 		if (this.authToken) {
