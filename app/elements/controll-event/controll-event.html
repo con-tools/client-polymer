@@ -218,6 +218,9 @@
 					<strong>Reserved:</strong>
 					<span>[[ticket.reserved_time]]</span>
 				</div>
+				<div>
+					<paper-icon-button icon="clear" title="Remove" on-tap="refundTicket"></paper-icon-button>
+				</div>
 				</paper-item>
 			</paper-material>
 		</template>
@@ -233,6 +236,21 @@
 		<paper-item>
 			<paper-button on-tap="finishAddUser" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button on-tap="startAddUser" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="refundCouponVerify">
+		<h3>Select coupon type for refunds</h3>
+		<paper-item>
+		<paper-menu class="dropdown-content" id="refundCouponSelect">
+			<template is="dom-repeat" items="[[couponTypes]]" as="coupontype">
+				<paper-item value="[[coupontype.id]]">[[coupontype.title]]</paper-item>
+			</template>
+	  </paper-menu>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="confirmRefundTicket" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="refundTicket" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
 		</paper-item>
 	</paper-dialog>
 
@@ -272,6 +290,7 @@ Polymer({
 		locations: Array,
 		hosts: Array,
 		eventTickets: Array,
+		couponTypes: Array,
 		addTimeslotLocations : {
 			type: Array,
 			value: function() { return new Array(); }
@@ -397,6 +416,9 @@ Polymer({
 			}));
 		}).bind(this));
 		ConTroll.events.get(this.get('eventId'), this.populateForm.bind(this));
+		app.getCatalog('coupontypes', (function(types){
+			this.set('couponTypes',types);
+		}).bind(this));
 	},
 	
 	updateEvent : function(event) {
@@ -525,6 +547,25 @@ Polymer({
 	
 	removeTimeslot : function(event) {
 		ConTroll.timeslots.remove(event.model.timeslot.id, this._updateEventForm.bind(this));
+	},
+	
+	refundTicket : function(event) {
+		if (event && event.model)
+			this.refundTicketId = event.model.ticket.id;
+		else
+			this.refundTicketId = null;
+		this.$.refundCouponVerify.toggle();
+	},
+	
+	confirmRefundTicket : function() {
+		var couponid = this.$.refundCouponSelect.selectedItem.value,
+			id = this.refundTicketId;
+		if (!id) {
+			alert("Error selecting ticket id");
+			return;
+		}
+		this.refundTicket(); // hide the dialog
+		ConTroll.tickets.remove(id, couponid, this.loadTickets.bind(this, this.get('event')));
 	},
 	
 	gotoEvents : function() {
