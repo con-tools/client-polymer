@@ -127,7 +127,9 @@ Polymer({
 		this.set('coupons', coupons.map(function(c){
 			c.isConsumed = !!c.ticket;
 			return c;
-		}).reverse());
+		}).sort(function(a,b){ 
+			return a.user.email.localeCompare(b.user.email); 
+		}));
 	},
 	
 	loadCoupons : function() {
@@ -149,7 +151,10 @@ Polymer({
 	},
 	
 	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.loadCoupons.bind(this), false);
+		app.addEventListener('please-refresh-lists', (function(){
+			this.set('coupons', []);
+			this.loadCoupons();
+		}).bind(this), false);
 	},
 	
 	syncAddUserForm : function(event) {
