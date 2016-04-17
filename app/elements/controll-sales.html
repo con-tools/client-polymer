@@ -10,9 +10,40 @@
 	paper-item paper-input {
 		margin: 0 1em;
 	}
+	paper-material {
+		padding: 1em;
+		background: white;
+		margin-bottom: 1em;
+	}
+	paper-material table {
+		border-collapse: collapse;
+	}
+	paper-material table td {
+		border: solid black 1px;
+		padding: .5em;
+	}
 	</style>
 	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
+	<paper-material>
+	<h3>Totals:</h3>
+	<table>
+	<thead>
+	<tr>
+	<th>Code</th>
+	<th>Name</th>
+	<th>Total</th>
+	</tr>
+	</thead>
+	<tbody>
+	<template is="dom-repeat" items="[[skutotals]]" as="sku">
+		<tr><td lang="he">[[sku.code]]</td><td lang="he">[[sku.title]]</td><td>[[sku.total]]</td></tr>
+	</template>
+	</tbody>
+	</table>
+	</paper-material>
+	
+	<paper-material>
 	<template is="dom-repeat" items="[[purchases]]" as="sale">
 		<paper-item class="layout horizontal">
 			<paper-input readonly label="Name" value="{{sale.user.name}}"></paper-input>
@@ -21,6 +52,7 @@
 			<paper-input readonly label="Amount" value="{{sale.amount}}"></paper-input>
 		</paper-item>
 	</template>
+	</paper-material>
 	
 </template>
 </dom-module>
@@ -32,7 +64,8 @@ Polymer({
 		purchases : {
 			type: Array,
 			observer: 'updatedSales'
-		}
+		},
+		skutotals : Array
 	},
 
 	ready : function() {
@@ -52,7 +85,25 @@ Polymer({
 	},
 	
 	updatedSales : function(sales) {
-		
+		var summary = {};
+		var codes = {};
+		sales.forEach(function(sale){
+			if (!summary[sale.sku.code]) {
+				summary[sale.sku.code] = 0;
+				codes[sale.sku.code] = sale.sku.title;
+			}
+			summary[sale.sku.code] += 1;
+		})
+		var totals = [];
+		for (var code in summary)
+			totals.push({
+				code: code,
+				total: summary[code],
+				title: codes[code]
+			});
+		this.set('skutotals',totals.sort(function(a,b){
+			return a.title.localeCompare(b.title);
+		}));
 	}
 });
 </script>
