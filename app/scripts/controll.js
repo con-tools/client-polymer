@@ -641,6 +641,26 @@ var ConTroll = (function(w,d){
 	};
 
 	/**
+	 * ConTroll Purchases API
+	 * @param ConTroll api
+	 */
+	var ConTrollPurchases = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'purchases'};
+		return this;
+	};
+	
+	ConTrollPurchases.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '?all=1', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll Managers API
 	 * @param ConTroll api
 	 */
@@ -1000,6 +1020,7 @@ var ConTroll = (function(w,d){
 	ConTroll.coupontypes = new ConTrollCouponTypes(api);
 	ConTroll.coupons = new ConTrollCoupons(api);
 	ConTroll.merchandise = new ConTrollMerchandise(api);
+	ConTroll.purchases = new ConTrollPurchases(api);
 	
 	api.handleAuth();
 	return ConTroll;
