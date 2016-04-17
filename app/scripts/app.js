@@ -30,7 +30,7 @@
 		if (data instanceof Array) {
 			for (var i = 0; i < data.length; i++)
 				data[i] = this.dejsonify(data[i]);
-			return;
+			return data;
 		}
 		
 		if (typeof data == 'object') {
