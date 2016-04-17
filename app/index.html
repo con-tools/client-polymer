@@ -118,6 +118,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Merchandise</span>
           </a>
 
+          <a data-route="sales" href="{{baseUrl}}sales">
+            <iron-icon icon="shopping-basket"></iron-icon>
+            <span>Sales</span>
+          </a>
+
           <a data-route="managers" href="{{baseUrl}}managers">
             <iron-icon icon="assignment-ind"></iron-icon>
             <span>Managers</span>
@@ -220,6 +225,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Merchandise</h2>
               </paper-material>
               <controll-merchandise></controll-merchandise>
+            </section>
+
+            <section data-route="sales" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Sales</h2>
+              </paper-material>
+              <controll-sales></controll-sales>
             </section>
 
             <section data-route="managers" tabindex="-1">

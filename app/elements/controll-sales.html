@@ -1,0 +1,58 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-sales">
+<template>
+	<style>
+	*[lang=he] {
+		direction: rtl;
+	}
+	paper-item paper-input {
+		margin: 0 1em;
+	}
+	</style>
+	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+	
+	<template is="dom-repeat" items="[[purchases]]" as="sale">
+		<paper-item class="layout horizontal">
+			<paper-input readonly label="Name" value="{{sale.user.name}}"></paper-input>
+			<paper-input readonly label="E-Mail" value="{{sale.user.email}}"></paper-input>
+			<paper-input readonly class="flex" label="SKU" value="{{sale.sku.title}}" lang="he"></paper-input>
+			<paper-input readonly label="Amount" value="{{sale.amount}}"></paper-input>
+		</paper-item>
+	</template>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-sales',
+	properties : {
+		purchases : {
+			type: Array,
+			observer: 'updatedSales'
+		}
+	},
+
+	ready : function() {
+		app.getCatalog('purchases', this.populateSales.bind(this));
+	},
+
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	populateSales : function(sales) {
+		this.set('purchases', sales.filter(function(sale){
+			return sale.status == "authorized";
+		}).sort(function(a,b){
+			return a.user.name.localeCompare(b.user.name);
+		}));
+	},
+	
+	updatedSales : function(sales) {
+		
+	}
+});
+</script>
