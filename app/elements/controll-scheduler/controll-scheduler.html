@@ -3,6 +3,7 @@
 
 <dom-module id="controll-scheduler">
 <template>
+	<style is="custom-style" include="shared-styles"></style>
 	<style>
 	:host {
 		display: block;
@@ -41,9 +42,13 @@
 			<template is="dom-repeat" items="[[location.timeslots]]" as="timeslot">
 				<paper-material elevation="1">
 					<paper-item  class="container flex-horizontal">
+						<paper-icon-button icon="clear"  on-tap="cancelSchedule"></paper-icon-button>
 						<paper-icon-button icon="input"  on-tap="gotoEvent"></paper-icon-button>
-						<paper-item-body>[[timeslot.event.title]]</paper-item-body>
+						<paper-item-body class="flex">[[timeslot.event.title]]</paper-item-body>
 						<paper-item-body>[[timeslot.displayTime]]</paper-item-body>
+						<paper-item-body><iron-icon icon="expand-more"></iron-icon>[[timeslot.min_attendees]]</paper-item-body>
+						<paper-item-body><iron-icon icon="expand-less"></iron-icon>[[timeslot.max_attendees]]</paper-item-body>
+						<paper-item-body><iron-icon icon="label-outline"></iron-icon>[[timeslot.ticketsSold]]</paper-item-body>
 						<paper-item-body class="flexchild">
 							<strong>Hosts:</strong>
 							<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
@@ -55,6 +60,34 @@
 			</template>
 		</paper-material>
 	</template>
+	
+	<paper-dialog id="cancelScheduleDialog" lang="he">
+		<h2>ביטול שיבוץ</h2>
+		<p>
+			השיבוץ בשעה <span>[[timeslotToCancel.displayTime]]</span> של הארוע <span>[[timeslotToCancel.event.title]]</span> יבוטל
+			ו-<span>[[timeslotTicketsToCancel.length]]</span> כרטיסים יבוטלו תמורת קופוני ביטול משחק
+		</p>
+		<p>להלן רשימת השחקנים:</p>
+		<template is="dom-repeat" items="[[timeslotTicketsToCancel]]" as="ticket">
+		<paper-item tabindex="-1">
+			<iron-icon icon="face"></iron-icon>
+			<div>[[ticket.user.name]]</div>
+			<iron-icon icon="event-seat"></iron-icon>
+			<div>[[ticket.amount]]</div>
+		</paper-item>
+		</template>
+		<div class="layout horizontal">
+			<paper-button class="flex" raised on-tap="cancelScheduleApproved">
+				<iron-icon icon="check-circle"></iron-icon>
+				אישור
+			</paper-button>
+			<paper-button class="flex" raised on-tap="cancelSchedule">
+				<iron-icon icon="cancel"></iron-icon>
+				ביטול
+			</paper-button>
+		</div>
+	</paper-dialog>
+	
 </template>
 </dom-module>
 
@@ -65,7 +98,9 @@ Polymer({
 		conventionProperties: Object,
 		events: Array,
 		locations: Array,
-		timeslots: Array
+		timeslots: Array,
+		timeslotToCancel : Object,
+		timeslotTicketsToCancel : Array
 	},
 	
 	attached : function() {
@@ -83,7 +118,9 @@ Polymer({
 		app.getCatalog('locations',(function(locations){
 			this.locations = locations.map(function(location){
 				location.timeslots = location.timeslots.map(function(timeslot){
+					timeslot = app.dejsonify(timeslot);
 					timeslot.displayTime = moment(timeslot.start).format("MMM D, YYYY HH:mm");
+					timeslot.ticketsSold = parseInt(timeslot.max_attendees) - parseInt(timeslot.available_tickets);
 					return timeslot;
 				});
 				return location;
@@ -113,6 +150,35 @@ Polymer({
 	
 	gotoEvent : function(event) {
 		page.show('/events/' + event.model.timeslot.event.id);
+	},
+	
+	cancelSchedule : function(event) {
+		if (event && event.model) {
+			this.set('timeslotToCancel', event.model.timeslot);
+			ConTroll.tickets.forTimeslot(event.model.timeslot.id, (function(tickets){
+				this.set('timeslotTicketsToCancel', tickets);
+				this.$.cancelScheduleDialog.toggle();
+			}).bind(this));
+		} else {
+			this.set('timeslotToCancel', null);
+			this.set('timeslotTicketsToCancel', []);
+			this.$.cancelScheduleDialog.toggle();
+		}
+	},
+	
+	cancelScheduleApproved : function() {
+		if (this.get('timeslotTicketsToCancel').length > 0) { // refund ticket iteratively
+			var nextTicket = this.shift('timeslotTicketsToCancel');
+			ConTroll.tickets.remove(nextTicket.id, 22, // cancel game refund ticket see http://con-troll.org/#!/coupons/
+					this.cancelScheduleApproved.bind(this));
+			return;
+		}
+		
+		// all tickets refunded, cancel the schedule
+		ConTroll.timeslots.remove(this.get('timeslotToCancel').id, (function(){
+			this.cancelSchedule();
+			this.ready();
+		}).bind(this));
 	}
 });
 </Script>
