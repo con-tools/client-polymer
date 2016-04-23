@@ -356,8 +356,8 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
-	ConTrollTimeslots.prototype.remove = function(id, fields, callback) {
-		this.api.del(this.collection, id, fields, function(res, err){
+	ConTrollTimeslots.prototype.remove = function(id, callback) {
+		this.api.del(this.collection, id, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
 				if (err != 'CORS error') alert("Error removing a time slot: " + (err.error||err));
