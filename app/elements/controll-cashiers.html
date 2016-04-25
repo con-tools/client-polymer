@@ -1,0 +1,119 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-cashiers">
+<template>
+	<style is="custom-style" include="shared-styles"></style>
+	<style>
+	table {
+		border-collapse: collapse;
+	}
+	td {
+		padding: 0.5em;
+		border-bottom: solid darkgray 1px;
+	}
+	</style>
+	
+	<iron-pages id="loader" attr-for-selected="id" selected="now-loading" lang="he">
+
+		<div id="now-loading">
+			<paper-material>
+			<paper-item>
+				<paper-spinner active></paper-spinner>
+				<strong>נא להמתין בזמן שמידע נטען...</strong>
+			</paper-item>
+			</paper-material>
+		</div>
+
+		<div id="report">
+			<paper-material>
+				<h3>קופאים</h3>
+				<table>
+				<thead>
+					<tr>
+						<th>שם</th><th>תחילת משמרת</th><th>סוף משמרת</th><th>כמות כרטיסים</th><th>סכום</th>
+					</tr>
+				</thead>
+				<tbody>
+				<template is="dom-repeat" items="{{cashiers}}" as="cashier">
+					<tr>
+						<td>[[cashier.name]]</td>
+						<td>[[cashier.start]]</td>
+						<td>[[cashier.end]]</td>
+						<td>[[cashier.ticketCount]]</td>
+						<td>₪[[cashier.sum]]</td>
+					</tr>
+				</template>
+				</tbody>
+				</table>
+			</paper-material>
+		</div>
+	</iron-pages>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-cashiers',
+	properties : {
+		tickets: {
+			type: Array,
+			value: function() { return []; }
+		},
+		cashiers : {
+			type: Array,
+			value: function() { return []; }
+		},
+		start: {
+			type: String,
+			observer: 'startCashiersReport'
+		}
+	},
+
+	ready : function() {
+	},
+
+	attached : function() {
+	},
+	
+	startCashiersReport : function(start) {
+		if (!start)
+			return;
+		this.set('start',null);
+		ConTroll.tickets.catalog(this.calculateReport.bind(this));
+	},
+	
+	calculateReport : function(tickets) {
+		this.set('tickets',tickets);
+		var cashiers = {};
+		tickets.forEach(function(ticket){
+			if (!ticket.sale || !ticket.sale.cashier)
+				return;
+			var cashier = ticket.sale.cashier;
+			delete ticket.sale.cashier;
+			if (!cashiers[cashier.id]) {
+				cashiers[cashier.id] = cashier;
+				cashier.tickets = [];
+				cashier.sum = 0;
+				cashiers[cashier.id].ticketCount = 0;
+			}
+			if (ticket.timeslot.id == 1932) return; // ignore coupon consumption fake event
+			cashiers[cashier.id].tickets.push(ticket);
+			cashiers[cashier.id].sum += parseFloat(ticket.price);
+			cashiers[cashier.id].ticketCount += parseInt(ticket.amount);
+		});
+		var cashier_list = [];
+		for (var cid in cashiers) {
+			cashiers[cid].tickets = cashiers[cid].tickets.sort(function(a,b){
+				return moment(a.sale['sale-time']).toDate().getTime() - moment(b.sale['sale-time']).toDate().getTime();
+			});
+			cashiers[cid].start = moment(cashiers[cid].tickets[0].sale['sale-time']).subtract(5,'hour').format("MMM D, YYYY HH:mm");
+			cashiers[cid].end = moment(cashiers[cid].tickets[cashiers[cid].tickets.length-1].sale['sale-time']).subtract(5,'hour').format("MMM D, YYYY HH:mm");
+			cashier_list.push(cashiers[cid]);
+		}
+		this.set('cashiers', cashier_list);
+		this.$.loader.selected = 'report';
+	},
+});
+</script>
