@@ -400,7 +400,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollTickets.prototype.catalog = function(callback) {
-		this.api.get(this.collection, '', function(res, err) {
+		this.api.get(this.collection, '?all=1&is-valid=1', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				if (err != 'CORS error') alert("Error getting tickets for event: " + (err.error||err));
