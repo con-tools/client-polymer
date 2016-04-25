@@ -132,6 +132,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <iron-icon icon="shopping-cart"></iron-icon>
             <span>Tickets</span>
           </a>
+          
+          <a data-route="cashiers" href="{{baseUrl}}cashiers">
+            <iron-icon class="mirror" icon="toc"></iron-icon>
+            <span>Cashier Report</span>
+          </a>
         </paper-menu>
       </paper-scroll-header-panel>
 
@@ -224,14 +229,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Merchandise</h2>
               </paper-material>
-              <controll-merchandise></controll-merchandise>
+              <controll-merchandise start="{{params.merchandise}}"></controll-merchandise>
             </section>
 
             <section data-route="sales" tabindex="-1">
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Sales</h2>
               </paper-material>
-              <controll-sales></controll-sales>
+              <controll-sales start="{{params.sales}}"></controll-sales>
             </section>
 
             <section data-route="managers" tabindex="-1">
@@ -245,7 +250,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               <paper-material elevation="1">
                 <h2 class="page-title" tabindex="-1">Tickets</h2>
               </paper-material>
-              <controll-tickets></controll-tickets>
+              <controll-tickets start="{{params.tickets}}"></controll-tickets>
+            </section>
+
+            <section data-route="cashiers" tabindex="-1">
+              <paper-material elevation="1" style="display: none;">
+                <h4 class="page-title" tabindex="-1">Cashier Report</h4>
+              </paper-material>
+              <controll-cashiers start="{{params.cashiers}}"></controll-cashiers>
             </section>
 
             <section data-route="users" tabindex="-1">

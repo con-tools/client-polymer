@@ -65,10 +65,20 @@ Polymer({
 			type: Array,
 			observer: 'updatedSales'
 		},
-		skutotals : Array
+		skutotals : Array,
+		start: {
+			type: String,
+			observer: 'startSalesReport'
+		}
 	},
 
 	ready : function() {
+	},
+	
+	startSalesReport : function(start) {
+		if (!start)
+			return;
+		this.set('start',null);
 		app.getCatalog('purchases', this.populateSales.bind(this));
 	},
 

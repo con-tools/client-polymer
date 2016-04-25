@@ -106,16 +106,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     page('/merchandise', function() {
         app.route = 'merchandise';
+        app.params = { merchandise: "start" }
         setFocus(app.route);
       });
 
     page('/sales', function() {
         app.route = 'sales';
+        app.params = { sales: "start" }
         setFocus(app.route);
       });
 
     page('/tickets', function(data) {
         app.route = 'tickets';
+        app.params = { tickets: "start" }
+        setFocus(app.route);
+      });
+
+    page('/cashiers', function(data) {
+        app.route = 'cashiers';
+        app.params = { cashiers: "start" }
         setFocus(app.route);
       });
 

@@ -96,11 +96,21 @@ Polymer({
 			type: Array,
 			observer: '_updateSKUs'
 		},
+		start: {
+			type: String,
+			observer: 'startMerchandise'
+		}
 	},
 	
 	ready : function(event) {
 		console.log("Loading merchandise SKUs");
 		this.set('skus', []);
+	},
+	
+	startMerchandise : function(start) {
+		if (!start)
+			return;
+		this.set('start', null);
 		this.loadSKUs();
 	},
 	

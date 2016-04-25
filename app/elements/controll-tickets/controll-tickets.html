@@ -54,11 +54,22 @@ Polymer({
 		ticketStatus: {
 			type: Object,
 			observer: '_updatedTicketStatus'
+		},
+		timeslots : Array,
+		start: {
+			type: String,
+			observer: 'startTicketReport'
 		}
 	},
 	
 	ready : function(event) {
 		this.set('ticketStatus', {});
+	},
+	
+	startTicketReport : function(start) {
+		if (!start)
+			return;
+		this.set('start',null);
 		app.getCatalog('timeslots',this.populateTicketStatus.bind(this));
 	},
 	
@@ -78,6 +89,7 @@ Polymer({
 			percentOfCapacity: parseInt(100 * ticketsSold / maxAttends),
 			percentOfRequirement: parseInt(Math.min(100, (100 * ticketsSold / minAttends)))
 		});
+		this.set('timeslots', timeslots);
 	},
 	
 	_updatedTicketStatus : function(status) {
