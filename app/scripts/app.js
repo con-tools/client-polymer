@@ -138,7 +138,7 @@
 	
 	app.dejsonify = Catalog.prototype.dejsonify; // expose to other modules
 
-	ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ');
+	ConTroll.setConvention('gzJVMFEh7s3DvJrODESCs1Zj3Qc2ZDY1YjgyMWQ3ODRhYzliYTdlNjRiOTdhOThkYzdkNmUwY2RjZjlk');
 	ConTroll.ifAuth(function(){
 		ConTroll.getUserEmail(function(email){
 			console.log("User authenticated as " + email);
