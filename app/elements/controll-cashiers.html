@@ -45,6 +45,10 @@
 					</tr>
 				</template>
 				</tbody>
+				<tbody>
+					<tr><td cellspan="4">סה"כ</td>
+					<td>₪[[total]]</td>
+				</tbody>
 				</table>
 			</paper-material>
 		</div>
@@ -68,7 +72,8 @@ Polymer({
 		start: {
 			type: String,
 			observer: 'startCashiersReport'
-		}
+		},
+		total : Number
 	},
 
 	ready : function() {
@@ -98,11 +103,11 @@ Polymer({
 				cashier.sum = 0;
 				cashiers[cashier.id].ticketCount = 0;
 			}
-			if (ticket.timeslot.id == 1932) return; // ignore coupon consumption fake event
 			cashiers[cashier.id].tickets.push(ticket);
 			cashiers[cashier.id].sum += parseFloat(ticket.price);
 			cashiers[cashier.id].ticketCount += parseInt(ticket.amount);
 		});
+		var total = 0;
 		var cashier_list = [];
 		for (var cid in cashiers) {
 			cashiers[cid].tickets = cashiers[cid].tickets.sort(function(a,b){
@@ -111,7 +116,9 @@ Polymer({
 			cashiers[cid].start = moment(cashiers[cid].tickets[0].sale['sale-time']).subtract(5,'hour').format("MMM D, YYYY HH:mm");
 			cashiers[cid].end = moment(cashiers[cid].tickets[cashiers[cid].tickets.length-1].sale['sale-time']).subtract(5,'hour').format("MMM D, YYYY HH:mm");
 			cashier_list.push(cashiers[cid]);
+			total += cashiers[cid].sum;
 		}
+		this.set('total',total);
 		this.set('cashiers', cashier_list);
 		this.$.loader.selected = 'report';
 	},
