@@ -12,7 +12,7 @@
 	
 	<paper-dialog id="dateDialog" modal class="paper-time-picker-dialog" on-iron-overlay-closed="dismissDialog">
 		<paper-item>
-		<paper-date-picker id="datePicker" date="{{dateValue}}"></paper-date-picker>
+		<paper-date-picker id="datePicker" date="{{dateValue}}" min-date="2016-01-01"></paper-date-picker>
 		</paper-item>
 		<paper-item>
 		<div class="buttons">
@@ -62,8 +62,14 @@ Polymer({
 			readonly: true,
 			computed: 'formatDisplayValue(format,value)'
 		},
-		timeValue : String,
-		dateValue : String,
+		timeValue : {
+			type: String,
+			value: function() { return '09:00'; }
+		},
+		dateValue : {
+			type: Date,
+			value: function() { return new Date(); }
+		}
 	},
 	
 	formatDisplayValue : function (format,value) {
@@ -98,6 +104,10 @@ Polymer({
 	onValueChange: function() {
 		if (!(this.value instanceof Date)) {
 			this.set('value', moment(this.value).toDate());
+			return;
+		}
+		if (isNaN(this.value.getTime())) { // "invalid date" Date object
+			this.set('value', new Date()); // default to "today"
 			return;
 		}
 		this.set('dateValue', this.value);
