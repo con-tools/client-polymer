@@ -146,7 +146,7 @@ Polymer({
 	applyUpdateLocation : function(event) {
 		var loc = event.model.location;
 		app.invalidateCatalog('locations');
-		ConTroll.locations.update(loc.slug, loc.title, log.area, loc.max_attendees, this.ready.bind(this));
+		ConTroll.locations.update(loc.slug, loc.title, loc.area, loc.max_attendees, this.ready.bind(this));
 	},
 	
 	removeLocation : function(event) {
