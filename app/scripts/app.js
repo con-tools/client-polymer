@@ -138,7 +138,9 @@
 	
 	app.dejsonify = Catalog.prototype.dejsonify; // expose to other modules
 
-	ConTroll.setConvention('gzJVMFEh7s3DvJrODESCs1Zj3Qc2ZDY1YjgyMWQ3ODRhYzliYTdlNjRiOTdhOThkYzdkNmUwY2RjZjlk');
+	//ConTroll.setConvention('gzJVMFEh7s3DvJrODESCs1Zj3Qc2ZDY1YjgyMWQ3ODRhYzliYTdlNjRiOTdhOThkYzdkNmUwY2RjZjlk'); // igor 11
+	//ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ'); // bigor 16
+	ConTroll.setConvention('a4VZ0fxOugGgEk1zjvZLsEONYNBjNDZlNzMxZDNmN2VkMTIzNjYyNDFkNTc0NDZiOTI1ODhkZGVmZGEw'); // bigor 17
 	ConTroll.ifAuth(function(){
 		ConTroll.getUserEmail(function(email){
 			console.log("User authenticated as " + email);
