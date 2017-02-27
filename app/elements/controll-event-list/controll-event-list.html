@@ -1,3 +1,4 @@
+<!--  new version -->
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
@@ -61,7 +62,7 @@
 	</paper-item>
 	</paper-material>
 	
-	<paper-dialog id="addEventDialog">
+	<paper-dialog id="addEventDialog" modal>
 		<paper-item>
 			<paper-input class="large-field" label="Title" id="addEventTitle"></paper-input>
 		</paper-item>
@@ -89,7 +90,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="confirmDeleteDialog">
+	<paper-dialog id="confirmDeleteDialog" modal>
 		<h2>Are you sure you want to delete event "{{titleToDelete}}"?</h2>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="approveDeleteEvent" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
