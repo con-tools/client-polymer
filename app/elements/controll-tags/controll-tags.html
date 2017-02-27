@@ -71,7 +71,7 @@
 				<div>
 					<paper-dropdown-menu label="Required?" horizontal-align="left">
 					<paper-menu class="dropdown-content" id="addTagTypeRequirement">
-						<paper-item value="1">Required One</paper-item>
+						<paper-item value="1" selected="selected">Required One</paper-item>
 						<paper-item value="+">One or More</paper-item>
 						<paper-item value="*">Any (Optional)</paper-item>
 					</paper-menu>
@@ -151,8 +151,10 @@
 				if (!this.$.addTagTypeTitle.value) return;
 				this.$.addTagTypeDialog.toggle();
 				app.invalidateCatalog('tags');
-				ConTroll.tags.addType(this.$.addTagTypeTitle.value, this.$.addTagTypeRequirement.value, 
+				ConTroll.tags.addType(this.$.addTagTypeTitle.value, this.$.addTagTypeRequirement.selectedItem.getAttribute('value'),
 						this.$.addTagTypePublic.checked, this.ready.bind(this));
+				this.$.addTagTypeTitle.value = '';
+				this.$.addTagTypeRequirement.select(null);
 			},
 			
 			cancelAddTagType : function(event){
