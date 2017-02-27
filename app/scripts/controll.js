@@ -63,7 +63,10 @@ var ConTroll = (function(w,d){
 	 * specified url
 	 */
 	ConTrollAuth.prototype.startSelect = function(url) {
-		window.location.href = this.api.endpoint + '/auth/select?redirect-url=' + encodeURIComponent(url);
+		var parser = document.createElement('a');
+		parser.href = url;
+		window.location.href = this.api.endpoint + '/auth/select?redirect-url=' + 
+				encodeURIComponent(parser.protocol + "//" + parser.host +  parser.pathname);
 	};
 	
 	ConTrollAuth.prototype.logout = function(callback) {
@@ -749,8 +752,8 @@ var ConTroll = (function(w,d){
 	 */
 	var ConTroll = function() {
 		this.endpoint = 'http://api.con-troll.org';
-		//if (window.location.host.match(/localhost/))
-		//	this.endpoint = 'http://localhost:8080';
+		if (window.location.host.match(/localhost/))
+			this.endpoint = 'http://localhost:8080';
 		this.auth = new ConTrollAuth(this);
 		this.records = new ConTrollRecords(this);
 		return this;
