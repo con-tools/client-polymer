@@ -31,7 +31,7 @@
     "tag": "3.5.0",
     "commit": "57c85f624a7e19ffaf1a2c7d07d81180db17bec7"
   },
-  "_source": "git://github.com/chaijs/chai.git",
+  "_source": "https://github.com/chaijs/chai.git",
   "_target": "^3.2.0",
   "_originalSource": "chai"
 }

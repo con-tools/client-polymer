@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>vaadin-combo basic tests</title>
-  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
-  <script src="../../test-fixture/test-fixture-mocha.js"></script>
+
   <link rel="import" href="common.html">
 </head>
 
@@ -65,18 +64,6 @@
           expect(comboBox.value).to.eql('');
         });
 
-        it('should default back to empty when set to undefined', function() {
-          comboBox.value = undefined;
-
-          expect(comboBox.value).to.eql('');
-        });
-
-        it('should default back to empty when set to null', function() {
-          comboBox.value = null;
-
-          expect(comboBox.value).to.eql('');
-        });
-
         it('should be able to be set before items', function() {
           comboBox.value = 'foo';
 
@@ -88,7 +75,7 @@
 
         it('should be able to be set before object items', function() {
           var item = {label: 'foo', value: 1};
-          comboBox.value = '1';
+          comboBox.value = 1;
 
           comboBox.items = [item];
 
@@ -97,8 +84,22 @@
         });
       });
 
+      describe('hasValue property', function() {
+        it('should be readOnly', function() {
+          expect(comboBox.hasValue).to.be.false;
+          comboBox.hasValue = true;
+          expect(comboBox.hasValue).to.be.false;
+        });
+
+        it('should be updated when setting the value', function() {
+          comboBox.value = 'foo';
+          expect(comboBox.hasValue).to.be.true;
+        });
+      });
+
       describe('allow custom value property', function() {
         beforeEach(function() {
+          comboBox.items = [];
           comboBox.allowCustomValue = true;
         });
 
@@ -150,7 +151,7 @@
             comboBox.$.input.bindValue = 'foo';
             comboBox.close();
 
-            expect(combobox.value).to.be.empty;
+            expect(comboBox.value).to.be.empty;
           });
         });
       });
@@ -167,11 +168,24 @@
       });
 
       describe('selectedItem property', function() {
+        beforeEach(function() {
+          comboBox.items = ['foo'];
+        });
+
         it('should have null by default', function() {
           expect(comboBox.selectedItem).to.be.null;
         });
 
+        it('should set value and input', function() {
+          comboBox.selectedItem = 'foo';
+
+          expect(comboBox.value).to.eql('foo');
+          expect(comboBox.$.input.bindValue).to.eql('foo');
+        });
+
         it('should default back to null when value set to undefined', function() {
+          comboBox.value = 'foo';
+
           comboBox.value = undefined;
 
           expect(comboBox.selectedItem).to.be.null;
@@ -184,7 +198,6 @@
         });
 
         it('should be null after clearing the value', function() {
-          comboBox.items = ['foo'];
           comboBox.value = 'foo';
 
           comboBox._clear();

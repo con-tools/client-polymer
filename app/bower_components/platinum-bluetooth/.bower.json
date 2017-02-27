@@ -39,7 +39,7 @@
     "tag": "v1.0.0",
     "commit": "518477127df994802d85926b88af7e4bf90d85fb"
   },
-  "_source": "git://github.com/PolymerElements/platinum-bluetooth.git",
+  "_source": "https://github.com/PolymerElements/platinum-bluetooth.git",
   "_target": "^1.0.0",
   "_originalSource": "PolymerElements/platinum-bluetooth"
 }

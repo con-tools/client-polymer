@@ -34,7 +34,7 @@
     "tag": "v1.0.0",
     "commit": "130b61ac234147b6d815aa05f8b874163bf9e858"
   },
-  "_source": "git://github.com/eumendoza/paper-input-tags.git",
-  "_target": "^1.0.0",
+  "_source": "https://github.com/eumendoza/paper-input-tags.git",
+  "_target": "^1.0",
   "_originalSource": "paper-input-tags"
 }
