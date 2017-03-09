@@ -445,6 +445,35 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	ConTrollCouponTypes.prototype.add = function(title, value, category, callback) {
+		var data = {
+				title: title,
+				type: 'fixed',
+				value: value,
+				category: category,
+				multiuse: false
+		};
+		this.api.create(this.collection, data, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating coupon type: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	ConTrollCouponTypes.prototype.remove = function(typeId, callback) {
+		this.api.del(this.collection, typeId, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating coupon: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	}
+	
 	/**
 	 * ConTroll Coupons API
 	 * @param ConTroll api

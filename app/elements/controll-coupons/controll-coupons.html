@@ -34,20 +34,66 @@
 	</style>
 	
 	<paper-material elevation="1">
-	<template is="dom-repeat" items="{{coupontypes}}" as="coupontype">
+	<template is="dom-repeat" items="[[coupontypes]]" as="coupontype">
 		<paper-item class="container flex-horizontal">
 			<paper-item class="flexchild">
 				<paper-input class="large-field" label="Title" readonly value="{{coupontype.title}}"></paper-input>
 			</paper-item>
-			<div>
+			<paper-item>
 				<paper-input readonly label="Value" value="{{coupontype.value}}"></paper-input>
-			</div>
-			<div>
+			</paper-item>
+			<paper-item>
 				<paper-icon-button title="Edit" icon="view-list" on-tap="gotoEditCoupons"></paper-icon-button>
-			</div>
+			</paper-item>
+			<paper-item>
+				<paper-icon-button icon="clear" on-tap="removeCouponType" title="Remove"></paper-icon-button>
+			</paper-item>
 		</paper-item>
 	</template>
 	</paper-material>
+	
+	<paper-material>
+		<paper-item>
+			<paper-button on-tap="showAddType" raised><iron-icon icon="add-circle"></iron-icon>Add Coupon Type</paper-button>
+		</paper-item>
+	</paper-material>
+	
+	<paper-dialog id="addTypeDialog">
+		<h3>Add a coupon type</h3>
+		<paper-item>
+			<paper-input id="addTitle" name="title" label="Title" value=""></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-checkbox name="discount_type" disabled label="" checked="checked">Fixed Value</paper-checkbox>
+		</paper-item>
+		<paper-item>
+			<paper-input id="addValue" name="value" label="Value" value="" class="short-field" type="number" min="0"></paper-input>
+		</paper-item>
+		<paper-item>
+			<paper-input id="addCategory" name="category" label="Category" value=""></paper-input>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveAddType"><iron-icon icon="check"></iron-icon>Add</paper-button>
+			<paper-button raised on-tap="showAddType"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmRemoveCouponType">
+		<h3>Are you sure you want to remove this coupon type ?</h3>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="approveRemoveCouponType" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
+			<paper-button class="flexchild" on-tap="removeCouponType" raised><iron-icon icon="cancel"></iron-icon>No</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="cannotRemoveCouponType">
+		<h3>You cannot remove a used coupon type</h3>
+		<paper-item class="container flex-horizontal">
+			<paper-button class="flexchild" on-tap="cannotRemove" raised><iron-icon icon="cancel"></iron-icon>Close</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	
 </template>
 </dom-module>
 
@@ -58,7 +104,8 @@ Polymer({
 		coupontypes : {
 			type: Array,
 			observer: '_updateCoupons'
-		}
+		},
+		removeCouponTypeId: Number
 	},
 	
 	ready : function(event) {
@@ -84,6 +131,47 @@ Polymer({
 	gotoEditCoupons : function(event) {
 		page.show('/coupons/' + event.model.coupontype.id, event.model.coupontype.state);
 	},
+	
+	showAddType : function(event) {
+		this.$.addTitle.value = '';
+		this.$.addValue.value = '';
+		this.$.addCategory.value = '';
+		this.$.addTypeDialog.toggle();
+	},
+	
+	approveAddType : function(event) {
+		ConTroll.coupontypes.add(this.$.addTitle.value, this.$.addValue.value, 
+				this.$.addCategory.value, (function(){
+			app.invalidateCatalog('coupontypes');
+			app.getCatalog('coupontypes', function(cts) {
+				this.populateCouponTypes(cts);
+				this.showAddType();
+			}.bind(this));
+		}).bind(this));
+	},
+	
+	cannotRemove : function() {
+		this.$.cannotRemoveCouponType.toggle();
+	},
+	
+	removeCouponType : function(event) {
+		if (event && event.model) {
+			this.set('removeCouponTypeId', event.model.coupontype.id);
+		} else { // close dialog
+			this.set('removeCouponTypeId', null);
+		}
+		this.$.confirmRemoveCouponType.toggle();
+	},
+	
+	approveRemoveCouponType : function() {
+		ConTroll.coupontypes.remove(this.removeCouponTypeId, (function(){
+			app.invalidateCatalog('coupontypes');
+			app.getCatalog('coupontypes', function(cts) {
+				this.populateCouponTypes(cts);
+				this.$.confirmRemoveCouponType.toggle();
+			}.bind(this));
+		}).bind(this))
+	}
 
 });
 </script>
