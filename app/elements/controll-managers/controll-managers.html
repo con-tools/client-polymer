@@ -38,7 +38,7 @@
 		<paper-button raised on-tap="startAddManager"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
 	</paper-item>
 	
-	<paper-dialog id="addManagerDialog">
+	<paper-dialog id="addManagerDialog" modal>
 		<h3>Add a convention manager</h3>
 		<paper-item>
 			<div>
@@ -56,7 +56,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="confirmRemoveManager">
+	<paper-dialog id="confirmRemoveManager" modal>
 		<h3>Are you sure you want to remove {{managerName}} ({{managerEmail}}) from managing the convention?</h3>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="approveDeleteManager" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
