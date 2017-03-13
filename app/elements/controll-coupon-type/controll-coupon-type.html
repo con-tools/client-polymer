@@ -64,7 +64,7 @@
 	</template>
 	</paper-material>
 	
-	<paper-dialog id="addUserDialog">
+	<paper-dialog id="addUserDialog" modal>
 		<h3>Add a coupon for a user</h3>
 		<paper-item>
 			<div>
@@ -82,7 +82,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="confirmRemoveCoupon">
+	<paper-dialog id="confirmRemoveCoupon" modal>
 		<h3>Are you sure you want to remove coupon from {{removeCouponUser}} ?</h3>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="approveRemoveCoupon" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
@@ -90,7 +90,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="cannotRemoveCoupon">
+	<paper-dialog id="cannotRemoveCoupon" modal>
 		<h3>You cannot remove a used coupon</h3>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="cannotRemove" raised><iron-icon icon="cancel"></iron-icon>Close</paper-button>

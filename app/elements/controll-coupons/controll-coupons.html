@@ -55,7 +55,7 @@
 		</paper-item>
 	</paper-material>
 	
-	<paper-dialog id="addTypeDialog">
+	<paper-dialog id="addTypeDialog" modal>
 		<h3>Add a coupon type</h3>
 		<paper-item>
 			<paper-input id="addTitle" name="title" label="Title" value=""></paper-input>
@@ -75,7 +75,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="confirmRemoveCouponType">
+	<paper-dialog id="confirmRemoveCouponType" modal>
 		<h3>Are you sure you want to remove this coupon type ?</h3>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="approveRemoveCouponType" raised><iron-icon icon="check-circle"></iron-icon>Yes</paper-button>
@@ -83,7 +83,7 @@
 		</paper-item>
 	</paper-dialog>
 	
-	<paper-dialog id="cannotRemoveCouponType">
+	<paper-dialog id="cannotRemoveCouponType" modal>
 		<h3>You cannot remove a used coupon type</h3>
 		<paper-item class="container flex-horizontal">
 			<paper-button class="flexchild" on-tap="cannotRemove" raised><iron-icon icon="cancel"></iron-icon>Close</paper-button>
