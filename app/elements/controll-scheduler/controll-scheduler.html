@@ -52,7 +52,7 @@
 						<paper-item-body class="flexchild">
 							<strong>Hosts:</strong>
 							<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
-								[[host.name]]
+								<a href="mailto:[[host.email]]">[[host.name]])</a>
 							</template>
 						</paper-item-body>
 					</paper-item>
