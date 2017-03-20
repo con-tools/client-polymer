@@ -874,6 +874,7 @@ var ConTroll = (function(w,d){
 			}
 		};
 		req.withCredentials = true; // allow CORS cookies that are required for the PHP session
+		req.setRequestHeader("Cache-Control","no-cache");
 		if (data) {
 			req.open(method || 'POST', this.endpoint + '/' + action);
 			req.setRequestHeader("Content-type","application/json");
