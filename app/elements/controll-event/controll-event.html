@@ -551,11 +551,16 @@ Polymer({
 	},
 	
 	refundTicket : function(event) {
-		if (event && event.model)
+		if (event && event.model) {
 			this.refundTicketId = event.model.ticket.id;
-		else
+			ConTroll.tickets.remove(event.model.ticket.id, null, 
+					this.loadTickets.bind(this, this.get('event')), function(){
+				this.$.refundCouponVerify.toggle();
+			});
+		} else {
 			this.refundTicketId = null;
-		this.$.refundCouponVerify.toggle();
+			this.$.refundCouponVerify.toggle();
+		}
 	},
 	
 	confirmRefundTicket : function() {

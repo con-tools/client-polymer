@@ -413,11 +413,17 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
-	ConTrollTickets.prototype.remove = function(id, refundTypeId, callback) {
-		this.api.del(this.collection, id + '?refund-coupon-type='+ refundTypeId, function(res, err){
+	ConTrollTickets.prototype.remove = function(id, refundTypeId, callback, onErr) {
+		var query = id;
+		if (refundTypeId) 
+			query += '?refund-coupon-type='+ refundTypeId;
+		this.api.del(this.collection, query, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
-				if (err != 'CORS error') alert("Error removing a ticket: " + (err.error||err));
+				if (onErr)
+					onErr(res);
+				else
+					if (err != 'CORS error') alert("Error removing a ticket: " + (err.error||err));
 				return;
 			}
 			callback(res);
@@ -874,7 +880,6 @@ var ConTroll = (function(w,d){
 			}
 		};
 		req.withCredentials = true; // allow CORS cookies that are required for the PHP session
-		req.setRequestHeader("Cache-Control","no-cache");
 		if (data) {
 			req.open(method || 'POST', this.endpoint + '/' + action);
 			req.setRequestHeader("Content-type","application/json");
@@ -882,6 +887,7 @@ var ConTroll = (function(w,d){
 		} else {
 			req.open(method || 'GET', this.endpoint + '/' + action);
 		}
+		req.setRequestHeader("Cache-Control","no-cache");
 		//req.setRequestHeader("Origin",window.location.host);
 		if (this.authToken) {
 			//req.setRequestHeader('Access-Control-Request-Headers', 'Authorization');
