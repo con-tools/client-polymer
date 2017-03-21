@@ -40,16 +40,7 @@
 	
 	<paper-dialog id="addManagerDialog" modal>
 		<h3>Add a convention manager</h3>
-		<paper-item>
-			<div>
-			<vaadin-combo-box label="Name" id="addManagerName" items="[[usersNames]]" 
-					on-value-changed="syncAddManagerForm"></vaadin-combo-box>
-			</div>
-			<div>
-			<vaadin-combo-box label="E-Mail" id="addManagerEmail" items="[[usersEmails]]" 
-					on-value-changed="syncAddManagerForm"></vaadin-combo-box>
-			</div>
-		</paper-item>
+		<controll-user-select id="userSelector" value="{{userToAdd}}"></controll-user-select>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approveAddManager"><iron-icon icon="check"></iron-icon>Add</paper-button>
 			<paper-button raised on-tap="cancelAddManager"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -74,10 +65,7 @@ Polymer({
 		managers : {
 			type: Array,
 			observer: '_updateManagers'
-		},
-		users : Array,
-		usersNames : Array,
-		usersEmails : Array,
+		}
 	},
 	
 	ready : function(event) {
@@ -98,59 +86,17 @@ Polymer({
 	},
 	
 	startAddManager : function(){
-		this.userIdToAdd = null;
-		this.$.addManagerEmail.value = null;
-		this.$.addManagerName.value = null;
-		this.set('users', null);
-		this.set('usersName', null);
-		this.set('usersEmails', null);
-		app.getCatalog('users', function(users){
-			console.log("Listing users, got",users.length);
-			this.set('users', users);
-			this.set('usersNames', users.map(function(user){
-				return user.name;
-			}));
-			this.set('usersEmails', users.map(function(user){
-				return user.email;
-			}));
+		this.$.userSelector.show(function(){
 			this.$.addManagerDialog.toggle();
 		}.bind(this));
 	},
 	
-	syncAddManagerForm : function(event) {
-		if (!this.users || (!this.$.addManagerName.value && !this.$.addManagerEmail.value)) // could happen during init
-			return;
-		if (this.userIdToAdd)
-			return;
-		var inputElId = event.target.id;
-		var value = event.target.value;
-		var user = this.users.find(function(user){
-			return (inputElId == 'addManagerName' && user.name == value) ||
-					(inputElId == 'addManagerEmail' && user.email == value);
-		});
-		
-		if (!user) { // not found, clear everything and leave
-			this.$.addManagerName.value = null;
-			this.$.addManagerEmail.value = null;
-			this.userIdToAdd = null;
-			return;
-		}
-		
-		// store value for add
-		this.userIdToAdd = user.id;
-		// sync found user between comboboxes
-		if (inputElId == 'addManagerName' && this.$.addManagerEmail.value != user.email)
-			this.$.addManagerEmail.value = user.email;
-		else if (inputElId == 'addManagerEmail' && this.$.addManagerName.value != user.name)
-			this.$.addManagerName.value = user.name;
-	},
-	
 	approveAddManager : function(){
 		this.$.addManagerDialog.toggle();
-		if (!this.userIdToAdd)
+		if (!this.userToAdd)
 			return;
 		app.invalidateCatalog('managers');
-		ConTroll.managers.add({id: this.userIdToAdd}, this.ready.bind(this));
+		ConTroll.managers.add({id: this.userToAdd.id}, this.ready.bind(this));
 	},
 	
 	cancelAddManager : function(){
