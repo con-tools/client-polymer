@@ -1,0 +1,129 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-user-select">
+<template>
+	<style>
+	*[lang=he] {
+		direction: rtl;
+	}
+	paper-item paper-input {
+		margin: 0 1em;
+	}
+	paper-material {
+		padding: 1em;
+		background: white;
+		margin-bottom: 1em;
+	}
+	paper-material table {
+		border-collapse: collapse;
+	}
+	paper-material table td {
+		border: solid black 1px;
+		padding: .5em;
+	}
+	</style>
+	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+	
+	<paper-item>
+		<div>
+		<vaadin-combo-box label="Name" id="selectUserName" items="[[users]]" item-label-path="name" item-value-path="id"
+				on-value-changed="syncSelectUser"></vaadin-combo-box>
+		</div>
+		<div>
+		<vaadin-combo-box label="E-Mail" id="selectUserEmail" items="[[users]]"  item-label-path="email" item-value-path="id"
+				on-value-changed="syncSelectUser"></vaadin-combo-box>
+		</div>
+	</paper-item>
+
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-user-select',
+	properties : {
+		value: {
+			type: Number,
+			observer: '_onValueChanged',
+			notify: true
+		},
+		name: {
+			type: String,
+			observer: '_onNameChanged',
+			notify: true
+		},
+		email: {
+			type: String,
+			observer: '_onEmailChanged',
+			notify: true
+		},
+		users : Array,
+		usersNames : Array,
+		usersEmails : Array
+	},
+
+	ready : function() {
+	},
+	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+	},
+	
+	_onValueChanged : function(event) {
+		debugger;
+	},
+	
+	_onNameChanged : function(event) {
+		debugger;
+	},
+	
+	_onEmailChanged : function(event) {
+		debugger;
+	},
+	
+	show : function(onComplete) {
+		this.$.selectUserName.value = null;
+		this.$.selectUserEmail.value = null;
+		this.set('users', null);
+		this.set('usersNames', null);
+		this.set('usersEmails', null);
+		app.getCatalog('users', function(users){
+			console.log("Listing users, got",users.length);
+			this.set('users', users);
+			this.set('usersNames', users.map(function(user){
+				return user.name;
+			}));
+			this.set('usersEmails', users.map(function(user){
+				return user.email;
+			}));
+			(onComplete || function(){})();
+		}.bind(this));
+	},
+	
+	syncSelectUser : function(event) {
+		if (!this.users || (!this.$.selectUserName.value && !this.$.selectUserEmail.value)) // could happen during init
+			return;
+		if (!event.target.selectedItem)
+			return;
+		var inputElId = event.target.id;
+		if (inputElId == 'selectUserName') {
+			this.$.selectUserEmail.value = event.target.value;
+		} else {
+			this.$.selectUserName.value = event.target.value;
+		}
+		var value = event.target.value;
+		var user = this.users.find(function(user){ return user.id == value; });
+		if (user) {
+			this.set('value', user);
+			this.set('name', user.name);
+			this.set('email', user.email);
+		} else {
+			this.set('value', null);
+			this.set('name', null);
+			this.set('email', null);
+		}
+	},
+	
+});
+</script>
