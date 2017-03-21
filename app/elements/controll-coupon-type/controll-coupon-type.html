@@ -66,16 +66,7 @@
 	
 	<paper-dialog id="addUserDialog" modal>
 		<h3>Add a coupon for a user</h3>
-		<paper-item>
-			<div>
-			<vaadin-combo-box label="Name" id="addUserName" items="[[users]]" item-label-path="name" item-value-path="id"
-					on-value-changed="syncAddUserForm"></vaadin-combo-box>
-			</div>
-			<div>
-			<vaadin-combo-box label="E-Mail" id="addUserEmail" items="[[users]]"  item-label-path="email" item-value-path="id"
-					on-value-changed="syncAddUserForm"></vaadin-combo-box>
-			</div>
-		</paper-item>
+		<controll-user-select id="userSelector" email="{{userIdToAdd}}"></controll-user-select>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approveAddUser"><iron-icon icon="check"></iron-icon>Add</paper-button>
 			<paper-button raised on-tap="showAddUser"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -112,9 +103,6 @@ Polymer({
 			type: Array,
 			observer: '_updateCoupons'
 		},
-		users : Array,
-		usersNames : Array,
-		usersEmails : Array,
 		userIdToAdd: String,
 		removeCouponUser: String,
 		removeCouponId: Number
@@ -157,35 +145,10 @@ Polymer({
 		}).bind(this), false);
 	},
 	
-	syncAddUserForm : function(event) {
-		if (!this.users || (!this.$.addUserName.value && !this.$.addUserEmail.value)) // could happen during init
-			return;
-		if (event.target.id == 'addUserName') {
-			this.$.addUserEmail.value = event.target.value;
-		} else {
-			this.$.addUserName.value = event.target.value;
-		}
-		this.userIdToAdd = event.target.selectedItem.email;
-	},
-	
 	showAddUser : function(event) {
-		this.$.addUserName.value = null;
-		this.$.addUserEmail.value = null;
-		this.set('users', null);
-		this.set('usersName', null);
-		this.set('usersEmails', null);
-		app.getCatalog('users', function(users){
-			console.log("Listing users, got",users.length);
-			this.set('users', users);
-			this.set('usersNames', users.map(function(user){
-				return user.name;
-			}));
-			this.set('usersEmails', users.map(function(user){
-				return user.email;
-			}));
-			this.$.addUserDialog.toggle();
+		this.$.userSelector.show(function(){
+			this.$.addUserDialog.toggle()
 		}.bind(this));
-		
 	},
 	
 	approveAddUser : function(event) {
