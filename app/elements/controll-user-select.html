@@ -34,7 +34,19 @@
 		<vaadin-combo-box label="E-Mail" id="selectUserEmail" items="[[users]]"  item-label-path="email" item-value-path="id"
 				on-value-changed="syncSelectUser"></vaadin-combo-box>
 		</div>
+		<div>
+		<paper-icon-button icon="add-circle" on-tap="addNewUser" title="Add A New User"></iron-icon>
+		</div>
 	</paper-item>
+	
+	<paper-dialog id="newUserForm" modal>
+		<paper-input id="newUserName" label="Name"></paper-input>
+		<paper-input id="newUserEmail" label="E-Mail"></paper-input>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approve"><iron-icon icon="check"></iron-icon>Add</paper-button>
+			<paper-button raised on-tap="cancel"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
 
 </template>
 </dom-module>
@@ -71,15 +83,34 @@ Polymer({
 	},
 	
 	_onValueChanged : function(event) {
-		debugger;
 	},
 	
 	_onNameChanged : function(event) {
-		debugger;
 	},
 	
 	_onEmailChanged : function(event) {
-		debugger;
+	},
+	
+	addNewUser : function(event) {
+		this.$.newUserName.value = '';
+		this.$.newUserEmail.value = '';
+		this.$.newUserForm.toggle();
+	},
+	
+	approve : function() {
+		ConTroll.users.create(this.$.newUserName.value, this.$.newUserEmail.value,
+				function(){
+			this.set('name', this.$.newUserName.value);
+			this.set('email', this.$.newUserEmail.value);
+			app.invalidateCatalog('users');
+			this.refreshData(function(){
+				this.addNewUser();
+			}.bind(this));
+		}.bind(this));
+	},
+	
+	cancel : function() {
+		this.addNewUser();
 	},
 	
 	show : function(onComplete) {
@@ -88,6 +119,10 @@ Polymer({
 		this.set('users', null);
 		this.set('usersNames', null);
 		this.set('usersEmails', null);
+		this.refreshData(onComplete);
+	},
+	
+	refreshData : function(onComplete) {
 		app.getCatalog('users', function(users){
 			console.log("Listing users, got",users.length);
 			this.set('users', users);
@@ -97,6 +132,16 @@ Polymer({
 			this.set('usersEmails', users.map(function(user){
 				return user.email;
 			}));
+			var user = this.users.find(function(user){
+				return (this.value && this.value.id == user.id) ||
+					(this.email && this.email == user.email) ||
+					(this.name && this.name == user.name)
+			}.bind(this));
+			if (user) {
+				this.$.selectUserName.value = user.id;
+				this.$.selectUserEmail.value = user.id;
+				this.updateUser(user);
+			}
 			(onComplete || function(){})();
 		}.bind(this));
 	},
@@ -114,16 +159,14 @@ Polymer({
 		}
 		var value = event.target.value;
 		var user = this.users.find(function(user){ return user.id == value; });
-		if (user) {
-			this.set('value', user);
-			this.set('name', user.name);
-			this.set('email', user.email);
-		} else {
-			this.set('value', null);
-			this.set('name', null);
-			this.set('email', null);
-		}
+		this.updateUser(user);
 	},
+	
+	updateUser : function(user) {
+		this.set('value', user);
+		this.set('name', user ? user.name : null);
+		this.set('email', user ? user.email : null);
+	}
 	
 });
 </script>
