@@ -1,0 +1,76 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-locations-editor"> <template>
+<style>
+</style>
+
+<template is="dom-repeat" items="{{locations}}" as="location">
+	<paper-item>
+		<div>{{location.title}}</div>
+		<div>
+			<paper-icon-button icon="clear" title="Remove" on-tap="removeLocation"></paper-icon-button>
+		</div>
+	</paper-item>
+</template>
+
+<paper-item>
+	<vaadin-combo-box style="width: 30em;" label="Available Locations"
+		id="locationList" items="[[availableLocations]]"
+		item-value-path="slug" item-label-path="title"
+		on-value-changed="addLocation"></vaadin-combo-box>
+</paper-item>
+
+</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is : 'controll-locations-editor',
+		properties : {
+			locations : {
+				type: Array,
+				observer: '_updateLocations',
+				value: function() { return new Array(); },
+				notify: true
+			}
+		},
+
+		ready : function() {
+		},
+
+		attached : function() {
+			app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
+			this.refreshData();
+		},
+		
+		refreshData : function() {
+			app.getCatalog('locations', (function(locations){
+				this.set('availableLocations', locations);
+			}).bind(this));
+		},
+		
+		_updateLocations : function(event){
+			
+		},
+		
+		addLocation : function(event){
+			var locval = this.$.locationList.value;
+			if (!this.locations || !locval) return;
+			if (!this.locations.find(function(loc){return loc.slug == locval;})) { // not already there
+				this.push('locations', this.availableLocations.find(function(loc){
+					return loc.slug == locval;
+				}));
+			}
+			window.setTimeout((function(){
+				this.$.locationList.value = null;
+			}).bind(this),100);
+		},
+		
+		removeLocation : function(event) {
+			var loctoremove = this.locations.indexOf(event.model.location);
+			this.splice('locations', loctoremove, 1);
+		}
+		
+	});
+</script>

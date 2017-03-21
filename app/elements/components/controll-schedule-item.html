@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-schedule-item">
+<template>
+	<style>
+	*[lang=he] {
+		direction: rtl;
+	}
+	paper-item paper-input {
+		margin: 0 1em;
+	}
+	paper-material {
+		padding: 1em;
+		background: white;
+		margin-bottom: 1em;
+	}
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	.text-block {
+		display: inline-block;
+		margin: 0 !important;
+	}
+	</style>
+	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+
+	<paper-material elevation="2">
+		<paper-item class="container flex-horizontal">
+			<div>
+				<span>[[timeslot.id]].</span>
+				<strong>Start Time:</strong>
+				<span>[[timeslot.displayTime]]</span>
+				<strong>Duration:</strong>
+				<span>[[timeslot.duration]] minutes</span>
+			</div>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<div class="flexchild">
+				<strong>Locations:</strong>
+				<template is="dom-repeat" items="[[timeslot.locations]]" as="location">
+					<div class="text-block">[[location.title]]</div>
+				</template>
+			</div>
+			<paper-icon-button icon="create" title="Edit" on-tap="updateSchedule"></paper-icon-button>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<div class="flexchild">
+				<strong>Hosts:</strong>
+				<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
+					<span title="[[host.email]]">[[host.name]]</span>
+				</template>
+			</div>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot"></paper-icon-button>
+		</paper-item>
+	</paper-material>
+	
+	<paper-dialog id="editLocations" modal>
+		<controll-locations-editor locations="{{locationsToEdit}}"></controll-locations-editor>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approve"><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button raised on-tap="cancel"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+		
+	</paper-dialog>
+
+</template>
+</dom-module>
+
+<script>
+	Polymer({
+		is : 'controll-schedule-item',
+		properties : {
+			timeslot: {
+				type: Object,
+				observer: '_timeslotUpdated',
+				notify: true
+			}
+		},
+
+		ready : function() {
+		},
+
+		attached : function() {
+		},
+		
+		_timeslotUpdated: function(timeslot) {
+			
+		},
+		
+		updateSchedule : function(event) {
+			this.set('locationsToEdit', this.timeslot.locations.slice());
+			this.$.editLocations.toggle();
+		},
+		
+		approve : function() {
+			var newLocations = this.locationsToEdit.sort(function(a,b){
+				return a.slug.localeCompare(b.slug);
+			});
+			var locationsToRemove = this.timeslot.locations.filter(function(loc){
+				return !newLocations.find(function(nloc){ return nloc.slug == loc.slug; });
+			});
+			ConTroll.timeslots.updateLocations(this.timeslot.id, newLocations, 
+					locationsToRemove, function(){
+				this.set('timeslot.locations', []);
+				this.set('timeslot.locations', newLocations);
+				this.updateSchedule();
+			}.bind(this));
+		},
+		
+		cancel : function() {
+			this.updateSchedule();
+		}
+
+	});
+</script>

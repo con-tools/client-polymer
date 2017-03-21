@@ -44,6 +44,10 @@
 	.tagtype-hide {
 		display: none;
 	}
+	.text-block {
+		display: inline-block;
+		margin: 0 !important;
+	}
 	</style>
 	
 	<paper-material elevation="1">
@@ -121,31 +125,7 @@
 			<h3>Schedule:</h3>
 		</paper-item>
 		<template is="dom-repeat" items="[[eventTimeslots]]" as="timeslot">
-			<paper-material elevation="2">
-				<paper-item class="container flex-horizontal">
-				<div>
-					<span>[[timeslot.id]].</span>
-					<strong>Start Time:</strong>
-					<span>[[timeslot.displayTime]]</span>
-					<strong>Duration:</strong>
-					<span>[[timeslot.duration]] minutes</span>
-				</div>
-				&nbsp;&nbsp;&nbsp;&nbsp;
-				<div class="flexchild"><strong>Locations:</strong>
-				<template is="dom-repeat" items="[[timeslot.locations]]" as="location">
-					<span>[[location.title]]</span>
-				</template>
-				</div>
-				&nbsp;&nbsp;&nbsp;&nbsp;
-				<div class="flexchild"><strong>Hosts:</strong>
-				<template is="dom-repeat" items="[[timeslot.hosts]]" as="host">
-					<span title="[[host.email]]">[[host.name]]</span>
-				</template>
-				</div>
-				&nbsp;&nbsp;&nbsp;&nbsp;
-				<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot"></paper-icon-button>
-				</paper-item>
-			</paper-material>
+			<controll-schedule-item timeslot="[[timeslot]]"></controll-schedule-item>
 		</template>
 		
 		<paper-item class="container flex-horizontal">
@@ -162,18 +142,7 @@
 				</iron-label>
 			</paper-item>
 				<h4>Locations:</h4>
-				<template is="dom-repeat" items="{{addTimeslotLocations}}" as="location">
-					<paper-item>
-						<div>{{location.title}}</div>
-						<div>
-							<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslotLocation"></paper-icon-button>
-						</div>
-					</paper-item>
-				</template>
-				<paper-item>
-					<vaadin-combo-box style="width: 30em;" label="Available Locations" id="timestampLocationList" items="[[locations]]"
-							item-value-path="slug" item-label-path="title" on-value-changed="pushTimeslotLocations"></vaadin-combo-box>
-				</paper-item>
+				<controll-locations-editor locations="{{addTimeslotLocations}}"></controll-locations-editor>
 			<paper-item>
 			</paper-item>
 				<h4>Hosts:</h4>
@@ -288,14 +257,9 @@ Polymer({
 		},
 		eventTimeslots : Array,
 		conventionProperties: Object,
-		locations: Array,
 		hosts: Array,
 		eventTickets: Array,
 		couponTypes: Array,
-		addTimeslotLocations : {
-			type: Array,
-			value: function() { return new Array(); }
-		},
 		addTimeslotHosts : {
 			type: Array,
 			value: function() { return new Array(); }
@@ -407,9 +371,6 @@ Polymer({
 	_updateEventForm : function() {
 		this.clearEventForm(); // clear everything by the event id
 		console.log('Loading event data for',this.get('eventId'));
-		app.getCatalog('locations', (function(locations){
-			this.set('locations', locations);
-		}).bind(this));
 		app.getCatalog('users', (function(users){
 			this.set('hosts', users.map(function(user){
 				user.label = user.name + ' <' + user.email + '>';
@@ -488,24 +449,6 @@ Polymer({
 	
 	addTimeslot : function() {
 		this.$.addTimeslotDialog.toggle();
-	},
-	
-	pushTimeslotLocations : function(event){
-		var locval = this.$.timestampLocationList.value;
-		if (!this.addTimeslotLocations || !locval) return;
-		if (!this.addTimeslotLocations.find(function(loc){return loc.slug == locval;})) { // not already there
-			this.push('addTimeslotLocations', this.locations.find(function(loc){
-				return loc.slug == locval;
-			}));
-		}
-		window.setTimeout((function(){
-			this.$.timestampLocationList.value = null;
-		}).bind(this),100);
-	},
-	
-	removeTimeslotLocation : function(event) {
-		var loctoremove = this.addTimeslotLocations.indexOf(event.model.location);
-		this.splice('addTimeslotLocations', loctoremove, 1);
 	},
 	
 	pushTimeslotHosts : function(event) {
