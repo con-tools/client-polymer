@@ -35,6 +35,12 @@
 	</style>
 	
 	<paper-material elevation="1">
+	<paper-item>
+		<paper-button raised on-tap="addEvent"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
+	</paper-item>
+	</paper-material>
+	
+	<paper-material elevation="1">
 	<template is="dom-repeat" items="{{events}}" as="event">
 		<paper-item class="container flex-horizontal">
 			<paper-item class="flexchild">
@@ -56,12 +62,6 @@
 	</template>
 	</paper-material>
 	
-	<paper-material elevation="1">
-	<paper-item>
-		<paper-button raised on-tap="addEvent"><iron-icon icon="add-circle"></iron-icon>Add</paper-button>
-	</paper-item>
-	</paper-material>
-	
 	<paper-dialog id="addEventDialog" modal>
 		<paper-item>
 			<paper-input class="large-field" label="Title" id="addEventTitle"></paper-input>
@@ -74,16 +74,7 @@
 				<div suffix>minutes</div>
 			</paper-input>
 		</paper-item>
-		<paper-item>
-			<div>
-			<vaadin-combo-box label="Name" id="addOwnerName" items="[[usersNames]]" 
-					on-value-changed="syncAddEventForm"></vaadin-combo-box>
-			</div>
-			<div>
-			<vaadin-combo-box label="E-Mail" id="addOwnerEmail" items="[[usersEmails]]" 
-					on-value-changed="syncAddEventForm"></vaadin-combo-box>
-			</div>
-		</paper-item>
+		<controll-user-select id="userSelector" value="{{addEventOwner}}"></controll-user-select>
 		<paper-item>
 			<paper-button on-tap="approveAddEvent" raised><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button on-tap="cancelAddEvent" raised><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -153,54 +144,13 @@ Polymer({
 	},
 	
 	addEvent : function(){
-		this.addEventOwnerId = null;
-		this.$.addOwnerEmail.value = null;
-		this.$.addOwnerName.value = null;
+		this.addEventOwner = null;
 		this.$.addEventTitle.value = null;
 		this.$.addEventTeaser.value = null;
 		this.$.addEventDuration.value = null;
-		this.set('users', null);
-		this.set('usersName', null);
-		this.set('usersEmails', null);
-		app.getCatalog('users', function(users){
-			console.log("Listing users, got",users.length);
-			this.set('users', users);
-			this.set('usersNames', users.map(function(user){
-				return user.name;
-			}));
-			this.set('usersEmails', users.map(function(user){
-				return user.email;
-			}));
+		this.$.userSelector.show(function(){
 			this.$.addEventDialog.toggle();
 		}.bind(this));
-	},
-	
-	syncAddEventForm : function(event) {
-		if (!this.users || (!this.$.addOwnerName.value && !this.$.addOwnerEmail.value)) // could happen during init
-			return;
-		if (this.addEventOwnerId)
-			return;
-		var inputElId = event.target.id;
-		var value = event.target.value;
-		var user = this.users.find(function(user){
-			return (inputElId == 'addOwnerName' && user.name == value) ||
-					(inputElId == 'addOwnerEmail' && user.email == value);
-		});
-		
-		if (!user) { // not found, clear everything and leave
-			this.$.addOwnerName.value = null;
-			this.$.addOwnerEmail.value = null;
-			this.addEventOwnerId = null;
-			return;
-		}
-		
-		// store value for add
-		this.addEventOwnerId = user.id;
-		// sync found user between comboboxes
-		if (inputElId == 'addOwnerName' && this.$.addOwnerEmail.value != user.email)
-			this.$.addOwnerEmail.value = user.email;
-		else if (inputElId == 'addOwnerEmail' && this.$.addOwnerName.value != user.name)
-			this.$.addOwnerName.value = user.name;
 	},
 	
 	cancelAddEvent : function() {
@@ -210,7 +160,7 @@ Polymer({
 	approveAddEvent : function() {
 		this.$.addEventDialog.toggle();
 		ConTroll.events.create(this.$.addEventTitle.value, this.$.addEventTeaser.value || '',
-				parseInt(this.$.addEventDuration.value), this.addEventOwnerId, function(event){
+				parseInt(this.$.addEventDuration.value), this.addEventOwner.id, function(event){
 			if (event.status)
 				page.show('/events/' + event.id);
 			else
