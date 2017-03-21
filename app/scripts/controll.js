@@ -369,6 +369,19 @@ var ConTroll = (function(w,d){
 			callback(res);
 		});
 	};
+	
+	ConTrollTimeslots.prototype.updateLocations = function(id, toAdd, toRemove, callback) {
+		this.api.update(this.collection, id, {
+			'locations': toAdd.map(function(l){ return l.slug ? l.slug : l; }),
+			'remove-locations': toRemove.map(function(l){ return l.slug ? l.slug : l; })
+		}, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
 
 	/**
 	 * ConTroll Tickets API
