@@ -125,7 +125,7 @@
 			<h3>Schedule:</h3>
 		</paper-item>
 		<template is="dom-repeat" items="[[eventTimeslots]]" as="timeslot">
-			<controll-schedule-item timeslot="[[timeslot]]"></controll-schedule-item>
+			<controll-schedule-item timeslot="[[timeslot]]" on-remove="removeTimeslot"></controll-schedule-item>
 		</template>
 		
 		<paper-item class="container flex-horizontal">

@@ -60,7 +60,16 @@
 			<paper-button raised on-tap="approve"><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button raised on-tap="cancel"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
 		</paper-item>
-		
+	</paper-dialog>
+
+	<paper-dialog id="removeTimeslotDialog" modal>
+		<paper-item>
+			Are you sure you want to remove the schedule for [[timeslot.displayTime]]?
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveRemove"><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button raised on-tap="removeTimeslot"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
 	</paper-dialog>
 
 </template>
@@ -109,6 +118,14 @@
 		
 		cancel : function() {
 			this.updateSchedule();
+		},
+		
+		removeTimeslot : function() {
+			this.$.removeTimeslotDialog.toggle();
+		},
+		
+		approveRemove : function() {
+			this.fire('remove', { model: {timeslot: this.get('timeslot') }});
 		}
 
 	});
