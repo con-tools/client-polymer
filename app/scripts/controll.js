@@ -382,6 +382,19 @@ var ConTroll = (function(w,d){
 			callback(res);
 		});
 	};
+	
+	ConTrollTimeslots.prototype.updateHosts = function(id, toAdd, toRemove, callback) {
+		this.api.update(this.collection, id, {
+			'hosts': toAdd,
+			'remove-hosts': toRemove
+		}, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				return;
+			}
+			callback(res);
+		});
+	};
 
 	/**
 	 * ConTroll Tickets API
