@@ -49,6 +49,7 @@
 					<span title="[[host.email]]">[[host.name]]</span>
 				</template>
 			</div>
+			<paper-icon-button icon="create" title="Edit" on-tap="updateHosts"></paper-icon-button>
 			&nbsp;&nbsp;&nbsp;&nbsp;
 			<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot"></paper-icon-button>
 		</paper-item>
@@ -59,6 +60,14 @@
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approve"><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button raised on-tap="cancel"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="editHosts" modal>
+		<controll-hosts-editor hosts="{{hostsToEdit}}"></controll-hosts-editor>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveHosts"><iron-icon icon="check"></iron-icon>OK</paper-button>
+			<paper-button raised on-tap="cancelHosts"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
 		</paper-item>
 	</paper-dialog>
 
@@ -118,6 +127,27 @@
 		
 		cancel : function() {
 			this.updateSchedule();
+		},
+		
+		updateHosts : function(event) {
+			this.set('hostsToEdit', this.timeslot.hosts.slice());
+			this.$.editHosts.toggle();
+		},
+		
+		approveHosts : function() {
+			var newHosts = this.hostsToEdit.map(function(host){return { name: host.name, email: host.email }});
+			var hostsToRemove = this.timeslot.hosts.filter(function(host){
+				return !this.hostsToEdit.find(function(nhost){ return nhost.email == host.email; });
+			}.bind(this)).map(function(host){return { name: host.name, email: host.email }});
+			ConTroll.timeslots.updateHosts(this.timeslot.id, newHosts, hostsToRemove, function(){
+				this.set('timeslot.hosts', []);
+				this.set('timeslot.hosts', this.hostsToEdit);
+				this.updateHosts();
+			}.bind(this));
+		},
+		
+		cancelHosts : function() {
+			this.updateHosts();
 		},
 		
 		removeTimeslot : function() {
