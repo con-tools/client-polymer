@@ -477,12 +477,13 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
-	ConTrollCouponTypes.prototype.add = function(title, value, category, callback) {
+	ConTrollCouponTypes.prototype.add = function(title, value, category, code, callback) {
 		var data = {
 				title: title,
 				type: 'fixed',
 				value: value,
 				category: category,
+				code: code,
 				multiuse: false
 		};
 		this.api.create(this.collection, data, function(res, err){

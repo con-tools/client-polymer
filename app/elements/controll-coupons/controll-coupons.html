@@ -69,6 +69,9 @@
 		<paper-item>
 			<paper-input id="addCategory" name="category" label="Category" value=""></paper-input>
 		</paper-item>
+		<paper-item>
+			<paper-input id="addCode" name="code" label="Code" value=""></paper-input>
+		</paper-item>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approveAddType"><iron-icon icon="check"></iron-icon>Add</paper-button>
 			<paper-button raised on-tap="showAddType"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -133,12 +136,13 @@ Polymer({
 		this.$.addTitle.value = '';
 		this.$.addValue.value = '';
 		this.$.addCategory.value = '';
+		this.$.addCode.value = '';
 		this.$.addTypeDialog.toggle();
 	},
 	
 	approveAddType : function(event) {
 		ConTroll.coupontypes.add(this.$.addTitle.value, this.$.addValue.value, 
-				this.$.addCategory.value, (function(){
+				this.$.addCategory.value, this.$.addCode.value || null, (function(){
 			app.invalidateCatalog('coupontypes');
 			app.getCatalog('coupontypes', function(cts) {
 				this.populateCouponTypes(cts);
