@@ -161,8 +161,10 @@
 	app.onSelectedConvention = function(selected, previous) {
 		if (previous !== undefined) // only store if the user actually selected something
 			window.localStorage.setItem('controll-management-last-convention', selected);
-		if (selected)
+		if (selected) {
+			app.$.loadingScreen.toggle();
 			this.chooseConvention(selected);
+		}
 	}
 	
 	app.chooseConvention = function(conid) {
@@ -186,6 +188,7 @@
 				app.set('role',role.key);
 			});
 			app.sendRefreshEvent();
+			window.setTimeout(function(){ app.$.loadingScreen.toggle() },1000);
 		});
 	};
 	
