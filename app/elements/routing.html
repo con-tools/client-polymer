@@ -122,6 +122,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setFocus(app.route);
       });
 
+    page('/passes', function(data) {
+        app.route = 'passes';
+        setFocus(app.route);
+      });
+
     page('/cashiers', function(data) {
         app.route = 'cashiers';
         app.params = { cashiers: "start" }
