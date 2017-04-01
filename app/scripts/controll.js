@@ -652,12 +652,20 @@ var ConTroll = (function(w,d){
 		});
 	}
 	
+	/**
+	 * ConTroll Conventions API
+	 * @param ConTroll api
+	 */
 	var ConTrollConventions = function(api) {
 		this.api = api;
 		this.collection = {convention: true, collection: 'conventions'};
 		return this;
 	};
 	
+	/**
+	 * List all conventions
+	 * @param callback Callback to trigger on success
+	 */
 	ConTrollConventions.prototype.catalog = function(callback) {
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
@@ -1118,7 +1126,7 @@ var ConTroll = (function(w,d){
 	/**
 	 * Expose APIs
 	 */
-	ConTroll.auth = new ConTrollAuth(api);
+	ConTroll.authentication = new ConTrollAuth(api);
 	ConTroll.records = new ConTrollRecords(api);
 	ConTroll.tags = new ConTrollTags(api);
 	ConTroll.events = new ConTrollEvents(api);
