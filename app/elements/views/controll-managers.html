@@ -18,19 +18,25 @@
 	.flexchild { 
 		@apply (--layout-flex);
 	}
+	paper-item-body {
+		margin: 0 1rem;
+	}
 	</style>
 	
 	<template is="dom-repeat" items="{{managers}}" as="manager">
 		<paper-item>
-			<div>
-			<paper-input label="Name" readonly value="{{manager.name}}"></paper-input>
-			</div>
-			<div>
-			<paper-input label="E-Mail" readonly value="{{manager.email}}"></paper-input>
-			</div>
-			<div>
+			<paper-item-body>
+				<paper-input label="Name" readonly value="{{manager.name}}"></paper-input>
+			</paper-item-body>
+			<paper-item-body>
+				<paper-input label="E-Mail" readonly value="{{manager.email}}"></paper-input>
+			</paper-item-body>
+			<paper-item-body>
+				<paper-input label="Role" readonly value="{{manager.role.title}}"></paper-input>
+			</paper-item-body>
+			<paper-item-body>
 				<paper-icon-button icon="remove-circle" label="Remove Manager" on-tap="startRemoveManager"></paper-icon-button>
-			</div>
+			</paper-item-body>
 		</paper-item>
 	</template>
 		
@@ -41,6 +47,12 @@
 	<paper-dialog id="addManagerDialog" modal>
 		<h3>Add a convention manager</h3>
 		<controll-user-select id="userSelector" value="{{userToAdd}}"></controll-user-select>
+		<paper-dropdown-menu label="Role">
+			<paper-menu class="dropdown-content" selected="{{userRoleToAdd}}" attr-for-item-title="label" attr-for-selected="value">
+				<paper-item label="Manager" value="manager">Manager</paper-item>
+				<paper-item label="Cashier" value="cashier">Cashier</paper-item>
+			</paper-menu>
+		</paper-dropdown-menu>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approveAddManager"><iron-icon icon="check"></iron-icon>Add</paper-button>
 			<paper-button raised on-tap="cancelAddManager"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -65,10 +77,17 @@ Polymer({
 		managers : {
 			type: Array,
 			observer: '_updateManagers'
+		},
+		userRoleToAdd : {
+			type: String,
+			value: 'manager'
 		}
 	},
 	
-	ready : function(event) {
+	ready : function() {
+	},
+	
+	refreshData : function(event) {
 		console.log("Loading managers");
 		app.getCatalog('managers', this.showManagers.bind(this));
 	},
@@ -78,7 +97,7 @@ Polymer({
 	},
 	
 	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	_updateManagers : function() {
@@ -92,15 +111,18 @@ Polymer({
 	},
 	
 	approveAddManager : function(){
-		this.$.addManagerDialog.toggle();
 		if (!this.userToAdd)
 			return;
 		app.invalidateCatalog('managers');
-		ConTroll.managers.add({id: this.userToAdd.id}, this.ready.bind(this));
+		ConTroll.managers.add({id: this.userToAdd.id, role: this.userRoleToAdd }, function() {
+			this.cancelAddManager();
+			this.refreshData();
+		}.bind(this));
 	},
 	
 	cancelAddManager : function(){
 		this.$.addManagerDialog.toggle();
+		this.userRoleToAdd = this.properties.userRoleToAdd.value;
 	},
 	
 	startRemoveManager : function(event) {
@@ -117,7 +139,7 @@ Polymer({
 	approveDeleteManager : function() {
 		this.$.confirmRemoveManager.toggle();
 		app.invalidateCatalog('managers');
-		ConTroll.managers.remove(this.get('managerId'), this.ready.bind(this));
+		ConTroll.managers.remove(this.get('managerId'), this.refreshData.bind(this));
 	}
 });
 </script>
