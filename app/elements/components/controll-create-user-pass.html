@@ -3,10 +3,78 @@
 
 <dom-module id="controll-create-user-pass">
 <template>
+	<style include="shared-styles"></style>
 	<style>
+		paper-menu {
+		--paper-input-container-input: { 
+			unicode-bidi : plaintext;
+		}
+		}
+		paper-dropdown-menu.passlist, paper-dropdown-menu.passlist paper-menu {
+			width: 20rem;
+		}
+		paper-dialog > * { margin-top: 0; }
+		paper-dialog > paper-item { min-height: 1.4rem; }
+		paper-item-body { margin: 0 1rem; }
+		.pass-holder-pass-title { margin-top: 1rem; }
+		paper-input {
+			--paper-input-container: {
+				padding: 0;
+			}
+		}
+		#warning {
+			text-align: center;
+			padding: 1em 1em 0 1em;
+			border: solid darkred 3px;
+		}
+		#warning paper-item {
+			text-align: center;
+		}
 	</style>
+	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
-	<paper-button raised><iron-icon icon="add-circle"></iron-icon>Create A New User Pass</paper-button>
+	<paper-button raised on-tap="startBuyPass"><iron-icon icon="add-circle"></iron-icon>Create A New User Pass</paper-button>
+	
+	<paper-dialog id="buyPassDialog" modal>
+		<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
+		<paper-item>Pass holders:</paper-item>
+		<template is="dom-repeat" items="{{passesToBuy}}" as="passToBuy">
+			<paper-item class="container flex-horizontal">
+				<paper-item-body class="flexchild pass-holder-pass-title">
+				[[passToBuy.type.title]]
+				</paper-item-body>
+				<paper-item-body class="flexchild">
+				<paper-input value="{{passToBuy.name}}" label="Name"></paper-input>
+				</paper-item-body>
+				<paper-item-body>
+					<paper-icon-button icon="remove-circle" on-tap="removePassToBuy">Remove</paper-icon-button>
+				</paper-item-body>
+			</paper-item>
+		</template>
+		<paper-dropdown-menu label="Add Pass" class="passlist">
+			<paper-menu class="dropdown-content" selected="{{selectedPass}}" attr-for-item-title="label" attr-for-selected="value">
+				<template is="dom-repeat" items="[[passTypes]]" as="pass">
+					<paper-item lavel="[[pass.title]]" value="[[pass]]">[[pass.title]] : ¤[[pass.price]]</paper-item>
+				</template>
+			</paper-menu>
+		</paper-dropdown-menu>
+		<paper-item>
+			<paper-item-body class="strong">Cost:</paper-item-body>
+			<paper-item-body>¤[[passesCost]]</paper-item-body>
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="approveBuyPass"><iron-icon icon="euro-symbol"></iron-icon>Cash Received</paper-button>
+			<paper-button raised on-tap="approveBuyPass"><iron-icon icon="credit-card"></iron-icon>Charge Credit Cart</paper-button>
+			<paper-button raised on-tap="cancelBuyPass"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="warning">
+		<paper-item>[[warningText]]</paper-item>
+		<paper-item class="flex layout horizontal center">
+			<paper-button raised on-tap="closeWarning"><iron-icon icon="close"></iron-icon>Close</paper-button>
+		</paper-item>
+	</paper-dialog>
 	
 </template>
 </dom-module>
@@ -15,12 +83,90 @@
 Polymer({
 	is : 'controll-create-user-pass',
 	properties : {
+		passTypes : {
+			type: Array,
+			value : function() { return []; }
+		},
+		user : {
+			type: Object
+		},
+		passesToBuy : {
+			type: Array,
+			value : function() { return []; }
+		},
+		passesCost : {
+			type: Number,
+			value: 0
+		},
+		selectedPass : {
+			observer: 'passSelected'
+		}
 	},
 
 	ready : function() {
 	},
 
 	attached : function() {
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
+	},
+	
+	refreshData : function() {
+		app.getCatalog('passes', this.set.bind(this, 'passTypes'));
+	},
+	
+	startBuyPass : function() {
+		this.$.userSelect.show(function() {
+			this.$.buyPassDialog.toggle();
+		}.bind(this));
+	},
+	
+	passSelected : function(pass) {
+		if (!pass)
+			return;
+		this.push('passesToBuy', { type: pass, name: '' });
+		this.calculateCost();
+		this.selectedPass = null;
+	},
+	
+	calculateCost : function() {
+		this.set('passesCost', this.passesToBuy.reduce(function(acc,val){
+			return acc + parseFloat(val.type.price);
+		}, 0));
+	},
+	
+	removePassToBuy: function (event) {
+		this.splice('passesToBuy', event.model.index, 1);
+		this.calculateCost();
+	},
+	
+	approveBuyPass : function(event) {
+		try {
+			if (!this.user || !this.user.id)
+				throw new Error('Must select a user to sell the pass to!');
+			this.passesToBuy.forEach(function(pass){
+				if (!pass.name.trim())
+					throw new Error('Each pass must have a name assigned!');
+			});
+		} catch (e) {
+			this.showWarning(e.message);
+		}
+	},
+	
+	cancelBuyPass : function(event) {
+		this.$.buyPassDialog.toggle();
+		this.set('selectedPass', '');
+		this.set('passesToBuy', []);
+		this.set('passesCost', 0);
+	},
+	
+	showWarning: function(message) {
+		this.set('warningText', message);
+		this.$.warning.toggle();
+	},
+	
+	closeWarning : function() {
+		this.set('warningText', '');
+		this.$.warning.toggle();
 	}
 });
 </script>

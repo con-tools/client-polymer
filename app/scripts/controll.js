@@ -486,6 +486,31 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * ConTroll Pass API
+	 * @param ConTroll api
+	 */
+	var ConTrollPasses = function(api) {
+		this.api = api;
+		this.collection = { convention: true, collection: 'passes' };
+		return this;
+	};
+	
+	/**
+	 * Retrieve the list of all available passes (including non-public ones)
+	 * @param callback Callback to trigger on successful call
+	 */
+	ConTrollPasses.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '?all=1', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll User Pass API
 	 * @param ConTroll api
 	 */
@@ -495,6 +520,10 @@ var ConTroll = (function(w,d){
 		return this;
 	};
 	
+	/**
+	 * Retrieve the list of all valid user passes for all users
+	 * @param callback Callback to trigger on successful call
+	 */
 	ConTrollUserPasses.prototype.catalog = function(callback) {
 		this.api.get(this.collection, '?is_valid=1&all=1', function(res, err) {
 			if (err) {
@@ -1161,6 +1190,7 @@ var ConTroll = (function(w,d){
 	ConTroll.coupons = new ConTrollCoupons(api);
 	ConTroll.merchandise = new ConTrollMerchandise(api);
 	ConTroll.purchases = new ConTrollPurchases(api);
+	ConTroll.passes = new ConTrollPasses(api);
 	ConTroll.userpasses = new ConTrollUserPasses(api);
 	
 	api.handleAuth();
