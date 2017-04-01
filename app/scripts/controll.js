@@ -1104,7 +1104,7 @@ var ConTroll = (function(w,d){
 	/**
 	 * Expose APIs
 	 */
-	ConTroll.auth = new ConTrollAuth(this);
+	ConTroll.auth = new ConTrollAuth(api);
 	ConTroll.records = new ConTrollRecords(api);
 	ConTroll.tags = new ConTrollTags(api);
 	ConTroll.events = new ConTrollEvents(api);
