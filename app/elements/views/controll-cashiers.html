@@ -80,10 +80,11 @@ Polymer({
 	},
 
 	attached : function() {
+		app.addEventListener('please-refresh-lists', this.startCashiersReport.bind(this), false);
 	},
 	
 	startCashiersReport : function(start) {
-		if (!start)
+		if (!start || !app.convention)
 			return;
 		this.set('start',null);
 		ConTroll.tickets.catalog(this.calculateReport.bind(this));
