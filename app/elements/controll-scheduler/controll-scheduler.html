@@ -95,7 +95,6 @@
 Polymer({
 	is: 'controll-scheduler',
 	Properties: {
-		conventionProperties: Object,
 		events: Array,
 		locations: Array,
 		timeslots: Array,
@@ -105,16 +104,15 @@ Polymer({
 	
 	attached : function() {
 		// handle reload command
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	ready : function() {
-		this.needData = 4;
+	},
+	
+	refreshData : function() {
+		this.needData = 3;
 		// load stuff that we need for the scheduler
-		ConTroll.conventions.getCurrent((function(con){
-			this.conventionProperties = con;
-			this.needData -= 1;
-		}).bind(this));
 		app.getCatalog('locations',(function(locations){
 			this.locations = locations.map(function(location){
 				location.timeslots = location.timeslots.map(function(timeslot){
