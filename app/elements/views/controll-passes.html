@@ -13,6 +13,12 @@
 	.strong {
 		font-weight: bold;
 	}
+	paper-input {
+		margin: 0 1em;
+	}
+	paper-input.short {
+		width: 30rem;
+	}
 	</style>
 	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
@@ -28,6 +34,19 @@
 	</paper-material>
 	
 	<paper-material>
+	<paper-item>
+		<paper-input label="Search" id="userpassFilter" on-keyup="runFilter" class="short"></paper-input>
+		<paper-item-body class="flexchild"><!-- spacer --></paper-item-body>
+		<paper-dropdown-menu label="Pass Type">
+			<paper-menu class="dropdown-content" selected="{{selectedPassType}}" attr-for-selected="value">
+				<template is="dom-repeat" items="[[passTypes]]" as="item">
+					<paper-item value="[[item]]">[[item]]</paper-item>
+				</template>
+			</paper-menu>
+		</paper-dropdown-menu>
+		<paper-item-body class="flexchild"><!-- spacer --></paper-item-body>
+		<paper-icon-button icon="backspace" on-tap="clearFilter">Clear</paper-icon-button>
+	</paper-item>
 	<template is="dom-repeat" items="[[userpasses]]" as="pass">
 		<paper-item  class="container flex-horizontal">
 		
@@ -52,6 +71,9 @@
 Polymer({
 	is : 'controll-passes',
 	properties : {
+		userpassesData : {
+			type: Array
+		},
 		userpasses : {
 			type: Array,
 			notify: true
@@ -59,6 +81,14 @@ Polymer({
 		revenue : {
 			type: Number,
 			value: 0
+		},
+		passTypes : {
+			type: Array,
+			value: function() { return []; }
+		},
+		selectedPassType : {
+			observer: 'runFilter',
+			notify: true
 		}
 	},
 
@@ -71,13 +101,39 @@ Polymer({
 	
 	refreshData : function() {
 		app.getCatalog('userpasses', function(userpasses){
-			this.set('userpasses', userpasses.map(function(pass){
+			var passTypes = {};
+			this.set('userpassesData', userpasses.map(function(pass){
 				pass = app.dejsonify(pass);
 				pass.user.name = pass.user.name.trim() ? pass.user.name.trim() : pass.user.email;
 				this.set('revenue', this.revenue + parseFloat(pass.price));
+				passTypes[pass.pass.title] = 1;
 				return pass;
 			}.bind(this)));
+			this.set('userpasses', this.userpassesData);
+			this.set('passTypes', Object.keys(passTypes));
 		}.bind(this));
+	},
+	
+	runFilter : function() {
+		var filter = this.$.userpassFilter.value.trim();
+		var expression = new RegExp(filter);
+		this.set('userpasses', this.userpassesData.filter(function(pass){
+			return (
+					pass.name.match(expression) || 
+					pass.user.name.match(expression) ||
+					pass.user.email.match(expression) ||
+					pass.pass.title.match(expression)
+				) && (
+					// handle pass type in addition to search filter
+					this.selectedPassType ? (pass.pass.title == this.selectedPassType) : true 
+				);
+		}.bind(this)));
+	},
+	
+	clearFilter : function() {
+		this.$.userpassFilter.value = '';
+		this.selectedPassType = '';
+		this.set('userpasses', this.userpassesData);
 	}
 	
 });
