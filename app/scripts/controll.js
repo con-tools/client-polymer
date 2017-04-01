@@ -688,7 +688,7 @@ var ConTroll = (function(w,d){
 	 * @param callback Callback to trigger on success
 	 */
 	ConTrollConventions.prototype.catalog = function(callback) {
-		this.api.get(this.collection, '?keys=1', function(res, err) {
+		this.api.get(this.collection, '?keys=1&manager=1', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
