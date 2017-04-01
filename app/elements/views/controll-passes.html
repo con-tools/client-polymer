@@ -23,13 +23,21 @@
 	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
 	<paper-material>
-		<paper-item>
-			<paper-item-body class="strong">Total passes sold:</paper-item-body>
-			<paper-item-body>[[userpasses.length]]</paper-item-body>
-		</paper-item>
-		<paper-item>
-			<paper-item-body class="strong">Total revenue:</paper-item-body>
-			<paper-item-body>¤[[revenue]]</paper-item-body>
+		<paper-item class="container flex-horizontal">
+			<div>
+				<paper-item>
+					<paper-item-body class="strong">Total passes sold:</paper-item-body>
+					<paper-item-body>[[userpasses.length]]</paper-item-body>
+				</paper-item>
+				<paper-item>
+					<paper-item-body class="strong">Total revenue:</paper-item-body>
+					<paper-item-body>¤[[revenue]]</paper-item-body>
+				</paper-item>
+			</div>
+			<div class="flexchild"><!-- spacer --></div>
+			<div>
+				<controll-create-user-pass></controll-create-user-pass>
+			</div>
 		</paper-item>
 	</paper-material>
 	
