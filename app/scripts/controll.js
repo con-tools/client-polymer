@@ -22,10 +22,12 @@ var ConTroll = (function(w,d){
 		return this;
 	};
 	
-	ConTrollAuth.prototype.verify = function(callback) {
+	ConTrollAuth.prototype.verify = function(callback, errorCallback) {
 		this.api.send('auth/verify', function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
+				if (errorCallback)
+					errorCallback(err.error);
 				return;
 			}
 			callback(res.status);
@@ -89,6 +91,19 @@ var ConTroll = (function(w,d){
 				return;
 			}
 			callback(res);
+		});
+	};
+	
+	ConTrollAuth.prototype.role = function(callback) {
+		this.id(function(res){
+			var id = res.id;
+			this.api.send('entities/managers/' + id, function(res, err){
+				if (err) {
+					console.log('Error', err.error || err);
+					return;
+				}
+				callback(res.role);
+			});
 		});
 	};
 	
@@ -1023,12 +1038,16 @@ var ConTroll = (function(w,d){
 	 * authenticate and come back to the same URL
 	 */
 	ConTroll.ifAuth = function(callback) {
+		if (!ConTroll.getAuthToken())
+			ConTroll.auth(window.location.href);
 		api.auth.verify(function(loggedin){
 			if (loggedin) {
 				callback();
 			} else {
 				ConTroll.auth(window.location.href);
 			}
+		}, function() {
+			ConTroll.auth(window.location.href);
 		});
 	};
 	
@@ -1085,6 +1104,7 @@ var ConTroll = (function(w,d){
 	/**
 	 * Expose APIs
 	 */
+	ConTroll.auth = new ConTrollAuth(this);
 	ConTroll.records = new ConTrollRecords(api);
 	ConTroll.tags = new ConTrollTags(api);
 	ConTroll.events = new ConTrollEvents(api);
