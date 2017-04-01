@@ -108,6 +108,11 @@ Polymer({
 		removeCouponId: Number
 	},
 	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this._couponTypeIdChanged.bind(this), false);
+	},
+
+	
 	ready : function(event) {
 	},
 	
@@ -121,6 +126,8 @@ Polymer({
 	},
 	
 	loadCoupons : function() {
+		if (!app.convention)
+			return;
 		console.log("Loading coupons");
 		ConTroll.coupons.forType(this.couponTypeId, this.populateCoupons.bind(this));
 	},
