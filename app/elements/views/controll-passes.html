@@ -5,14 +5,8 @@
 <template>
 	<style include="shared-styles"></style>
 	<style>
-	.flexchild { 
-		@apply (--layout-flex);
-	}
 	paper-item paper-item-body {
 		margin: 0 1em;
-	}
-	.strong {
-		font-weight: bold;
 	}
 	paper-input {
 		margin: 0 1em;
@@ -46,7 +40,7 @@
 	<paper-item>
 		<paper-input label="Search" id="userpassFilter" on-keyup="runFilter" class="short"></paper-input>
 		<paper-item-body class="flexchild"><!-- spacer --></paper-item-body>
-		<paper-dropdown-menu label="Pass Type">
+		<paper-dropdown-menu label="Pass Type" class="passlist">
 			<paper-menu class="dropdown-content" selected="{{selectedPassType}}" attr-for-selected="value">
 				<template is="dom-repeat" items="[[passTypes]]" as="item">
 					<paper-item value="[[item]]">[[item]]</paper-item>

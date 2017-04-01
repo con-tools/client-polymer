@@ -16,6 +16,10 @@
 		}
 	}
 
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+
 	paper-menu a > *, paper-menu paper-item > *, paper-menu paper-icon-item > * {
 		pointer-events: none;
 	}
@@ -49,6 +53,12 @@
 		--paper-input-container-input: { 
 			unicode-bidi : plaintext;
 		}
+	}
+	paper-dropdown-menu.passlist, paper-dropdown-menu.passlist paper-menu {
+		width: 15rem;
+	}
+	.strong {
+		font-weight: bold;
 	}
 	</style>
 	</template>
