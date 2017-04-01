@@ -62,6 +62,10 @@ Polymer({
 		}
 	},
 	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.startTicketReport.bind(this), false);
+	},
+	
 	ready : function(event) {
 		this.set('ticketStatus', {});
 	},
@@ -94,11 +98,7 @@ Polymer({
 	
 	_updatedTicketStatus : function(status) {
 		console.log("Ticket status:",status);
-	},
-	
-	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
-	},
+	}
 	
 });
 </script>
