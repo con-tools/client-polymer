@@ -1,0 +1,75 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-passes">
+<template>
+	<style>
+	.flexchild { 
+		@apply (--layout-flex);
+	}
+	paper-item paper-item-body {
+		margin: 0 1em;
+	}
+	.strong {
+		font-weight: bold;
+	}
+	</style>
+	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+	
+	<paper-material>
+		<paper-item>
+			<paper-item-body class="strong">Total passes sold:</paper-item-body>
+			<paper-item-body>[[userpasses.length]]</paper-item-body>
+		</paper-item>
+	</paper-material>
+	
+	<paper-material>
+	<template is="dom-repeat" items="[[userpasses]]" as="pass">
+		<paper-item  class="container flex-horizontal">
+		
+		<paper-item-body class="strong">Name: </paper-item-body>
+		<paper-item-body class="flexchild">[[pass.name]]</paper-item-body>
+		
+		<paper-item-body class="strong">For: </paper-item-body>
+		<paper-item-body class="flexchild" title="[[pass.user.email]]">[[pass.user.name]]</paper-item-body>
+		
+		<paper-item-body class="strong">Type: </paper-item-body>
+		<paper-item-body class="flexchild" title="[[pass.pass.title]] (¤[[pass.pass.price]])">[[pass.pass.title]]</paper-item-body>
+		
+		<paper-item-body class="strong">Price: </paper-item-body>
+		<paper-item-body class="flexchild">[[pass.price]]</paper-item-body>
+	</template>
+	</paper-material>
+	
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-passes',
+	properties : {
+		userpasses : {
+			type: Array,
+			notify: true
+		}
+	},
+
+	ready : function() {
+	},
+
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
+	},
+	
+	refreshData : function() {
+		app.getCatalog('userpasses', function(userpasses){
+			this.set('userpasses', userpasses.map(function(pass){
+				pass = app.dejsonify(pass);
+				pass.user.name = pass.user.name.trim() ? pass.user.name.trim() : pass.user.email;
+				return pass;
+			}));
+		}.bind(this));
+	}
+	
+});
+</script>
