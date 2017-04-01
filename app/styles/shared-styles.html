@@ -3,28 +3,28 @@
 
 <!-- shared styles for all elements and index.html -->
 <dom-module id="shared-styles">
-  <template>
-    <style>
-      .page-title {
-        @apply(--paper-font-display2);
-      }
+	<template>
+	<style>
+	.page-title {
+		@apply(--paper-font-display2);
+	}
 
-      .app-menu {
-        --paper-menu-selected-item: {
-          color: #fff;
-          background: var(--light-primary-color);
-        }
-      }
+	.app-menu {
+		--paper-menu-selected-item: {
+			color: #fff;
+			background: var(--light-primary-color);
+		}
+	}
 
-      paper-menu a > *, paper-menu paper-item > *, paper-menu paper-icon-item > * {
-        pointer-events: none;
-      }
-
-      @media (max-width: 600px) {
-        .page-title {
-          font-size: 24px!important;
-        }
-      }
+	paper-menu a > *, paper-menu paper-item > *, paper-menu paper-icon-item > * {
+		pointer-events: none;
+	}
+	
+	@media (max-width: 600px) {
+		.page-title {
+			font-size: 24px!important;
+		}
+	}
 	*[lang=he] {
 		direction: rtl;
 	}
@@ -42,6 +42,14 @@
 	paper-spinner {
 		margin: 1em;
 	}
-    </style>
-  </template>
+	paper-item-body, paper-menu paper-item {
+		unicode-bidi: plaintext;
+	}
+	paper-input, paper-dropdown-menu, paper-menu {
+		--paper-input-container-input: { 
+			unicode-bidi : plaintext;
+		}
+	}
+	</style>
+	</template>
 </dom-module>
