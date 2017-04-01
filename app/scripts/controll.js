@@ -496,7 +496,7 @@ var ConTroll = (function(w,d){
 	};
 	
 	ConTrollUserPasses.prototype.catalog = function(callback) {
-		this.api.get(this.collection, '?valid=1&all=1', function(res, err) {
+		this.api.get(this.collection, '?is_valid=1&all=1', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
