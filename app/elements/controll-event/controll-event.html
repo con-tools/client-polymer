@@ -136,7 +136,7 @@
 			<paper-item>
 				<iron-label>
 					Schedule Time:
-					<paper-datetime-input id="addTimeslotTime" value="[[conventionProperties.start_date]]"></paper-datetime-input>
+					<paper-datetime-input id="addTimeslotTime" value="[[app.convention.start_date]]"></paper-datetime-input>
 					<paper-input id="addTimeslotDuration" label="Duration" class="short-field" type="number" min="30"
 						value="{{event.duration}}"><div prefix> minutes</div></paper-input>
 				</iron-label>
@@ -230,7 +230,6 @@ Polymer({
 			]
 		},
 		eventTimeslots : Array,
-		conventionProperties: Object,
 		hosts: Array,
 		eventTickets: Array,
 		couponTypes: Array,
@@ -241,9 +240,6 @@ Polymer({
 	},
 	
 	ready : function() {
-		ConTroll.conventions.getCurrent((function(con){
-			this.conventionProperties = app.dejsonify(con);
-		}).bind(this));
 	},
 	
 	attached : function() {
@@ -344,7 +340,10 @@ Polymer({
 	
 	_updateEventForm : function() {
 		this.clearEventForm(); // clear everything by the event id
-		console.log('Loading event data for',this.get('eventId'));
+		var evid = this.get('eventId');
+		if (!evid)
+			return;
+		console.log('Loading event data for',evid);
 		app.getCatalog('users', (function(users){
 			this.set('hosts', users.map(function(user){
 				user.label = user.name + ' <' + user.email + '>';
@@ -410,7 +409,7 @@ Polymer({
 	},
 	
 	cancelAddTimeslot : function(event) {
-		this.$.addTimeslotTime.value = this.conventionProperties.start_date;
+		this.$.addTimeslotTime.value = app.convention.start_date;
 		this.set('addTimeslotLocations', []);
 		this.set('addTimeslotHosts', []);
 		this.$.addTimeslotDialog.toggle();
