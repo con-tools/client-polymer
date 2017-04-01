@@ -486,6 +486,27 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * ConTroll User Pass API
+	 * @param ConTroll api
+	 */
+	var ConTrollUserPasses = function(api) {
+		this.api = api;
+		this.collection = {convention: true, collection: 'userpasses'};
+		return this;
+	};
+	
+	ConTrollUserPasses.prototype.catalog = function(callback) {
+		this.api.get(this.collection, '', function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll Coupon Types API
 	 * @param ConTroll api
 	 */
@@ -499,7 +520,7 @@ var ConTroll = (function(w,d){
 		this.api.get(this.collection, '', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
-				//if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
+				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
 				return;
 			}
 			callback(res);
@@ -667,7 +688,7 @@ var ConTroll = (function(w,d){
 	 * @param callback Callback to trigger on success
 	 */
 	ConTrollConventions.prototype.catalog = function(callback) {
-		this.api.get(this.collection, '', function(res, err) {
+		this.api.get(this.collection, '?keys=1', function(res, err) {
 			if (err) {
 				console.log('Error', err.error || err);
 				return;
@@ -1140,6 +1161,7 @@ var ConTroll = (function(w,d){
 	ConTroll.coupons = new ConTrollCoupons(api);
 	ConTroll.merchandise = new ConTrollMerchandise(api);
 	ConTroll.purchases = new ConTrollPurchases(api);
+	ConTroll.userpasses = new ConTrollUserPasses(api);
 	
 	api.handleAuth();
 	return ConTroll;
