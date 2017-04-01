@@ -111,6 +111,17 @@
 			},
 
 			ready : function() {
+			},
+			
+			attached : function() {
+				app.addEventListener('reload-tag-types', (function(){
+					app.invalidateCatalog('tags');
+					this.refreshData();
+				}).bind(this), false);
+				app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
+			},
+			
+			refreshData : function() {
 				console.log("Loading tag types");
 				app.getCatalog('tags', (function(tags) {
 					this.items = tags.map(function(tag){
@@ -123,14 +134,6 @@
 						return tag;
 					});
 				}).bind(this));
-			},
-			
-			attached : function() {
-				app.addEventListener('reload-tag-types', (function(){
-					app.invalidateCatalog('tags');
-					this.ready();
-				}).bind(this), false);
-				app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 			},
 			
 			allowTagTypeUpdate : function(event) {
