@@ -21,6 +21,10 @@
 			<paper-item-body class="strong">Total passes sold:</paper-item-body>
 			<paper-item-body>[[userpasses.length]]</paper-item-body>
 		</paper-item>
+		<paper-item>
+			<paper-item-body class="strong">Total revenue:</paper-item-body>
+			<paper-item-body>¤[[revenue]]</paper-item-body>
+		</paper-item>
 	</paper-material>
 	
 	<paper-material>
@@ -51,6 +55,10 @@ Polymer({
 		userpasses : {
 			type: Array,
 			notify: true
+		},
+		revenue : {
+			type: Number,
+			value: 0
 		}
 	},
 
@@ -66,8 +74,9 @@ Polymer({
 			this.set('userpasses', userpasses.map(function(pass){
 				pass = app.dejsonify(pass);
 				pass.user.name = pass.user.name.trim() ? pass.user.name.trim() : pass.user.email;
+				this.set('revenue', this.revenue + parseFloat(pass.price));
 				return pass;
-			}));
+			}.bind(this)));
 		}.bind(this));
 	}
 	
