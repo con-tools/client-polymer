@@ -71,11 +71,8 @@
 
 <script>
 Polymer({
-
 	is : 'controll-tag-values',
-	
 	properties : {
-
 		tagType : {
 			type: String,
 			observer: '_updateTitle'
@@ -84,7 +81,10 @@ Polymer({
 			type : Array,
 			notify : true,
 		}
-
+	},
+	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this._updateTitle.bind(this), false);
 	},
 	
 	ready : function(values) {
