@@ -3,11 +3,12 @@
 
 <dom-module id="controll-user-select">
 <template>
+	<style include="shared-styles"></style>
 	<style>
 	*[lang=he] {
 		direction: rtl;
 	}
-	paper-item paper-input {
+	paper-item paper-item-body {
 		margin: 0 1em;
 	}
 	paper-material {
@@ -26,17 +27,17 @@
 	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
 	<paper-item>
-		<div>
+		<paper-item-body>
 		<vaadin-combo-box label="Name" id="selectUserName" items="[[users]]" item-label-path="name" item-value-path="id"
 				on-value-changed="syncSelectUser"></vaadin-combo-box>
-		</div>
-		<div>
+		</paper-item-body>
+		<paper-item-body>
 		<vaadin-combo-box label="E-Mail" id="selectUserEmail" items="[[users]]"  item-label-path="email" item-value-path="id"
 				on-value-changed="syncSelectUser"></vaadin-combo-box>
-		</div>
-		<div>
+		</paper-item-body>
+		<paper-item-body>
 		<paper-icon-button icon="add-circle" on-tap="addNewUser" title="Add A New User"></iron-icon>
-		</div>
+		</paper-item-body>
 	</paper-item>
 	
 	<paper-dialog id="newUserForm" modal>
@@ -79,7 +80,6 @@ Polymer({
 	},
 	
 	attached : function() {
-		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	_onValueChanged : function(event) {
