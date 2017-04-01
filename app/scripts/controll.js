@@ -22,6 +22,11 @@ var ConTroll = (function(w,d){
 		return this;
 	};
 	
+	/**
+	 * Verify that the user is logged in to ConTroll
+	 * @param callback Callback to trigger on success
+	 * @param errorCallback [optional] Callback to trigger on failure
+	 */
 	ConTrollAuth.prototype.verify = function(callback, errorCallback) {
 		this.api.send('auth/verify', function(res, err){
 			if (err) {
@@ -71,6 +76,10 @@ var ConTroll = (function(w,d){
 				encodeURIComponent(parser.protocol + "//" + parser.host +  parser.pathname);
 	};
 	
+	/**
+	 * Logout from ConTroll
+	 * @param callback Callback to trigger on success
+	 */
 	ConTrollAuth.prototype.logout = function(callback) {
 		this.api.send('auth/logout', function(res, err){
 			if (err) {
@@ -83,6 +92,7 @@ var ConTroll = (function(w,d){
 	
 	/**
 	 * Get the current user's identification data, if logged in
+	 * @param callback Callback to trigger on success
 	 */
 	ConTrollAuth.prototype.id = function(callback) {
 		this.api.send('auth/id', function(res, err){
@@ -94,6 +104,10 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	/**
+	 * Retrieve the current user convention role, if exists
+	 * @param callback Callback to trigger on success
+	 */
 	ConTrollAuth.prototype.role = function(callback) {
 		this.id(function(res){
 			var id = res.id;
@@ -103,8 +117,8 @@ var ConTroll = (function(w,d){
 					return;
 				}
 				callback(res.role);
-			});
-		});
+			}, { convention: true });
+		}.bind(this));
 	};
 	
 	/**
