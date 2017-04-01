@@ -88,52 +88,57 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             <span>Home</span>
           </a>
 
-          <a data-route="tags" href="{{baseUrl}}tags">
+          <a data-route="tags" href="{{baseUrl}}tags" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="label"></iron-icon>
             <span>Tags</span>
           </a>
 
-          <a data-route="events" href="{{baseUrl}}events">
+          <a data-route="events" href="{{baseUrl}}events" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="event"></iron-icon>
             <span>Events</span>
           </a>
 
-          <a data-route="locations" href="{{baseUrl}}locations">
+          <a data-route="locations" href="{{baseUrl}}locations" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="store"></iron-icon>
             <span>Locations</span>
           </a>
 
-          <a data-route="scheduling" href="{{baseUrl}}scheduling">
+          <a data-route="scheduling" href="{{baseUrl}}scheduling" hidden$="{{unlessCashier(role)}}">
             <iron-icon icon="view-week"></iron-icon>
             <span>Scheduling</span>
           </a>
 
-          <a data-route="coupons" href="{{baseUrl}}coupons">
+          <a data-route="coupons" href="{{baseUrl}}coupons" hidden$="{{unlessCashier(role)}}">
             <iron-icon icon="redeem"></iron-icon>
             <span>Coupons</span>
           </a>
 
-          <a data-route="merchandise" href="{{baseUrl}}merchandise">
+          <a data-route="merchandise" href="{{baseUrl}}merchandise" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="shopping-basket"></iron-icon>
             <span>Merchandise</span>
           </a>
 
-          <a data-route="sales" href="{{baseUrl}}sales">
+          <a data-route="sales" href="{{baseUrl}}sales" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="shopping-basket"></iron-icon>
             <span>Sales</span>
           </a>
 
-          <a data-route="managers" href="{{baseUrl}}managers">
+          <a data-route="managers" href="{{baseUrl}}managers" hidden$="{{unlessManager(role)}}">
             <iron-icon icon="assignment-ind"></iron-icon>
             <span>Managers</span>
           </a>
 
-          <a data-route="tickets" href="{{baseUrl}}tickets">
+          <a data-route="tickets" href="{{baseUrl}}tickets" hidden$="{{unlessCashier(role)}}">
             <iron-icon icon="shopping-cart"></iron-icon>
             <span>Tickets</span>
           </a>
+
+          <a data-route="passes" href="{{baseUrl}}passes" hidden$="{{hidePasses(role, 'unlessCashier')}}">
+            <iron-icon icon="loyalty"></iron-icon>
+            <span>Passes</span>
+          </a>
           
-          <a data-route="cashiers" href="{{baseUrl}}cashiers">
+          <a data-route="cashiers" href="{{baseUrl}}cashiers" hidden$="{{unlessCashier(role)}}">
             <iron-icon class="mirror" icon="toc"></iron-icon>
             <span>Cashier Report</span>
           </a>
@@ -158,16 +163,28 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           </div>
         </paper-toolbar>
 
-        <!-- Main Content -->
-        <div class="content">
-          <iron-pages attr-for-selected="data-route" selected="{{route}}">
-            <section data-route="home" tabindex="-1">
-              <paper-material elevation="1">
-              	<h1 class="page-title" tabindex="-1">Home</h1>
-                <p>Welcome to ConTroll administration system.</p>
-                <p>Use the menu on the left to access the required administrative functions.</p>
-              </paper-material>
-            </section>
+		<!-- Main Content -->
+		<div class="content">
+			<iron-pages attr-for-selected="data-route" selected="{{route}}">
+				<section data-route="home" tabindex="-1">
+					<paper-material elevation="1">
+						<h1 class="page-title" tabindex="-1">ConTroll</h1>
+						<paper-item>Welcome to ConTroll administration system.</paper-item>
+						<paper-item hidden="{{ifLoggedIn(role)}}">
+							<paper-spinner active></paper-spinner>
+							Checking log in credentials...
+						</paper-item>
+						<paper-item hidden="{{unlessLoggedIn(role)}}">
+							<paper-dropdown-menu label="Convention">
+								<paper-menu class="dropdown-content" selected="{{selectedConvention}}" attr-for-item-title="label" attr-for-selected="value">
+									<template is="dom-repeat" items="[[conventions]]" as="item">
+										<paper-item label="[[item.title]]" value="[[item.id]]">[[item.title]]</paper-item>
+									</template>
+								</paper-menu>
+								</paper-dropdown-menu>
+						</paper-item>
+					</paper-material>
+				</section>
 
             <section data-route="tags" tabindex="-1">
               <paper-material elevation="1">
@@ -251,6 +268,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Tickets</h2>
               </paper-material>
               <controll-tickets start="{{params.tickets}}"></controll-tickets>
+            </section>
+
+            <section data-route="passes" tabindex="-1">
+              <paper-material elevation="1">
+                <h2 class="page-title" tabindex="-1">Passes</h2>
+              </paper-material>
+              <controll-passes></controll-passes>
             </section>
 
             <section data-route="cashiers" tabindex="-1">

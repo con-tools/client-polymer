@@ -68,11 +68,42 @@
 	
 	var app = document.querySelector('#app');
 	app.baseUrl = '/';
+	app.properties.conventions = {
+			type: Array,
+			value: function() { return []; },
+			notify: true
+	};
+	app.properties.convention = {
+			type: Object,
+			value: function() { return null; },
+			notify: true
+	};
+	app.properties.role = { 
+			type: String,
+			value: false,
+			notify: true
+	};
+	app.properties.selectedConvention = {
+			type: Object,
+			observer: 'onSelectedConvention',
+			value: function() {
+				return window.localStorage.getItem('controll-management-last-convention');
+			},
+			notify: true
+	};
 	// Listen for template bound event to know when bindings
 	// have resolved and content has been stamped to the page
 	app.addEventListener('dom-change', function() {
 		console.log('Our app is ready to rock!');
 	});
+	
+	// role queries
+	app.unlessLoggedIn = function(role) { return !role; };
+	app.ifLoggedIn = function(role) { return role; };
+	app.unlessManager = function(role) { return !(role == 'manager' || role == 'administrator') };
+	app.unlessCashier = function(role) { return !(role == 'cashier' || role == 'manager' || role == 'administrator'); };
+	app.hidePasses = function(role, permission) { return this[permission].call(this,role) || 
+		!(this.convention && this.convention.settings.registration_type == 'passes'); };
 
 	window.addEventListener('WebComponentsReady', function() {// See https://github.com/Polymer/polymer/issues/1381
 		// imports are loaded and elements have been registered
@@ -127,8 +158,41 @@
 	  app.fire('please-refresh-lists');
 	};
 	
+	app.onSelectedConvention = function(selected, previous) {
+		if (previous !== undefined) // only store if the user actually selected something
+			window.localStorage.setItem('controll-management-last-convention', selected);
+		if (selected)
+			this.chooseConvention(selected);
+	}
+	
+	app.chooseConvention = function(conid) {
+		if (!this.conventions || !this.conventions.length) {
+			window.setTimeout(this.chooseConvention.bind(this),100,conid);
+			return;
+		}
+		
+		var con = this.conventions.find(function(con){
+			return con.id == conid;
+		});
+		if (con) {
+			ConTroll.setConvention(con['public-key']);
+		} else {
+			alert('Invalid convention ' + conid + ' chosen');
+		}
+
+		ConTroll.conventions.getCurrent(function(con){
+			app.set('convention', app.dejsonify(con));
+			ConTroll.authentication.role(function(role){
+				app.set('role',role.key);
+			});
+			app.sendRefreshEvent();
+		});
+	};
+	
 	app.controllCatalogs = {};
 	app.getCatalog = function(catalog, callback) {
+		if (!this.convention)
+			return; // don't trigger the callback and don't load data unless we have a convention
 		if (!this.controllCatalogs[catalog]) this.controllCatalogs[catalog] = new Catalog(catalog);
 		this.controllCatalogs[catalog].get(callback);
 	};
@@ -138,12 +202,14 @@
 	
 	app.dejsonify = Catalog.prototype.dejsonify; // expose to other modules
 
-	//ConTroll.setConvention('gzJVMFEh7s3DvJrODESCs1Zj3Qc2ZDY1YjgyMWQ3ODRhYzliYTdlNjRiOTdhOThkYzdkNmUwY2RjZjlk'); // igor 11
-	//ConTroll.setConvention('M2UyZjJlNzE2M2RkYmVkZWZiYjkzZDRiZGJmOGVlNzM1YjBlN2ZkNQ'); // bigor 16
-	ConTroll.setConvention('a4VZ0fxOugGgEk1zjvZLsEONYNBjNDZlNzMxZDNmN2VkMTIzNjYyNDFkNTc0NDZiOTI1ODhkZGVmZGEw'); // bigor 17
+	ConTroll.conventions.catalog(function(conventions){
+		app.set('conventions', conventions);
+	});
+	//ConTroll.setConvention('a4VZ0fxOugGgEk1zjvZLsEONYNBjNDZlNzMxZDNmN2VkMTIzNjYyNDFkNTc0NDZiOTI1ODhkZGVmZGEw'); // bigor 17
 	ConTroll.ifAuth(function(){
+		app.set('role','user'); // best we know so far
 		ConTroll.getUserEmail(function(email){
 			console.log("User authenticated as " + email);
-		})
+		});
 	});
 })(document);
