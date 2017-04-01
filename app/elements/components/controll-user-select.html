@@ -79,7 +79,7 @@ Polymer({
 	},
 	
 	attached : function() {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	_onValueChanged : function(event) {
