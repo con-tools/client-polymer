@@ -40,10 +40,10 @@
 	<template is="dom-repeat" items="{{skus}}" as="sku">
 		<paper-item class="container flex-horizontal">
 			<div>
-				<paper-input label="Title" value="{{sku.title}}" on-value-changed="allowSKUUpdate"></paper-input>
+				<paper-input label="Title" value="{{sku.title}}" class="rtls" on-value-changed="allowSKUUpdate"></paper-input>
 			</div>
 			<div>
-				<paper-input label="Code" value="{{sku.code}}" readonly></paper-input>
+				<paper-input label="Code" value="{{sku.code}}" readonly class="rtls"></paper-input>
 			</div>
 			<div>
 				<paper-input label="Price" value="{{sku.price}}" on-value-changed="allowSKUUpdate"></paper-input>
@@ -102,13 +102,16 @@ Polymer({
 		}
 	},
 	
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.startMerchandise.bind(this), false);
+	},
+	
 	ready : function(event) {
-		console.log("Loading merchandise SKUs");
 		this.set('skus', []);
 	},
 	
 	startMerchandise : function(start) {
-		if (!start)
+		if (!start || !app.convention)
 			return;
 		this.set('start', null);
 		this.loadSKUs();
@@ -122,15 +125,12 @@ Polymer({
 	},
 	
 	loadSKUs : function() {
+		console.log("Loading merchandise SKUs");
 		app.getCatalog('merchandise', this.populateSKUs.bind(this));
 	},
 	
 	_updateSKUs : function(skus) {
 		console.log("Got " + skus.length + " SKUs ");
-	},
-	
-	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 	},
 	
 	allowSKUUpdate : function(event) {
