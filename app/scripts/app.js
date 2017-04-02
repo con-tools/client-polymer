@@ -186,9 +186,9 @@
 			app.set('convention', app.dejsonify(con));
 			ConTroll.authentication.role(function(role){
 				app.set('role',role.key);
+				app.sendRefreshEvent();
+				window.setTimeout(function(){ app.$.loadingScreen.toggle() },100);
 			});
-			app.sendRefreshEvent();
-			window.setTimeout(function(){ app.$.loadingScreen.toggle() },1000);
 		});
 	};
 	
