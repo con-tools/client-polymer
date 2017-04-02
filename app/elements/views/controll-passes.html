@@ -120,7 +120,7 @@ Polymer({
 	
 	runFilter : function() {
 		var filter = this.$.userpassFilter.value.trim();
-		var expression = new RegExp(filter);
+		var expression = new RegExp(filter,'i');
 		this.set('userpasses', this.userpassesData.filter(function(pass){
 			return (
 					pass.name.match(expression) || 
