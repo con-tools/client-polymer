@@ -14,8 +14,24 @@
 	paper-input.short {
 		width: 30rem;
 	}
+	paper-item {
+		min-height: auto;
+	}
+	vaadin-grid {
+		--vaadin-grid-cell: { 
+			unicode-bidi: plaintext;
+		}
+		--vaadin-grid-body-row-hover-cell: {
+			background-color: var(--paper-grey-200);
+		};
+		--vaadin-grid-body-row-selected-cell: {
+			background-color: var(--paper-grey-100);
+		};
+		--vaadin-grid-body-row-odd-cell: {
+			background-color: #f5f5f5;
+		};
+	}
 	</style>
-	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
 	<paper-material>
 		<paper-item class="container flex-horizontal">
@@ -50,21 +66,25 @@
 		<paper-item-body class="flexchild"><!-- spacer --></paper-item-body>
 		<paper-icon-button icon="backspace" on-tap="clearFilter">Clear</paper-icon-button>
 	</paper-item>
-	<template is="dom-repeat" items="[[userpasses]]" as="pass">
-		<paper-item  class="container flex-horizontal">
-		
-		<paper-item-body class="strong">Name: </paper-item-body>
-		<paper-item-body class="flexchild">[[pass.name]]</paper-item-body>
-		
-		<paper-item-body class="strong">For: </paper-item-body>
-		<paper-item-body class="flexchild" title="[[pass.user.email]]">[[pass.user.name]]</paper-item-body>
-		
-		<paper-item-body class="strong">Type: </paper-item-body>
-		<paper-item-body class="flexchild" title="[[pass.pass.title]] (¤[[pass.pass.price]])">[[pass.pass.title]]</paper-item-body>
-		
-		<paper-item-body class="strong">Price: </paper-item-body>
-		<paper-item-body style="width: 3rem">¤[[pass.price]]</paper-item-body>
-	</template>
+	
+	<vaadin-grid items="[[userpasses]]" multi-sort>
+		<vaadin-grid-column flex-grow="1">
+			<template class="header"><vaadin-grid-sorter path="name">Name</vaadin-grid-sorter></template>
+			<template>[[item.name]]</template>
+		</vaadin-grid-column>
+		<vaadin-grid-column flex-grow="1">
+			<template class="header"><vaadin-grid-sorter path="user.name">User</vaadin-grid-sorter></template>
+			<template><paper-item title="[[item.user.email]]">[[item.user.name]]</paper-item></template>
+		</vaadin-grid-column>
+		<vaadin-grid-column flex-grow="1">
+			<template class="header"><vaadin-grid-sorter path="pass.title">Type</vaadin-grid-sorter></template>
+			<template>[[item.pass.title]]</template>
+		</vaadin-grid-column>
+		<vaadin-grid-column width="6rem" flex-grow="0">
+			<template class="header"><vaadin-grid-sorter path="price">Price</vaadin-grid-sorter></template>
+			<template>¤[[item.price]]</template>
+		</vaadin-grid-column>
+	</vaadin-grid>
 	</paper-material>
 	
 </template>

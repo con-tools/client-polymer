@@ -31,12 +31,11 @@
 			text-align: center;
 		}
 	</style>
-	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 	
 	<paper-button raised on-tap="startBuyPass"><iron-icon icon="add-circle"></iron-icon>Create A New User Pass</paper-button>
 	
 	<paper-dialog id="buyPassDialog" modal>
-		<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
+		<controll-user-select id="userSelect" value="{{user}}" hidden$="[[userPreSelected()]]"></controll-user-select>
 		<paper-item>Pass holders:</paper-item>
 		<template is="dom-repeat" items="{{passesToBuy}}" as="passToBuy">
 			<paper-item class="container flex-horizontal">
@@ -112,6 +111,10 @@ Polymer({
 	
 	refreshData : function() {
 		app.getCatalog('passes', this.set.bind(this, 'passTypes'));
+	},
+	
+	userPreSelected : function() {
+		return !!this.user;
 	},
 	
 	startBuyPass : function() {
