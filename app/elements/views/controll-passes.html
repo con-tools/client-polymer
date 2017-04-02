@@ -63,7 +63,7 @@
 		<paper-item-body class="flexchild" title="[[pass.pass.title]] (¤[[pass.pass.price]])">[[pass.pass.title]]</paper-item-body>
 		
 		<paper-item-body class="strong">Price: </paper-item-body>
-		<paper-item-body class="flexchild">[[pass.price]]</paper-item-body>
+		<paper-item-body style="width: 3rem">¤[[pass.price]]</paper-item-body>
 	</template>
 	</paper-material>
 	
@@ -108,6 +108,7 @@ Polymer({
 			this.set('userpassesData', userpasses.map(function(pass){
 				pass = app.dejsonify(pass);
 				pass.user.name = pass.user.name.trim() ? pass.user.name.trim() : pass.user.email;
+				pass.price = parseFloat(pass.price);
 				this.set('revenue', this.revenue + parseFloat(pass.price));
 				passTypes[pass.pass.title] = 1;
 				return pass;
