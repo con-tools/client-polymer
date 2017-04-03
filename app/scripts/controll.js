@@ -548,7 +548,7 @@ var ConTroll = (function(w,d){
 	 * @param callback callback to trigger when successful
 	 */
 	ConTrollUserPasses.prototype.userReport = function(userId, valid, callback){
-		var params = 'user=' + userId;
+		var params = '?user=' + userId;
 		if (valid)
 			params += '&is_valid=1';
 		this.api.get(this.collection, params, function(res, err) {
@@ -566,7 +566,7 @@ var ConTroll = (function(w,d){
 	 * @param passId ID of the user pass to cancel
 	 * @param callback callback to trigger when successful
 	 */
-	ConTrollUserPasses.prototype.delete = function(passId, callback) {
+	ConTrollUserPasses.prototype.remove = function(passId, callback) {
 		this.api.del(this.collection, passId, function(res, err){
 			if (err) {
 				console.log('Error', err.error || err);
