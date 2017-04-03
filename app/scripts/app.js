@@ -211,10 +211,11 @@
 	app.getCatalog = function(catalog, callback) {
 		if (!this.convention)
 			return; // don't trigger the callback and don't load data unless we have a convention
-		app.startLoading();
+		app.startLoading(); console.log('started loading ' + catalog);
 		if (!this.controllCatalogs[catalog]) this.controllCatalogs[catalog] = new Catalog(catalog);
 		this.controllCatalogs[catalog].get(function(response) {
 			app.doneLoading();
+			console.log('done loading ' + catalog);
 			callback(response);
 		});
 	};
