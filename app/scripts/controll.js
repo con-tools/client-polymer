@@ -14,6 +14,12 @@ var ConTroll = (function(w,d){
 		}
 	}
 	
+	function reportError(action, err) {
+		console.log('Error in ' + action, err.error || err);
+		if (err != 'CORS error')
+			alert("Error " + action + ":" + (err.error||err));
+	}
+	
 	/**
 	 * Authentication API
 	 */
@@ -536,6 +542,65 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * Retrieve all passes for a user
+	 * @param userId ID to retrieve a report for
+	 * @param valid boolean specifying if only valid passes are to be retrieved
+	 * @param callback callback to trigger when successful
+	 */
+	ConTrollUserPasses.prototype.userReport = function(userId, valid, callback){
+		var params = 'user=' + userId;
+		if (valid)
+			params += '&is_valid=1';
+		this.api.get(this.collection, params, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * Cancel or refund an existing pass
+	 * @param passId ID of the user pass to cancel
+	 * @param callback callback to trigger when successful
+	 */
+	ConTrollUserPasses.prototype.delete = function(passId, callback) {
+		this.api.del(this.collection, passId, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating coupon: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
+	 * Reserve a user pass in the shopping cart
+	 * @param userId ID of the user to reserve a pass for
+	 * @param name pass holder name to list on the pass
+	 * @param passId Id of pass type to reserve
+	 * @param callback callback to trigger when successful
+	 */
+	ConTrollUserPasses.prototype.create = function(userId, name, passId, callback) {
+		var data = {
+				pass: passId,
+				user: userId,
+				name: name
+		};
+		this.api.create(this.collection, data, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error creating a new time slot: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * ConTroll Coupon Types API
 	 * @param ConTroll api
 	 */
@@ -883,6 +948,18 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	/**
+	 * Retrieve a user report for the specified user
+	 * @param id User ID to retrieve
+	 * @param callback callback to trigger on success
+	 */
+	ConTrollUsers.prototype.get = function(id, callback) {
+		this.api.get(this.collection, id, function(res, err) {
+			if (err) return reportError('getting a user profile',err);
+			callback(res);
+		});
+	};
+
 	ConTrollUsers.prototype.create = function(name, email, callback) {
 		this.api.create(this.collection, {
 			name: name,
@@ -1171,6 +1248,16 @@ var ConTroll = (function(w,d){
 	 */
 	ConTroll.setConvention = function(api_key) {
 		api.conventionApiKey = api_key;
+	}
+	
+	/**
+	 * Perform a cashout for the current cart of the specified user
+	 * @param userid Number ID of user
+	 * @param amount Number payout received
+	 * @param callback function(resonse) Callback to be triggered when cashout completes
+	 */
+	ConTroll.cashout = function(userid, amount, callback) {
+		api.send('/checkout/cashout', { user: userid, amount: amount }, callback, { convention: true }, 'POST');
 	}
 	
 	/**
