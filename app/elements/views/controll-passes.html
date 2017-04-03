@@ -133,8 +133,8 @@ Polymer({
 				passTypes[pass.pass.title] = 1;
 				return pass;
 			}.bind(this)));
-			this.set('userpasses', this.userpassesData);
 			this.set('passTypes', Object.keys(passTypes));
+			this.runfilter();
 		}.bind(this));
 	},
 	
