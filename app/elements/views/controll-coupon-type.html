@@ -119,7 +119,7 @@ Polymer({
 	
 	populateCoupons : function(coupons) {
 		this.set('coupons', coupons.map(function(c){
-			c.isConsumed = !!c.ticket;
+			c.isConsumed = c.used;
 			return c;
 		}).sort(function(a,b){ 
 			return a.user.email.localeCompare(b.user.email); 
