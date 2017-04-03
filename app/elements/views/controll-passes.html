@@ -112,6 +112,9 @@ Polymer({
 		selectedPassType : {
 			observer: 'runFilter',
 			notify: true
+		},
+		start : {
+			observer: 'startReport'
 		}
 	},
 
@@ -122,19 +125,28 @@ Polymer({
 		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
+	startReport: function() {
+		if (this.start)
+			this.refreshData();
+	},
+	
 	refreshData : function() {
+		if (!this.start)
+			return;
 		app.getCatalog('userpasses', function(userpasses){
 			var passTypes = {};
+			var revenue = 0;
 			this.set('userpassesData', userpasses.map(function(pass){
 				pass = app.dejsonify(pass);
 				pass.user.name = pass.user.name.trim() ? pass.user.name.trim() : pass.user.email;
 				pass.price = parseFloat(pass.price);
-				this.set('revenue', this.revenue + parseFloat(pass.price));
 				passTypes[pass.pass.title] = 1;
+				revenue += parseFloat(pass.price);
 				return pass;
 			}.bind(this)));
+			this.set('revenue', revenue);
 			this.set('passTypes', Object.keys(passTypes));
-			this.runfilter();
+			this.runFilter();
 		}.bind(this));
 	},
 	

@@ -118,6 +118,7 @@ Polymer({
 	},
 	
 	populateCoupons : function(coupons) {
+		app.doneLoading();
 		this.set('coupons', coupons.map(function(c){
 			c.isConsumed = c.used;
 			return c;
@@ -130,6 +131,7 @@ Polymer({
 		if (!app.convention)
 			return;
 		console.log("Loading coupons");
+		app.startLoading();
 		ConTroll.coupons.forType(this.couponTypeId, this.populateCoupons.bind(this));
 	},
 	

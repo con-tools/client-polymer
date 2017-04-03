@@ -64,17 +64,21 @@ Polymer({
 	},
 	
 	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.startTicketReport.bind(this), false);
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	ready : function(event) {
 		this.set('ticketStatus', {});
 	},
 	
-	startTicketReport : function(start) {
-		if (!start)
+	startTicketReport : function() {
+		if (this.start)
+			this.refreshData();
+	},
+	
+	refreshData : function() {
+		if (!this.start)
 			return;
-		this.set('start',null);
 		app.getCatalog('timeslots',this.populateTicketStatus.bind(this));
 	},
 	
@@ -98,6 +102,8 @@ Polymer({
 	},
 	
 	_updatedTicketStatus : function(status) {
+		if (!status.ticketsSold)
+			return;
 		console.log("Ticket status:",status);
 	}
 	

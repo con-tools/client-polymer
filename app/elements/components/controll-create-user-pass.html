@@ -150,6 +150,10 @@ Polymer({
 				if (!pass.name.trim())
 					throw new Error('Each pass must have a name assigned!');
 			});
+			ConTroll.userpasses.create(function(){
+				app.invalidateCatalog('userpasses');
+				// TODO: call owner!
+			}.bind(this));
 		} catch (e) {
 			this.showWarning(e.message);
 		}

@@ -92,7 +92,7 @@ Polymer({
 		locations: Array,
 		timeslots: Array,
 		timeslotToCancel : Object,
-		timeslotTicketsToCancel : Array
+		timeslotTicketsToCancel : Array,
 	},
 	
 	attached : function() {
@@ -146,7 +146,9 @@ Polymer({
 	cancelSchedule : function(event) {
 		if (event && event.model) {
 			this.set('timeslotToCancel', event.model.timeslot);
+			app.startLoading();
 			ConTroll.tickets.forTimeslot(event.model.timeslot.id, (function(tickets){
+				app.doneLoading();
 				this.set('timeslotTicketsToCancel', tickets);
 				this.$.cancelScheduleDialog.toggle();
 			}).bind(this));

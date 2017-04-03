@@ -105,11 +105,13 @@ Polymer({
 	},
 	
 	handleTagTypeLoaded : function(tagtype) {
+		//app.doneLoading();
 		this.ready(tagtype.values);
 		app.fire('reload-tag-types');
 	},
 	
 	_updateTitle : function() {
+		//app.startLoading();
 		ConTroll.tags.getType(this.tagType, this.handleTagTypeLoaded.bind(this));
 	},
 	
@@ -119,6 +121,7 @@ Polymer({
 	
 	updateValue : function(event) {
 		var it = event.model.item;
+		//app.startLoading();
 		ConTroll.tags.replaceValue(this.tagType, it.loaded_value, it.value, this.handleTagTypeLoaded.bind(this));
 	},
 	
@@ -130,6 +133,7 @@ Polymer({
 	approveAddTagValue : function() {
 		this.$.addTagValueDialog.toggle();
 		var newval = this.$.addTagValue.value;
+		//app.startLoading();
 		ConTroll.tags.addValue(this.tagType, newval, this.handleTagTypeLoaded.bind(this));
 	},
 	
@@ -147,6 +151,7 @@ Polymer({
 		this.$.confirmDeleteDialog.toggle();
 		var delval = this.valueToDelete;
 		this.valueToDelete = null;
+		//app.startLoading();
 		ConTroll.tags.deleteValue(this.tagType, delval, this.handleTagTypeLoaded.bind(this));
 	},
 	

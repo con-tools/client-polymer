@@ -162,7 +162,7 @@
 		if (previous !== undefined) // only store if the user actually selected something
 			window.localStorage.setItem('controll-management-last-convention', selected);
 		if (selected) {
-			app.$.loadingScreen.toggle();
+			app.startLoading();
 			this.chooseConvention(selected);
 		}
 	}
@@ -187,17 +187,36 @@
 			ConTroll.authentication.role(function(role){
 				app.set('role',role.key);
 				app.sendRefreshEvent();
-				window.setTimeout(function(){ app.$.loadingScreen.toggle() },100);
+				app.doneLoading();
 			});
 		});
+	};
+	
+	app.startLoading = function() {
+		if (!app.loadingCounter) {
+			app.$.loadingScreen.toggle();
+			app.loadingCounter = 0;
+		}
+		app.loadingCounter++;
+	};
+	
+	app.doneLoading = function() {
+		if (app.loadingCounter)
+			app.loadingCounter--;
+		if (!app.loadingCounter)
+			app.$.loadingScreen.toggle();
 	};
 	
 	app.controllCatalogs = {};
 	app.getCatalog = function(catalog, callback) {
 		if (!this.convention)
 			return; // don't trigger the callback and don't load data unless we have a convention
+		app.startLoading();
 		if (!this.controllCatalogs[catalog]) this.controllCatalogs[catalog] = new Catalog(catalog);
-		this.controllCatalogs[catalog].get(callback);
+		this.controllCatalogs[catalog].get(function(response) {
+			app.doneLoading();
+			callback(response);
+		});
 	};
 	app.invalidateCatalog = function(catalog) {
 		app.controllCatalogs[catalog].invalidate();

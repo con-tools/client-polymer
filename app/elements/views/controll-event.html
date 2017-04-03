@@ -305,10 +305,12 @@ Polymer({
 	},
 	
 	loadSchedule: function(event) {
+		app.startLoading();
 		ConTroll.timeslots.forEvent(event.id, this.populateSchedule.bind(this));
 	},
 	
 	populateSchedule : function(timeslots) {
+		app.doneLoading();
 		this.set('eventTimeslots', timeslots.map(function(timeslot){
 			timeslot.displayTime = moment(timeslot.start).format('MMM Do YYYY, HH:mm');
 			return timeslot;
@@ -316,10 +318,12 @@ Polymer({
 	},
 	
 	loadTickets : function(event) {
+		app.startLoading();
 		ConTroll.tickets.forEvent(event.id, this.populateTickets.bind(this));
 	},
 	
 	populateTickets : function(ticketdata) {
+		app.doneLoading();
 		this.set('eventTickets', ticketdata.map(function(ticket){
 			ticket.timeslot.displayTime = moment(ticket.timeslot.start).format('MMM Do YYYY, HH:mm');
 			ticket.reserved_time = moment(ticket['reserved-time']).fromNow();

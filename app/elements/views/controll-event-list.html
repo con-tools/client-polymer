@@ -112,10 +112,27 @@ Polymer({
 			        { value: '6', label: 'Cancelled' }
 			]
 		},
+		start : {
+			observer: 'startEventList'
+		}
+	},
+	
+	attached : function(event) {
+		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
 	},
 	
 	ready : function(event) {
 		console.log("Loading events");
+	},
+	
+	startEventList : function() {
+		if (this.start)
+			this.refreshData();
+	},
+	
+	refreshData : function() {
+		if (!this.start)
+			return;
 		app.getCatalog('events', this.populateEvents.bind(this));
 	},
 	
@@ -130,10 +147,6 @@ Polymer({
 			event.statusText = this.event_status_list.find(function(st){ return st.value == event.status}).label;
 			return event;
 		}).bind(this)));
-	},
-	
-	attached : function(event) {
-		app.addEventListener('please-refresh-lists', this.ready.bind(this), false);
 	},
 	
 	_updateEvents : function() {

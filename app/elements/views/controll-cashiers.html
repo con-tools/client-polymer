@@ -14,45 +14,33 @@
 	}
 	</style>
 	
-	<iron-pages id="loader" attr-for-selected="id" selected="now-loading" lang="he">
-
-		<div id="now-loading">
-			<paper-material>
-			<paper-item>
-				<paper-spinner active></paper-spinner>
-				<strong>נא להמתין בזמן שמידע נטען...</strong>
-			</paper-item>
-			</paper-material>
-		</div>
-
-		<div id="report">
-			<paper-material>
-				<h3>קופאים</h3>
-				<table>
-				<thead>
-					<tr>
-						<th>שם</th><th>תחילת משמרת</th><th>סוף משמרת</th><th>כמות כרטיסים</th><th>סכום</th>
-					</tr>
-				</thead>
-				<tbody>
-				<template is="dom-repeat" items="{{cashiers}}" as="cashier">
-					<tr>
-						<td>[[cashier.name]]</td>
-						<td>[[cashier.start]]</td>
-						<td>[[cashier.end]]</td>
-						<td>[[cashier.ticketCount]]</td>
-						<td>₪[[cashier.sum]]</td>
-					</tr>
-				</template>
-				</tbody>
-				<tbody>
-					<tr><td cellspan="4">סה"כ</td>
-					<td>₪[[total]]</td>
-				</tbody>
-				</table>
-			</paper-material>
-		</div>
-	</iron-pages>
+	<div id="report">
+		<paper-material>
+			<h3>קופאים</h3>
+			<table>
+			<thead>
+				<tr>
+					<th>שם</th><th>תחילת משמרת</th><th>סוף משמרת</th><th>כמות כרטיסים</th><th>סכום</th>
+				</tr>
+			</thead>
+			<tbody>
+			<template is="dom-repeat" items="{{cashiers}}" as="cashier">
+				<tr>
+					<td>[[cashier.name]]</td>
+					<td>[[cashier.start]]</td>
+					<td>[[cashier.end]]</td>
+					<td>[[cashier.ticketCount]]</td>
+					<td>₪[[cashier.sum]]</td>
+				</tr>
+			</template>
+			</tbody>
+			<tbody>
+				<tr><td cellspan="4">סה"כ</td>
+				<td>₪[[total]]</td>
+			</tbody>
+			</table>
+		</paper-material>
+	</div>
 	
 </template>
 </dom-module>
@@ -87,6 +75,7 @@ Polymer({
 		if (!start || !app.convention)
 			return;
 		this.set('start',null);
+		app.startLoading();
 		ConTroll.tickets.catalog(this.calculateReport.bind(this));
 	},
 	
@@ -121,7 +110,7 @@ Polymer({
 		}
 		this.set('total',total);
 		this.set('cashiers', cashier_list);
-		this.$.loader.selected = 'report';
+		app.doneLoading();
 	},
 });
 </script>
