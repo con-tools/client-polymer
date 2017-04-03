@@ -134,6 +134,7 @@ Polymer({
 		if (!this.start)
 			return;
 		app.getCatalog('userpasses', function(userpasses){
+			console.log("Loaded passes");
 			var passTypes = {};
 			var revenue = 0;
 			this.set('userpassesData', userpasses.map(function(pass){
