@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<body>
+<script>
+var params = window.location.search.replace(/^\?&*/,'').split('&').map(function(arg){ return arg.split('=').map(function(v){return decodeURIComponent(v).replace('+',' ');});}).reduce(function(dict,kv){ dict[kv[0]] = kv[1]; return dict;},{});
+window.parent.app.ccCheckoutOK()
+</script>
+</body>
+</html>

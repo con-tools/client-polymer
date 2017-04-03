@@ -30,6 +30,19 @@
 		#warning paper-item {
 			text-align: center;
 		}
+		paper-dialog.notification {
+			text-align: center;
+			padding: 1em 1em 0 1em;
+			border: solid cornflowerblue 3px;
+		}
+		.iframeholder {
+			width: 95%;
+			min-height: 80%;
+		}
+		.iframeholder iframe {
+			width: 95%;
+			margin: 10px;
+		}
 	</style>
 	
 	<paper-button raised on-tap="startBuyPass"><iron-icon icon="add-circle"></iron-icon>Create A New User Pass</paper-button>
@@ -61,10 +74,30 @@
 			<paper-item-body class="strong">Cost:</paper-item-body>
 			<paper-item-body>¤[[passesCost]]</paper-item-body>
 		</paper-item>
+		<paper-item hidden$="[[!totalCoupons]]">
+			<paper-item-body class="string">Coupons:</paper-item-body>
+			<paper-item-body>¤[[totalCoupons]]</paper-item-body>
+		</paper-item>
+		<paper-item hidden$="[[!totalCoupons]]">
+			<paper-item-body class="string">Total:</paper-item-body>
+			<paper-item-body>¤[[finalCost]]</paper-item-body>
+		</paper-item>
 		<paper-item class="container flex-horizontal">
-			<paper-button raised on-tap="approveBuyPass"><iron-icon icon="euro-symbol"></iron-icon>Cash Received</paper-button>
-			<paper-button raised on-tap="approveBuyPass"><iron-icon icon="credit-card"></iron-icon>Charge Credit Cart</paper-button>
+			<paper-button raised on-tap="approveBuyPassCash"><iron-icon icon="euro-symbol"></iron-icon>Cash Received</paper-button>
+			<paper-button raised on-tap="approveBuyPassCredit"><iron-icon icon="credit-card"></iron-icon>Charge Credit Cart</paper-button>
 			<paper-button raised on-tap="cancelBuyPass"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmCash" modal class="notification">
+		<paper-item>
+			Has the customer payed 
+			<paper-item-body>¤[[passesCost]]</paper-item-body>
+			in cash?
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="confirmCashOK"><iron-icon icon="check"></iron-icon>Yes</paper-button>
+			<paper-button raised on-tap="approveBuyPassCash"><iron-icon icon="close"></iron-icon>No</paper-button>
 		</paper-item>
 	</paper-dialog>
 	
@@ -73,6 +106,21 @@
 		<paper-item class="flex layout horizontal center">
 			<paper-button raised on-tap="closeWarning"><iron-icon icon="close"></iron-icon>Close</paper-button>
 		</paper-item>
+	</paper-dialog>
+	
+	<div style="display: none">
+		<form method="POST" action="http://api.con-troll.org/checkout" id="creditCheckoutForm" target="cc_checkout">
+			<input type="hidden" name="convention" value="">
+			<input type="hidden" name="token" value="">
+			<input type="hidden" name="ok" value="">
+			<input type="hidden" name="fail" value="">
+			<input type="hidden" name="user" value="">
+		</form>
+	</div>
+	
+	<paper-dialog id="creditCheckoutPayment" lang="he" class="iframeholder" modal>
+		<iframe id="cc_checkout" name="cc_checkout" src="">
+		</iframe>
 	</paper-dialog>
 	
 </template>
@@ -87,7 +135,8 @@ Polymer({
 			value : function() { return []; }
 		},
 		user : {
-			type: Object
+			type: Object,
+			observer: 'getUserReport'
 		},
 		passesToBuy : {
 			type: Array,
@@ -95,10 +144,22 @@ Polymer({
 		},
 		passesCost : {
 			type: Number,
-			value: 0
+			value: 0,
+			notify: true,
+			observer: 'calcualteCost'
 		},
 		selectedPass : {
 			observer: 'passSelected'
+		},
+		totalCoupons : {
+			type: Number,
+			value: 0,
+			observer: 'calcualteCost',
+			notify: true
+		},
+		finalCost : {
+			type: Number,
+			value: 0
 		}
 	},
 
@@ -113,8 +174,40 @@ Polymer({
 		app.getCatalog('passes', this.set.bind(this, 'passTypes'));
 	},
 	
+	updateCouponList : function(coupons) {
+		this.set('totalCoupons', coupons.reduce(function(sum, coupon){
+			if (coupon.used)
+				return sum;
+			return sum + parseFloat(coupon.value);
+		}, 0));
+	},
+	
 	userPreSelected : function() {
 		return !!this.user;
+	},
+	
+	getUserReport : function() {
+		// start by cleaning out reserved passes, to free up coupons
+		ConTroll.userpasses.userReport(this.user.id, false, function(passes){
+			this.cancelPasses(passes.filter(function(pass){
+				return pass.status == 'reserved'; 
+			}).map(function(pass){ return pass.id; }), function(){
+				// now list coupoons
+				ConTroll.users.get(this.get('user').id, function(user){
+					this.set('totalCoupons', user.coupons.filter(function(c) {
+						return !c.used;
+					}).map(function(c){
+						return parseFloat(c.value);
+					}).reduce(function(sum,val){
+						return sum + val;
+					},0));
+				}.bind(this));
+			}.bind(this));
+		}.bind(this));
+	},
+	
+	calcualteCost : function() {
+		this.set('finalCost', Math.max(0, this.passesCost - this.totalCoupons));
 	},
 	
 	startBuyPass : function() {
@@ -142,7 +235,24 @@ Polymer({
 		this.calculateCost();
 	},
 	
-	approveBuyPass : function(event) {
+	approveBuyPassCash : function() {
+		if (!this.verifyRequirements())
+			return;
+		this.$.confirmCash.toggle();
+	},
+	
+	confirmCashOK : function() {
+		this.$.confirmCash.toggle();
+		this.approveBuyPass(false);
+	},
+	
+	approveBuyPassCredit : function() {
+		if (!this.verifyRequirements())
+			return;
+		this.approveBuyPass(true);
+	},
+
+	verifyRequirements : function() {
 		try {
 			if (!this.user || !this.user.id)
 				throw new Error('Must select a user to sell the pass to!');
@@ -150,13 +260,73 @@ Polymer({
 				if (!pass.name.trim())
 					throw new Error('Each pass must have a name assigned!');
 			});
-			ConTroll.userpasses.create(function(){
-				app.invalidateCatalog('userpasses');
-				// TODO: call owner!
-			}.bind(this));
+			return true;
 		} catch (e) {
 			this.showWarning(e.message);
+			return false;
 		}
+	},
+	
+	approveBuyPass : function(cc) {
+		this.issuePasses(cc, this.user.id, this.passesToBuy);
+	},
+	
+	cancelPasses : function(passIdList, callback) {
+		if (!passIdList || passIdList.length == 0)
+			return callback();
+		var id = passIdList.shift();
+		ConTroll.userpasses.remove(id, this.cancelPasses.bind(this, passIdList, callback));
+	},
+	
+	issuePasses : function(cc, userId, passList) {
+		debugger;
+		if (!passList || passList.length == 0)
+			return this.performCheckout(cc, userId);
+		
+		var nextPass = passList.shift();
+		ConTroll.userpasses.create(userId, nextPass.name, nextPass.type.id, this.issuePasses.bind(this, cc, userId, passList));
+	},
+	
+	performCheckout : function(cc, userId) {
+		if (!cc)
+			return this.cashCheckout(userId);
+		
+		var form = document.getElementById('creditCheckoutForm');
+		form.elements['convention'].value = app.convention.public_key;
+		form.elements['token'].value = ConTroll.getAuthToken();
+		form.elements['ok'].value = window.location.protocol + '//' + window.location.host + '/cc_complete_ok.html';
+		form.elements['fail'].value = window.location.protocol + '//' + window.location.host + '/cc_complete_fail.html';
+		form.elements['user'].value = userId;
+		this.$.buyPassDialog.toggle();
+		this.$.creditCheckoutPayment.toggle();
+		app.ccCheckoutOK = this.ccCompleteOK.bind(this);
+		app.ccCheckoutFail = this.ccCompleteFail.bind(this);
+		window.setTimeout(function(){
+			document.getElementById('cc_checkout').style.height = (window.innerHeight - 140) + 'px';
+			form.submit();
+		}, 500);
+	},
+	
+	cashCheckout : function(userId) {
+		ConTroll.cashout(userId, this.get('passesCost'), (function(res){
+			this.$.buyPassDialog.toggle();
+			if (!res.status) {
+				alert("שגיאה באישור תשלום! צור קשר עם מנהל הקופות");
+			}
+			app.invalidateCatalog('userpasses');
+			this.fire('complete');
+		}).bind(this));
+	},
+	
+	ccCompleteOK : function() {
+		this.$.creditCheckoutPayment.toggle();
+		app.invalidateCatalog('userpasses');
+		this.fire('complete');
+	},
+	
+	ccCompleteFail : function(reason) {
+		this.$.creditCheckoutPayment.toggle();
+		alert("שגיאה בתשלום באשראי: " + reason);
 	},
 	
 	cancelBuyPass : function(event) {
