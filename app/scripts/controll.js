@@ -1257,7 +1257,7 @@ var ConTroll = (function(w,d){
 	 * @param callback function(resonse) Callback to be triggered when cashout completes
 	 */
 	ConTroll.cashout = function(userid, amount, callback) {
-		api.send('/checkout/cashout', { user: userid, amount: amount }, callback, { convention: true }, 'POST');
+		api.send('checkout/cashout', { user: userid, amount: amount }, callback, { convention: true }, 'POST');
 	}
 	
 	/**
