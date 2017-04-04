@@ -154,15 +154,19 @@ Polymer({
 			type: Number,
 			value: 0,
 			notify: true,
-			observer: 'calcualteCost'
+			observer: 'calculateCost'
 		},
 		selectedPass : {
 			observer: 'passSelected'
 		},
+		availablePasses : {
+			type: Array,
+			notify: true
+		},
 		totalCoupons : {
 			type: Number,
 			value: 0,
-			observer: 'calcualteCost',
+			observer: 'calculateCost',
 			notify: true
 		},
 		finalCost : {
@@ -206,6 +210,7 @@ Polymer({
 		app.startLoading();
 		// start by cleaning out reserved passes, to free up coupons
 		ConTroll.userpasses.userReport(this.user.id, false, function(passes){
+			this.set('availablePasses', passes.filter(function(pass){ pass.status == 'authorized'; }));
 			this.cancelPasses(passes.filter(function(pass){
 				return [ 'reserved', 'processing' ].indexOf(pass.status) >= 0;
 			}).map(function(pass){ return pass.id; }), function(){
@@ -224,7 +229,7 @@ Polymer({
 		}.bind(this));
 	},
 	
-	calcualteCost : function() {
+	calculateCost : function() {
 		this.set('finalCost', Math.max(0, this.passesCost - this.totalCoupons));
 	},
 	
