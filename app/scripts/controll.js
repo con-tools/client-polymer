@@ -562,6 +562,23 @@ var ConTroll = (function(w,d){
 	};
 	
 	/**
+	 * Retrieve all passes for a user, including availability report for the specified timeslot
+	 * @param userId ID to retrieve a report for
+	 * @param timeslot ID of timeslot to get availabitlity for
+	 * @param callback callback to trigger when successful
+	 */
+	ConTrollUserPasses.prototype.userTimeslotReport = function(userId, timeslot, callback) {
+		this.api.get(this.collection, '?user=' + userId + '&for_timeslot=' + timeslot, function(res, err) {
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error getting coupons types: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
+	/**
 	 * Cancel or refund an existing pass
 	 * @param passId ID of the user pass to cancel
 	 * @param callback callback to trigger when successful
