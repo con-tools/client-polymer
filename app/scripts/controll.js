@@ -474,6 +474,24 @@ var ConTroll = (function(w,d){
 		});
 	};
 	
+	/**
+	 * Register a ticket for the specified user, on the specified timeslot with the specified pass
+	 */
+	ConTrollTickets.prototype.create = function(timeslot, passId, callback) {
+		var data = {
+				timeslot: timeslot,
+				user_passes: passId
+		};
+		this.api.create(this.collection, data, function(res, err){
+			if (err) {
+				console.log('Error', err.error || err);
+				if (err != 'CORS error') alert("Error registering a ticket: " + (err.error||err));
+				return;
+			}
+			callback(res);
+		});
+	};
+	
 	ConTrollTickets.prototype.remove = function(id, refundTypeId, callback, onErr) {
 		var query = id;
 		if (refundTypeId) 
