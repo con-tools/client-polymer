@@ -1,0 +1,172 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<dom-module id="controll-cashier-screen">
+<template>
+	<style include="iron-flex iron-flex-alignment"></style>
+	<style>
+	.container {
+		@apply (--layout-horizontal);
+		@apply (--layout-wrap);
+		margin-bottom: .5rem;
+	}
+	
+	.colbox {
+		@apply (--layout-flex);
+		margin: 0 0.2rem;
+	}
+	
+	.flexchild {
+		@apply (--layout-flex);
+	}
+	.card-content {
+		@apply (--layout-self-strech);
+	}
+	.passtext {
+		unicode-bidi: plaintext;
+	}
+	</style>
+	
+	<div class="container">
+		<paper-card class="colbox">
+			<div class="card-content">
+				<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
+				<controll-create-user-pass user="[[user]]" available-passes="{{userPasses}}" is-disabled="[[!user]]">Buy Passes</controll-create-user-pass>
+			</div>
+		</paper-card>
+	
+		<paper-card class="colbox">
+			<div class="card-content">
+			<paper-item>Passes:</paper-item>
+				<template is="dom-repeat" items="[[userPasses]]" as="pass">
+					<paper-item class="container">
+						<paper-item-body class="passtext flexchild">[[pass.name]]</paper-item-body>
+						<paper-item-body>: </paper-item-body>
+						<paper-item-body class="passtext flexchild">[[pass.pass.title]]</paper-item-body>
+					</paper-item>
+				</template>
+			</div>
+		</paper-card>
+	</div>
+
+	<div class="container">
+		<paper-card>
+			<div class="card-content">
+				<template is="dom-repeat" items="[[timeslots]]" as="timeslot">
+					<controll-schedule-item timeslot="[[timeslot]]" readonly expandable>
+						<paper-icon-button icon="add-circle" on-tap="registerTimeslot" disabled$="[[!user]]" title="Register"></paper-icon-button>
+					</controll-schedule-item>
+				</template>
+			</div>
+		</paper-card>
+	</div>
+	
+	<paper-dialog id="registerTimeslotDialog" modal>
+		<paper-item>
+			Which pass to register to [[timeslotToRegister.event.title]] at [[timeslotToRegister.displayTime]]?
+		</paper-item>
+		<template is="dom-repeat" items="[[availablePasses]]" as="pass">
+			<paper-item class="container" disabled$="[[!pass.available]]">
+				<paper-item-body><paper-icon-button icon="check" title="Select" on-tap="selectPass"></paper-icon-button></paper-item-body>
+				<paper-item-body class="passtext flexchild">[[pass.name]]</paper-item-body>
+				<paper-item-body>: </paper-item-body>
+				<paper-item-body class="passtext flexchild">[[pass.pass.title]]</paper-item-body>
+			</paper-item>
+		</template>
+		<paper-item class="container layout center">
+			<paper-button raised on-tap="registerClose"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
+		</paper-item>
+	</paper-dialog>
+
+</template>
+</dom-module>
+
+<script>
+Polymer({
+	is : 'controll-cashier-screen',
+	properties : {
+		start : {
+			observer: 'startView'
+		},
+		user : {
+			type: Object,
+			notify: true,
+			value: null
+		},
+		
+		timeslots : {
+			type: Array,
+			notify: true
+		},
+		
+		timeslotToRegister : {
+			type: Object,
+			value: null
+		},
+		userPasses : {
+			type: Array,
+			notify: true
+		},
+		availablePasses : {
+			type: Array,
+			notify: true
+		}
+	},
+
+	ready : function() {
+	},
+
+	attached : function() {
+		app.addEventListener('please-refresh-lists', this.startView.bind(this), false);
+	},
+	
+	startView : function() {
+		if (!this.start)
+			return;
+		this.refreshData();
+		this.$.userSelect.show();
+	},
+	
+	refreshData : function() {
+		app.getCatalog('timeslots', this.populateTimeslots.bind(this));
+	},
+	
+	populateTimeslots : function(timeslots) {
+		var earliest = new Date();
+		earliest.setMinutes(earliest.getMinutes() - 5);
+		this.set('timeslots', timeslots.map(function(timeslot){
+			timeslot.start_time = new Date(Date.parse(timeslot.start));
+			timeslot.end_time = new Date(Date.parse(timeslot.end));
+			return timeslot;
+		}).filter(function(timeslot){
+			return timeslot.start_time >= earliest;
+		}).sort(function(a,b){ 
+			return a.start_time.getTime() - b.start_time.getTime();
+		}));
+	},
+	
+	registerTimeslot : function(event) {
+		app.startLoading();
+		this.set('timeslotToRegister', event.model.timeslot);
+		ConTroll.userpasses.userTimeslotReport(this.user.id, this.timeslotToRegister.id, function(passes){
+			app.doneLoading();
+			this.set('availablePasses', passes);
+			this.$.registerTimeslotDialog.toggle();
+		}.bind(this));
+		event.cancelBubble = true;
+	},
+	
+	registerClose : function() {
+		this.$.registerTimeslotDialog.toggle();
+	},
+	
+	selectPass : function(event) {
+		app.startLoading();
+		var pass = event.model.pass;
+		ConTroll.tickets.create(this.timeslotToRegister.id, pass.id, function(ticket){
+			app.doneLoading();
+			this.registerClose();
+		}.bind(this));
+	}
+});
+</script>

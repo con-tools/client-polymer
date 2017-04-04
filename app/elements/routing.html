@@ -129,6 +129,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setFocus(app.route);
       });
 
+    page('/cashier-screen', function(data) {
+        app.route = 'cashier-screen';
+        app.params = { cashierscreen: "start" };
+        setFocus(app.route);
+      });
+
     page('/cashiers', function(data) {
         app.route = 'cashiers';
         app.params = { cashiers: "start" };

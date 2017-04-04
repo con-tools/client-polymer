@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit">
-  <title>ConTroll</title>
+  <title>[[viewTitle]]</title>
 
   <!-- Place favicon.ico in the `app/` directory -->
 
@@ -136,6 +136,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           <a data-route="passes" href="{{baseUrl}}passes" hidden$="{{hidePasses(role, 'unlessCashier')}}">
             <iron-icon icon="loyalty"></iron-icon>
             <span>Passes</span>
+          </a>
+          
+          <a data-route="cashier-screen" href="{{baseUrl}}cashier-screen" hidden$="{{unlessCashier(role)}}">
+            <iron-icon icon="toc"></iron-icon>
+            <span>Cashier Screen</span>
           </a>
           
           <a data-route="cashiers" href="{{baseUrl}}cashiers" hidden$="{{unlessCashier(role)}}">
@@ -275,6 +280,13 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 <h2 class="page-title" tabindex="-1">Passes</h2>
               </paper-material>
               <controll-passes start="{{params.passes}}"></controll-passes>
+            </section>
+
+            <section data-route="cashier-screen" tabindex="-1">
+              <paper-material elevation="1">
+                <h4 class="page-title" tabindex="-1">Cashier Screen</h4>
+              </paper-material>
+              <controll-cashier-screen start="{{params.cashierscreen}}"></controll-cashier-screen>
             </section>
 
             <section data-route="cashiers" tabindex="-1">
