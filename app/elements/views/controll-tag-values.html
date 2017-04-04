@@ -111,6 +111,8 @@ Polymer({
 	},
 	
 	_updateTitle : function() {
+		if (!this.tagType)
+			return;
 		//app.startLoading();
 		ConTroll.tags.getType(this.tagType, this.handleTagTypeLoaded.bind(this));
 	},
