@@ -109,7 +109,7 @@
 	</paper-dialog>
 	
 	<div style="display: none">
-		<form method="POST" action="http://api.con-troll.org/checkout" id="creditCheckoutForm" target="cc_checkout">
+		<form method="POST" action="[[apiEndpoint()]]/checkout" id="creditCheckoutForm" target="cc_checkout">
 			<input type="hidden" name="convention" value="">
 			<input type="hidden" name="token" value="">
 			<input type="hidden" name="ok" value="">
@@ -174,6 +174,10 @@ Polymer({
 		app.getCatalog('passes', this.set.bind(this, 'passTypes'));
 	},
 	
+	apiEndpoint : function() {
+		return ConTroll.getEndpoint();
+	},
+	
 	updateCouponList : function(coupons) {
 		this.set('totalCoupons', coupons.reduce(function(sum, coupon){
 			if (coupon.used)
@@ -187,10 +191,13 @@ Polymer({
 	},
 	
 	getUserReport : function() {
+		if (!this.user)
+			return;
+		app.startLoading();
 		// start by cleaning out reserved passes, to free up coupons
 		ConTroll.userpasses.userReport(this.user.id, false, function(passes){
 			this.cancelPasses(passes.filter(function(pass){
-				return pass.status == 'reserved'; 
+				return [ 'reserved', 'processing' ].indexOf(pass.status) >= 0;
 			}).map(function(pass){ return pass.id; }), function(){
 				// now list coupoons
 				ConTroll.users.get(this.get('user').id, function(user){
@@ -201,6 +208,7 @@ Polymer({
 					}).reduce(function(sum,val){
 						return sum + val;
 					},0));
+					app.doneLoading();
 				}.bind(this));
 			}.bind(this));
 		}.bind(this));
@@ -279,7 +287,6 @@ Polymer({
 	},
 	
 	issuePasses : function(cc, userId, passList) {
-		debugger;
 		if (!passList || passList.length == 0)
 			return this.performCheckout(cc, userId);
 		
@@ -320,17 +327,25 @@ Polymer({
 	
 	ccCompleteOK : function() {
 		this.$.creditCheckoutPayment.toggle();
+		this.resetProcess();
 		app.invalidateCatalog('userpasses');
 		this.fire('complete');
 	},
 	
 	ccCompleteFail : function(reason) {
 		this.$.creditCheckoutPayment.toggle();
+		this.resetProcess();
 		alert("שגיאה בתשלום באשראי: " + reason);
 	},
 	
 	cancelBuyPass : function(event) {
 		this.$.buyPassDialog.toggle();
+		this.resetProcess();
+	},
+	
+	resetProcess : function() {
+		this.set('totalCoupons',0);
+		this.set('user', null);
 		this.set('selectedPass', '');
 		this.set('passesToBuy', []);
 		this.set('passesCost', 0);
