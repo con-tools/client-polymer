@@ -75,7 +75,7 @@ Polymer({
 		if (!start || !app.convention)
 			return;
 		this.set('start',null);
-		app.startLoading();
+		//app.startLoading();
 		ConTroll.tickets.catalog(this.calculateReport.bind(this));
 	},
 	
@@ -110,7 +110,7 @@ Polymer({
 		}
 		this.set('total',total);
 		this.set('cashiers', cashier_list);
-		app.doneLoading();
+		//app.doneLoading();
 	},
 });
 </script>
