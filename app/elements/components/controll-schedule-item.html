@@ -22,11 +22,18 @@
 		display: inline-block;
 		margin: 0 !important;
 	}
+	.description {
+		unicode-bidi: plaintext;
+	}
 	</style>
 	<style is="custom-style" include="iron-flex iron-flex-alignment"></style>
 
-	<paper-material elevation="2">
+	<paper-material elevation="2" on-tap="expand">
 		<paper-item class="container flex-horizontal">
+			<paper-item-body hidden$="[[!expandable]]">
+				<iron-icon icon="arrow-drop-up" hidden$="[[showDescription]]"></iron-icon>
+				<iron-icon icon="arrow-drop-down" hidden$="[[!showDescription]]"></iron-icon>
+			</paper-item-body>
 			<div>
 				<span>[[timeslot.id]].</span>
 				<strong>Start Time:</strong>
@@ -49,14 +56,20 @@
 					<span title="[[host.email]]">[[host.name]]</span>
 				</template>
 			</div>
+			<content>
 			<paper-icon-button icon="create" title="Edit" on-tap="updateHosts" hidden$="[[readonly]]"></paper-icon-button>
 			&nbsp;&nbsp;&nbsp;&nbsp;
 			<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot" hidden$="[[readonly]]"></paper-icon-button>
+			</content>
+		</paper-item>
+		<paper-item class="description" hidden$="[[!showDescription]]">
+			<paper-item-body>[[timeslot.event.teaser]]</paper-item-body>
+			<paper-item-body>[[timeslot.event.description]]</paper-item-body>
 		</paper-item>
 	</paper-material>
 	
 	<paper-dialog id="editLocations" modal>
-		<controll-locations-editor locations="{{locationsToEdit}}"></controll-locations-editor>
+		<controll-locations-editor locations="{{locationsToEdit}}" is-disabled="[[readonly]]"></controll-locations-editor>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approve"><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button raised on-tap="cancel"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -64,7 +77,7 @@
 	</paper-dialog>
 	
 	<paper-dialog id="editHosts" modal>
-		<controll-hosts-editor hosts="{{hostsToEdit}}"></controll-hosts-editor>
+		<controll-hosts-editor hosts="{{hostsToEdit}}" is-disabled="[[readonly]]"></controll-hosts-editor>
 		<paper-item class="container flex-horizontal">
 			<paper-button raised on-tap="approveHosts"><iron-icon icon="check"></iron-icon>OK</paper-button>
 			<paper-button raised on-tap="cancelHosts"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
@@ -96,7 +109,17 @@
 			
 			readonly : {
 				type: Boolean,
-				notify: true
+				value: false
+			},
+			
+			expandable : {
+				type: Boolean,
+				value: false
+			},
+			
+			showDescription : {
+				type: Boolean,
+				value: false
 			}
 		},
 
@@ -107,7 +130,6 @@
 		},
 		
 		_timeslotUpdated: function(timeslot) {
-			
 		},
 		
 		updateSchedule : function(event) {
@@ -161,6 +183,12 @@
 		
 		approveRemove : function() {
 			this.fire('remove', { model: {timeslot: this.get('timeslot') }});
+		},
+		
+		expand : function() {
+			if (!this.expandable)
+				return;
+			this.set('showDescription', !this.showDescription);
 		}
 
 	});
