@@ -1248,7 +1248,7 @@ var ConTroll = (function(w,d){
 	 */
 	ConTroll.setConvention = function(api_key) {
 		api.conventionApiKey = api_key;
-	}
+	};
 	
 	/**
 	 * Perform a cashout for the current cart of the specified user
@@ -1258,7 +1258,11 @@ var ConTroll = (function(w,d){
 	 */
 	ConTroll.cashout = function(userid, amount, callback) {
 		api.send('checkout/cashout', { user: userid, amount: amount }, callback, { convention: true }, 'POST');
-	}
+	};
+	
+	ConTroll.getEndpoint = function() {
+		return api.endpoint;
+	};
 	
 	/**
 	 * Expose APIs
