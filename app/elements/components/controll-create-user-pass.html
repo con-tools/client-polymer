@@ -210,7 +210,7 @@ Polymer({
 		app.startLoading();
 		// start by cleaning out reserved passes, to free up coupons
 		ConTroll.userpasses.userReport(this.user.id, false, function(passes){
-			this.set('availablePasses', passes.filter(function(pass){ pass.status == 'authorized'; }));
+			this.set('availablePasses', passes.filter(function(pass){ return pass.status == 'authorized'; }));
 			this.cancelPasses(passes.filter(function(pass){
 				return [ 'reserved', 'processing' ].indexOf(pass.status) >= 0;
 			}).map(function(pass){ return pass.id; }), function(){
