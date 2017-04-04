@@ -16,7 +16,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="generator" content="Polymer Starter Kit">
-  <title>[[viewTitle]]</title>
+  <title>ConTroll</title>
 
   <!-- Place favicon.ico in the `app/` directory -->
 
@@ -164,7 +164,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
           <!-- Application name -->
           <div class="middle middle-container">
-            <div class="app-name">ConTroll</div>
+            <div class="app-name">[[viewTitle]]</div>
           </div>
         </paper-toolbar>
 
@@ -192,98 +192,106 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 				</section>
 
             <section data-route="tags" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
               	<h2 class="page-title" tabindex="-1">System Tags (Custom Event Fields)</h2>
-                <controll-tags></controll-tags>
+              </paper-material>
+              <paper-material elevation="-1">
+              <controll-tags></controll-tags>
               </paper-material>
             </section>
 
             <section data-route="tag-values" tabindex="-1">
               <paper-material elevation="-1">
                 <h2 class="page-title" tabindex="-1">Values For: {{params.title}}</h2>
-                <controll-tag-values tag-type="{{params.title}}"></controll-tag-values>
+              </paper-material>
+              <paper-material elevation="-1">
+              <controll-tag-values tag-type="{{params.title}}"></controll-tag-values>
               </paper-material>
             </section>
 
             <section data-route="events" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Events</h2>
               </paper-material>
               <controll-event-list start="{{params.events}}"></controll-event-list>
             </section>
 
             <section data-route="event-form" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Edit Event</h2>
               </paper-material>
               <controll-event event-id="{{params.id}}"></controll-event>
             </section>
 
             <section data-route="locations" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Locations</h2>
-                <controll-location-list></controll-location-list>
+              </paper-material>
+              <paper-material elevation="-1">
+              <controll-location-list></controll-location-list>
               </paper-material>
             </section>
 
             <section data-route="scheduling" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Scheduling</h2>
               </paper-material>
               <controll-scheduler></controll-scheduler>
             </section>
 
             <section data-route="coupons" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Coupon Types</h2>
               </paper-material>
               <controll-coupons></controll-coupons>
             </section>
 
             <section data-route="coupon-type" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Coupons</h2>
               </paper-material>
               <controll-coupon-type coupon-type-id="{{params.coupontypeid}}"></controll-coupon-type>
             </section>
 
             <section data-route="merchandise" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Merchandise</h2>
               </paper-material>
               <controll-merchandise start="{{params.merchandise}}"></controll-merchandise>
             </section>
 
             <section data-route="sales" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Sales</h2>
               </paper-material>
               <controll-sales start="{{params.sales}}"></controll-sales>
             </section>
 
             <section data-route="managers" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Managers</h2>
-                <controll-managers></controll-managers>
+              </paper-material>
+              <paper-material elevation="-1">
+              <controll-managers></controll-managers>
               </paper-material>
             </section>
 
             <section data-route="tickets" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Tickets</h2>
               </paper-material>
               <controll-tickets start="{{params.tickets}}"></controll-tickets>
             </section>
 
             <section data-route="passes" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Passes</h2>
               </paper-material>
               <controll-passes start="{{params.passes}}"></controll-passes>
             </section>
 
             <section data-route="cashier-screen" tabindex="-1">
-              <paper-material elevation="1">
+              <paper-material elevation="1" style="display: none;">
                 <h2 class="page-title" tabindex="-1">Cashier Screen</h2>
               </paper-material>
               <controll-cashier-screen start="{{params.cashierscreen}}"></controll-cashier-screen>
