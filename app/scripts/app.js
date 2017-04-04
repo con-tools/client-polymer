@@ -95,6 +95,9 @@
 			type: String,
 			value: 'ConTroll'
 	};
+	app.observers = [
+		'watchRouteChanges(route)'
+	];
 	// Listen for template bound event to know when bindings
 	// have resolved and content has been stamped to the page
 	app.addEventListener('dom-change', function() {
@@ -162,6 +165,10 @@
 	  app.fire('please-refresh-lists');
 	};
 	
+	app.watchRouteChanges = function(route) {
+		this.set('viewTitle', document.querySelector('[data-route="'+ app.route+'"] h2').textContent);
+	};
+	
 	app.onSelectedConvention = function(selected, previous) {
 		if (previous !== undefined) // only store if the user actually selected something
 			window.localStorage.setItem('controll-management-last-convention', selected);
@@ -169,7 +176,7 @@
 			app.startLoading();
 			this.chooseConvention(selected);
 		}
-	}
+	};
 	
 	app.chooseConvention = function(conid) {
 		if (!this.conventions || !this.conventions.length) {
