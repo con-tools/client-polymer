@@ -119,7 +119,7 @@ Polymer({
 		this.set('users', null);
 		this.set('usersNames', null);
 		this.set('usersEmails', null);
-		this.refreshData(onComplete);
+		this.refreshData(onComplete || function(){});
 	},
 	
 	refreshData : function(onComplete) {
