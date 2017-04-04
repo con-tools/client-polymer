@@ -45,10 +45,12 @@
 		}
 	</style>
 	
-	<paper-button raised on-tap="startBuyPass"><iron-icon icon="add-circle"></iron-icon>Create A New User Pass</paper-button>
+	<paper-button raised on-tap="startBuyPass" disabled$="[[isDisabled]]"><iron-icon icon="add-circle"></iron-icon>
+		<content>Create A New User Pass</content>
+	</paper-button>
 	
 	<paper-dialog id="buyPassDialog" modal>
-		<controll-user-select id="userSelect" value="{{user}}" hidden$="[[userPreSelected()]]"></controll-user-select>
+		<controll-user-select id="userSelect" value="{{user}}" hidden$="[[userPreSelected(user)]]"></controll-user-select>
 		<paper-item>Pass holders:</paper-item>
 		<template is="dom-repeat" items="{{passesToBuy}}" as="passToBuy">
 			<paper-item class="container flex-horizontal">
@@ -130,12 +132,18 @@
 Polymer({
 	is : 'controll-create-user-pass',
 	properties : {
+		isDisabled : {
+			type: Boolean,
+			notify: true,
+			value: false
+		},
 		passTypes : {
 			type: Array,
 			value : function() { return []; }
 		},
 		user : {
 			type: Object,
+			value: 'auto',
 			observer: 'getUserReport'
 		},
 		passesToBuy : {
@@ -162,7 +170,7 @@ Polymer({
 			value: 0
 		}
 	},
-
+	
 	ready : function() {
 	},
 
@@ -186,12 +194,14 @@ Polymer({
 		}, 0));
 	},
 	
-	userPreSelected : function() {
+	userPreSelected : function(user) {
 		return !!this.user;
 	},
 	
-	getUserReport : function() {
-		if (!this.user)
+	getUserReport : function(newval, oldval) {
+		if (newval == 'auto')
+			this.notPreselected = true;
+		if (!this.user || newval == 'auto')
 			return;
 		app.startLoading();
 		// start by cleaning out reserved passes, to free up coupons
@@ -219,6 +229,9 @@ Polymer({
 	},
 	
 	startBuyPass : function() {
+		if (!this.notPreselected)
+			return this.$.buyPassDialog.toggle();
+		
 		this.$.userSelect.show(function() {
 			this.$.buyPassDialog.toggle();
 		}.bind(this));
@@ -345,7 +358,7 @@ Polymer({
 	
 	resetProcess : function() {
 		this.set('totalCoupons',0);
-		this.set('user', null);
+		//this.set('user', null);
 		this.set('selectedPass', '');
 		this.set('passesToBuy', []);
 		this.set('passesCost', 0);
