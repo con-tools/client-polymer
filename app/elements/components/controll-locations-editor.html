@@ -28,6 +28,11 @@
 	Polymer({
 		is : 'controll-locations-editor',
 		properties : {
+			isDisabled : {
+				type: Boolean,
+				value: false,
+				notify: true
+			},
 			locations : {
 				type: Array,
 				observer: '_updateLocations',
@@ -41,10 +46,11 @@
 
 		attached : function() {
 			app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
-			this.refreshData();
 		},
 		
 		refreshData : function() {
+			if (this.isDisabled)
+				return; // don't load data if we are not going to be used
 			app.getCatalog('locations', (function(locations){
 				this.set('availableLocations', locations);
 			}).bind(this));

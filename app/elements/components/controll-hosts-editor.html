@@ -43,6 +43,11 @@
 Polymer({
 	is : 'controll-hosts-editor',
 	properties : {
+		isDisabled : {
+			type: Boolean,
+			value: false,
+			notify: true
+		},
 		hosts: {
 			type: Array,
 			value: function() { return new Array(); },
@@ -55,10 +60,11 @@ Polymer({
 
 	attached : function() {
 		app.addEventListener('please-refresh-lists', this.refreshData.bind(this), false);
-		this.refreshData();
 	},
 	
 	refreshData : function() {
+		if (this.isDisabled)
+			return; // don't load data if we are not going to be used
 		app.getCatalog('users', (function(users){
 			this.set('availableUsers', users.map(function(user){
 				user.label = user.name + ' <' + user.email + '>';
