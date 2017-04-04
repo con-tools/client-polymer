@@ -41,7 +41,7 @@
 					<div class="text-block">[[location.title]]</div>
 				</template>
 			</div>
-			<paper-icon-button icon="create" title="Edit" on-tap="updateSchedule"></paper-icon-button>
+			<paper-icon-button icon="create" title="Edit" on-tap="updateSchedule" hidden$="[[readonly]]"></paper-icon-button>
 			&nbsp;&nbsp;&nbsp;&nbsp;
 			<div class="flexchild">
 				<strong>Hosts:</strong>
@@ -49,9 +49,9 @@
 					<span title="[[host.email]]">[[host.name]]</span>
 				</template>
 			</div>
-			<paper-icon-button icon="create" title="Edit" on-tap="updateHosts"></paper-icon-button>
+			<paper-icon-button icon="create" title="Edit" on-tap="updateHosts" hidden$="[[readonly]]"></paper-icon-button>
 			&nbsp;&nbsp;&nbsp;&nbsp;
-			<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot"></paper-icon-button>
+			<paper-icon-button icon="clear" title="Remove" on-tap="removeTimeslot" hidden$="[[readonly]]"></paper-icon-button>
 		</paper-item>
 	</paper-material>
 	
@@ -91,6 +91,11 @@
 			timeslot: {
 				type: Object,
 				observer: '_timeslotUpdated',
+				notify: true
+			},
+			
+			readonly : {
+				type: Boolean,
 				notify: true
 			}
 		},
