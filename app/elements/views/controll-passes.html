@@ -35,7 +35,7 @@
 	
 	<paper-material>
 		<paper-item class="container flex-horizontal">
-			<div>
+			<div hidden$="{{unlessManager}}">
 				<paper-item>
 					<paper-item-body class="strong">Total passes sold:</paper-item-body>
 					<paper-item-body>[[userpassesData.length]]</paper-item-body>
@@ -104,6 +104,10 @@ Polymer({
 		revenue : {
 			type: Number,
 			value: 0
+		},
+		unlessManager : {
+			type: Boolean,
+			value: function() { return app.unlessManager(app.role); }
 		},
 		passTypes : {
 			type: Array,
