@@ -241,7 +241,9 @@ Polymer({
 	passSelected : function(pass) {
 		if (!pass)
 			return;
-		this.push('passesToBuy', { type: pass, name: '' });
+		this.push('passesToBuy', { type: pass, name: (
+				this.passesToBuy.length > 0 ? '' : this.user.name
+		) });
 		this.calculateCost();
 		this.selectedPass = null;
 	},
