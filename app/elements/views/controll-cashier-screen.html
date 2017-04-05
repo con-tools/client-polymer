@@ -52,14 +52,15 @@
 		<paper-card class="colbox">
 			<div class="card-content">
 				<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
-				<controll-create-user-pass id="buyPass" user="[[user]]" available-passes="{{userPasses}}" is-disabled="[[!user]]"
+				<controll-create-user-pass id="buyPass" user="[[user]]" is-disabled="[[!user]]"
+					available-passes="{{userPasses}}" available-coupons="{{availableCoupons}}"
 					on-complete="updatePasses" on-error="updatePasses">Buy Passes</controll-create-user-pass>
 			</div>
 		</paper-card>
 	
 		<paper-card class="colbox">
 			<div class="card-content">
-			<paper-item>Passes:</paper-item>
+				<paper-item>Passes:</paper-item>
 				<template is="dom-repeat" items="[[userPasses]]" as="pass">
 					<paper-item class="container">
 						<paper-item-body class="passtext flexchild">[[pass.name]]</paper-item-body>
@@ -67,6 +68,16 @@
 						<paper-item-body class="passtext flexchild">[[pass.pass.title]]</paper-item-body>
 					</paper-item>
 				</template>
+				<div hidden$="[[isEmpty(availableCoupons)]]">
+				<paper-item>Coupons:</paper-item>
+				<template is="dom-repeat" items="[[availableCoupons]]" as="coupon">
+					<paper-item class="container">
+						<paper-item-body class="passtext flexchild">[[coupon.type.title]]</paper-item-body>
+						<paper-item-body>: </paper-item-body>
+						<paper-item-body class="passtext flexchild">[[coupon.value]]</paper-item-body>
+					</paper-item>
+				</template>
+				</div>
 			</div>
 		</paper-card>
 	</div>
@@ -168,6 +179,10 @@ Polymer({
 		availablePasses : {
 			type: Array,
 			notify: true
+		},
+		availableCoupons : {
+			type: Array,
+			notify: true
 		}
 	},
 
@@ -191,6 +206,10 @@ Polymer({
 	
 	updatePasses : function() {
 		this.$.buyPass.getUserReport();
+	},
+	
+	isEmpty : function(list) {
+		return list.length == 0;
 	},
 	
 	populateTimeslots : function(timeslots) {

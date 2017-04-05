@@ -159,6 +159,10 @@ Polymer({
 			type: Array,
 			notify: true
 		},
+		availableCoupons : {
+			type: Array,
+			notify: true
+		},
 		totalCoupons : {
 			type: Number,
 			value: 0,
@@ -191,14 +195,6 @@ Polymer({
 		return ConTroll.getEndpoint();
 	},
 	
-	updateCouponList : function(coupons) {
-		this.set('totalCoupons', coupons.reduce(function(sum, coupon){
-			if (coupon.used)
-				return sum;
-			return sum + parseFloat(coupon.value);
-		}, 0));
-	},
-	
 	userPreSelected : function(user) {
 		return !this.notPreselected;
 	},
@@ -217,6 +213,9 @@ Polymer({
 			}).map(function(pass){ return pass.id; }), function(){
 				// now list coupoons
 				ConTroll.users.get(this.get('user').id, function(user){
+					this.set('availableCoupons', user.coupons.filter(function(c) {
+						return !c.used;
+					}));
 					this.set('totalCoupons', user.coupons.filter(function(c) {
 						return !c.used;
 					}).map(function(c){
