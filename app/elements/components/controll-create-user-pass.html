@@ -229,10 +229,6 @@ Polymer({
 		}.bind(this));
 	},
 	
-	calculateCost : function() {
-		this.set('finalCost', Math.max(0, this.passesCost - this.totalCoupons));
-	},
-	
 	startBuyPass : function() {
 		if (!this.notPreselected)
 			return this.$.buyPassDialog.toggle();
@@ -254,6 +250,7 @@ Polymer({
 		this.set('passesCost', this.passesToBuy.reduce(function(acc,val){
 			return acc + parseFloat(val.type.price);
 		}, 0));
+		this.set('finalCost', Math.max(0, this.passesCost - (this.totalCoupons || 0)));
 	},
 	
 	removePassToBuy: function (event) {
