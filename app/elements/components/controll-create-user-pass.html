@@ -40,8 +40,6 @@
 			min-height: 80%;
 		}
 		.iframeholder iframe {
-			width: 95%;
-			margin: 10px;
 		}
 	</style>
 	
@@ -121,8 +119,6 @@
 	</div>
 	
 	<paper-dialog id="creditCheckoutPayment" lang="he" class="iframeholder" modal>
-		<iframe id="cc_checkout" name="cc_checkout" src="">
-		</iframe>
 	</paper-dialog>
 	
 </template>
@@ -316,31 +312,51 @@ Polymer({
 		if (!cc)
 			return this.cashCheckout(userId);
 		
-		var form = document.getElementById('creditCheckoutForm');
+		var id = 'cc_checkout_' + parseInt(Math.random()*10000);
+		var form = this.$.creditCheckoutForm;
 		form.elements['convention'].value = app.convention.public_key;
 		form.elements['token'].value = ConTroll.getAuthToken();
 		form.elements['ok'].value = window.location.protocol + '//' + window.location.host + '/cc_complete_ok.html';
 		form.elements['fail'].value = window.location.protocol + '//' + window.location.host + '/cc_complete_fail.html';
 		form.elements['user'].value = userId;
 		this.$.buyPassDialog.toggle();
+		
+		var ifr = this.$.creditCheckoutPayment.querySelector("iframe");
+		if (ifr)
+			this.$.creditCheckoutPayment.removeChild(ifr);
+		var ifr  = document.createElement('iframe');
+		ifr.name = id;
+		this.$.creditCheckoutPayment.appendChild(ifr);
 		this.$.creditCheckoutPayment.toggle();
+		
 		app.ccCheckoutOK = this.ccCompleteOK.bind(this);
 		app.ccCheckoutFail = this.ccCompleteFail.bind(this);
 		window.setTimeout(function(){
-			document.getElementById('cc_checkout').style.height = (window.innerHeight - 140) + 'px';
+			with (ifr.style) {
+				height = (window.innerHeight - 120) + 'px';
+				width = '100%';
+				margin = '0';
+				padding = '0';
+				border = '0';
+				position = 'absolute';
+				left = '0';
+				right = '0';
+			}
+			form.target = id;
 			form.submit();
-		}, 500);
+		}.bind(this), 500);
 	},
 	
 	cashCheckout : function(userId) {
-		ConTroll.cashout(userId, this.get('passesCost'), (function(res){
+		ConTroll.cashout(userId, this.get('passesCost'), function(res){
 			this.$.buyPassDialog.toggle();
 			if (!res.status) {
 				alert("שגיאה באישור תשלום! צור קשר עם מנהל הקופות");
 			}
+			this.resetProcess();
 			app.invalidateCatalog('userpasses');
 			this.fire('complete');
-		}).bind(this));
+		}.bind(this));
 	},
 	
 	ccCompleteOK : function() {
@@ -354,6 +370,7 @@ Polymer({
 		this.$.creditCheckoutPayment.toggle();
 		this.resetProcess();
 		alert("שגיאה בתשלום באשראי: " + reason);
+		this.fire('error');
 	},
 	
 	cancelBuyPass : function(event) {

@@ -158,11 +158,11 @@
 	};
 	
 	app.sendRefreshEvent = function() {
-	  console.log("Refreshing from server");
-	  // first invalidate catalog caches
-	  for (var catalog in app.controllCatalogs)
-		  app.controllCatalogs[catalog].invalidate();
-	  app.fire('please-refresh-lists');
+		console.log("Refreshing from server");
+		// first invalidate catalog caches
+		for (var catalog in app.controllCatalogs)
+			app.controllCatalogs[catalog].invalidate();
+		app.fire('please-refresh-lists');
 	};
 	
 	app.watchRouteChanges = function(route) {
@@ -232,7 +232,9 @@
 		});
 	};
 	app.invalidateCatalog = function(catalog) {
-		app.controllCatalogs[catalog].invalidate();
+		var c = app.controllCatalogs[catalog];
+		if (c && c.invalidate)
+			c.invalidate();
 	};
 	
 	app.dejsonify = Catalog.prototype.dejsonify; // expose to other modules

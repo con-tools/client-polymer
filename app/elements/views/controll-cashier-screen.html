@@ -25,13 +25,35 @@
 	.passtext {
 		unicode-bidi: plaintext;
 	}
+	vaadin-grid {
+		direction: rtl;
+		--vaadin-grid-cell: {
+			direction: rtl; 
+			unicode-bidi: plaintext;
+			text-align: right;
+		}
+		
+		--vaadin-grid-body-row-details-cell: {
+			white-space: normal;
+		}
+		--vaadin-grid-body-row-hover-cell: {
+			background-color: var(--paper-grey-200);
+		};
+		--vaadin-grid-body-row-selected-cell: {
+			background-color: var(--paper-grey-100);
+		};
+		--vaadin-grid-body-row-odd-cell: {
+			background-color: #f5f5f5;
+		};
+	}
 	</style>
 	
 	<div class="container">
 		<paper-card class="colbox">
 			<div class="card-content">
 				<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
-				<controll-create-user-pass user="[[user]]" available-passes="{{userPasses}}" is-disabled="[[!user]]">Buy Passes</controll-create-user-pass>
+				<controll-create-user-pass id="buyPass" user="[[user]]" available-passes="{{userPasses}}" is-disabled="[[!user]]"
+					on-complete="updatePasses" on-error="updatePasses">Buy Passes</controll-create-user-pass>
 			</div>
 		</paper-card>
 	
@@ -50,13 +72,49 @@
 	</div>
 
 	<div class="container">
-		<paper-card>
+		<paper-card style="width:100%">
 			<div class="card-content">
-				<template is="dom-repeat" items="[[timeslots]]" as="timeslot">
-					<controll-schedule-item timeslot="[[timeslot]]" readonly expandable>
-						<paper-icon-button icon="add-circle" on-tap="registerTimeslot" disabled$="[[!user]]" title="Register"></paper-icon-button>
-					</controll-schedule-item>
-				</template>
+				<vaadin-grid id="grid" items="[[timeslots]]" on-active-item-changed="_onActiveItemChanged">
+					<template class="row-details">
+						<div class="details">
+							<paper-item class="strong">[[item.event.title]]:</paper-item>
+							<paper-item hidden$="[[!item.event.teaser]]">[[item.event.teaser]]</paper-item>
+							<paper-item hidden$="[[!item.event.description]]">[[item.event.description]]</paper-item>
+						</div>
+					</template>
+				
+					<vaadin-grid-column flex-grow="1">
+						<template class="header"><iron-icon icon="label-outline"></iron-icon></template>
+						<template><span title="[[item.event.title]]">[[item.event.title]]</span></template>
+					</vaadin-grid-column>
+				
+					<vaadin-grid-column flex-grow="1">
+						<template class="header"><iron-icon icon="home"></iron-icon></template>
+						<template>[[item.displayLocation]]</template>
+					</vaadin-grid-column>
+				
+					<vaadin-grid-column flex-grow="0" width="10em">
+						<template class="header"><iron-icon icon="today"></iron-icon></template>
+						<template>[[item.displayTime]]</template>
+					</vaadin-grid-column>
+				
+					<vaadin-grid-column flex-grow="0">
+						<template class="header"><iron-icon icon="schedule"></iron-icon></template>
+						<template>[[item.duration]] min</template>
+					</vaadin-grid-column>
+				
+					<vaadin-grid-column flex-grow="1">
+						<template class="header"><iron-icon icon="face"></iron-icon></template>
+						<template>[[item.displayHosts]]</template>
+					</vaadin-grid-column>
+					
+					<vaadin-grid-column flex-grow="0" width="45px">
+						<template class="header"><iron-icon icon="check"></iron-icon></template>
+						<template>
+							<paper-icon-button icon="add-circle" on-tap="registerTimeslot" disabled$="[[!user]]" title="Register"></paper-icon-button>
+						</template>
+					</vaadin-grid-column>
+				</vaadin-grid>
 			</div>
 		</paper-card>
 	</div>
@@ -67,7 +125,7 @@
 		</paper-item>
 		<template is="dom-repeat" items="[[availablePasses]]" as="pass">
 			<paper-item class="container" disabled$="[[!pass.available]]">
-				<paper-item-body><paper-icon-button icon="check" title="Select" on-tap="selectPass"></paper-icon-button></paper-item-body>
+				<paper-item-body><paper-icon-button icon="check-circle" title="Select" on-tap="selectPass"></paper-icon-button></paper-item-body>
 				<paper-item-body class="passtext flexchild">[[pass.name]]</paper-item-body>
 				<paper-item-body>: </paper-item-body>
 				<paper-item-body class="passtext flexchild">[[pass.pass.title]]</paper-item-body>
@@ -131,26 +189,34 @@ Polymer({
 		app.getCatalog('timeslots', this.populateTimeslots.bind(this));
 	},
 	
+	updatePasses : function() {
+		this.$.buyPass.getUserReport();
+	},
+	
 	populateTimeslots : function(timeslots) {
 		var earliest = new Date();
 		earliest.setMinutes(earliest.getMinutes() - 5);
 		this.set('timeslots', timeslots.map(function(timeslot){
 			timeslot.start_time = new Date(Date.parse(timeslot.start));
 			timeslot.end_time = new Date(Date.parse(timeslot.end));
+			timeslot.displayHosts = timeslot.hosts.map(function(h){return h.name;}).join(", ");
+			timeslot.displayLocation = timeslot.locations.map(function(l){ return l.title; }).join(", ");
 			return timeslot;
 		}).filter(function(timeslot){
 			return timeslot.start_time >= earliest;
-		}).sort(function(a,b){ 
+		}).sort(function(a,b){
+			if (a.start_time.getTime() == b.start_time.getTime())
+				return a.duration - b.duration;
 			return a.start_time.getTime() - b.start_time.getTime();
 		}));
 	},
 	
 	registerTimeslot : function(event) {
 		app.startLoading();
-		this.set('timeslotToRegister', event.model.timeslot);
+		this.set('timeslotToRegister', event.model.item);
 		ConTroll.userpasses.userTimeslotReport(this.user.id, this.timeslotToRegister.id, function(passes){
 			app.doneLoading();
-			this.set('availablePasses', passes);
+			this.set('availablePasses', passes.filter(function(pass){ return pass.status == 'authorized';}));
 			this.$.registerTimeslotDialog.toggle();
 		}.bind(this));
 		event.cancelBubble = true;
@@ -167,6 +233,10 @@ Polymer({
 			app.doneLoading();
 			this.registerClose();
 		}.bind(this));
+	},
+	
+	_onActiveItemChanged : function(event) {
+		this.$.grid.expandedItems = [event.detail.value];
 	}
 });
 </script>

@@ -81,7 +81,7 @@
 			<template>[[item.pass.title]]</template>
 		</vaadin-grid-column>
 		<vaadin-grid-column width="6rem" flex-grow="0">
-			<template class="header"><vaadin-grid-sorter path="price">Price</vaadin-grid-sorter></template>
+			<template class="header"><vaadin-grid-sorter path="price">Cost</vaadin-grid-sorter></template>
 			<template>¤[[item.price]]</template>
 		</vaadin-grid-column>
 	</vaadin-grid>
@@ -153,7 +153,7 @@ Polymer({
 	
 	runFilter : function() {
 		var filter = this.$.userpassFilter.value.trim();
-		var expression = new RegExp(filter,'i');
+		var expression = new RegExp(filter.replace("\\","\\\\"),'i');
 		this.set('userpasses', this.userpassesData.filter(function(pass){
 			return (
 					pass.name.match(expression) || 
