@@ -48,7 +48,7 @@
 	</paper-button>
 	
 	<paper-dialog id="buyPassDialog" modal>
-		<controll-user-select id="userSelect" value="{{user}}" hidden$="[[userPreSelected(user)]]"></controll-user-select>
+		<controll-user-select id="userSelect" value="{{user}}" hidden$="[[!notPreselected]]"></controll-user-select>
 		<paper-item>Pass holders:</paper-item>
 		<template is="dom-repeat" items="{{passesToBuy}}" as="passToBuy">
 			<paper-item class="container flex-horizontal">
@@ -168,6 +168,11 @@ Polymer({
 		finalCost : {
 			type: Number,
 			value: 0
+		},
+		notPreselected : {
+			type: Boolean,
+			value: false,
+			notify: true
 		}
 	},
 	
@@ -195,7 +200,7 @@ Polymer({
 	},
 	
 	userPreSelected : function(user) {
-		return !!this.user;
+		return !this.notPreselected;
 	},
 	
 	getUserReport : function(newval, oldval) {
