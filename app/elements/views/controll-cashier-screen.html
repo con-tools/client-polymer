@@ -52,6 +52,7 @@
 		<paper-card class="colbox">
 			<div class="card-content">
 				<controll-user-select id="userSelect" value="{{user}}"></controll-user-select>
+				<paper-icon-button class="mirror-icon" icon="backspace" raised="1" on-tap="clearUser"></paper-icon-button>
 				<controll-create-user-pass id="buyPass" user="[[user]]" is-disabled="[[!user]]"
 					available-passes="{{userPasses}}" available-coupons="{{availableCoupons}}"
 					on-complete="updatePasses" on-error="updatePasses">Buy Passes</controll-create-user-pass>
@@ -85,6 +86,11 @@
 	<div class="container">
 		<paper-card style="width:100%">
 			<div class="card-content">
+				<paper-item>
+					<paper-input label="Search" id="eventFilter" on-keyup="runFilter"></paper-input>
+					<paper-item-body class="flexchild"><!-- spacer --></paper-item-body>
+					<paper-icon-button icon="backspace" on-tap="clearFilter">Clear</paper-icon-button>
+				</paper-item>
 				<vaadin-grid id="grid" items="[[timeslots]]" on-active-item-changed="_onActiveItemChanged">
 					<template class="row-details">
 						<div class="details">
@@ -163,6 +169,11 @@ Polymer({
 			value: null
 		},
 		
+		timeslotsData : {
+			type: Array,
+			notify: true
+		},
+		
 		timeslots : {
 			type: Array,
 			notify: true
@@ -215,7 +226,7 @@ Polymer({
 	populateTimeslots : function(timeslots) {
 		var earliest = new Date();
 		earliest.setMinutes(earliest.getMinutes() - 5);
-		this.set('timeslots', timeslots.map(function(timeslot){
+		this.set('timeslotsData', timeslots.map(function(timeslot){
 			timeslot.start_time = new Date(Date.parse(timeslot.start));
 			timeslot.end_time = new Date(Date.parse(timeslot.end));
 			timeslot.displayHosts = timeslot.hosts.map(function(h){return h.name;}).join(", ");
@@ -228,6 +239,7 @@ Polymer({
 				return a.duration - b.duration;
 			return a.start_time.getTime() - b.start_time.getTime();
 		}));
+		this.runFilter();
 	},
 	
 	registerTimeslot : function(event) {
@@ -252,6 +264,28 @@ Polymer({
 			app.doneLoading();
 			this.registerClose();
 		}.bind(this));
+	},
+	
+	clearUser : function() {
+		this.set('userPasses', []);
+		this.set('availableCoupons', []);
+		this.set('user', null);
+		window.setTimeout(function(){
+			this.$.userSelect.show();
+		}.bind(this), 500);
+	},
+	
+	runFilter : function() {
+		var filter = this.$.eventFilter.value.trim();
+		var expression = new RegExp(filter.replace("\\","\\\\"),'i');
+		this.set('timeslots', this.timeslotsData.filter(function(timeslot){
+			return timeslot.event.title.match(expression) || 
+					(timeslot.hosts.filter(function(host){ return host.name.match(expression); }).length > 0);
+		}.bind(this)));
+	},
+	
+	clearFilter : function() {
+		this.$.eventFilter.value = '';
 	},
 	
 	_onActiveItemChanged : function(event) {
