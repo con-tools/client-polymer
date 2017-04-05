@@ -229,7 +229,7 @@ Polymer({
 	selectPass : function(event) {
 		app.startLoading();
 		var pass = event.model.pass;
-		ConTroll.tickets.create(this.timeslotToRegister.id, pass.id, function(ticket){
+		ConTroll.tickets.create(this.user.id, this.timeslotToRegister.id, pass.id, function(ticket){
 			app.doneLoading();
 			this.registerClose();
 		}.bind(this));
