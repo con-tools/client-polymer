@@ -122,7 +122,23 @@
 				<template class="header"><iron-icon icon="face"></iron-icon></template>
 				<template>[[item.timeslot.displayHosts]]</template>
 			</vaadin-grid-column>
+			<vaadin-grid-column flex-grow="0" width="45px">
+				<template class="header"><iron-icon icon="delete"></iron-icon></template>
+				<template>
+					<paper-icon-button icon="delete" on-tap="deregister" title="Un-register"></paper-icon-button>
+				</template>
+			</vaadin-grid-column>
 		</vaadin-grid>
+	</paper-dialog>
+	
+	<paper-dialog id="confirmDeregister" modal>
+		<paper-item>
+			Cancel registration to [[deregisterTicket.timeslot.event.title]]?
+		</paper-item>
+		<paper-item class="container flex-horizontal">
+			<paper-button raised on-tap="deregisterOK"><iron-icon icon="check"></iron-icon>Yes</paper-button>
+			<paper-button raised on-tap="deregister"><iron-icon icon="close"></iron-icon>No</paper-button>
+		</paper-item>
 	</paper-dialog>
 	
 </template>
@@ -237,6 +253,20 @@ Polymer({
 	
 	registrationReportDone : function() {
 		this.$.registrationReportDialog.toggle();
+	},
+	
+	deregister : function(event) {
+		if (event && event.model && event.model.item) {
+			this.set('deregisterTicket', event.model.item);
+		}
+		this.$.confirmDeregister.toggle();
+	},
+	
+	deregisterOK : function() {
+		ConTroll.tickets.remove(this.deregisterTicket.id, null, function(){
+			this.$.confirmDeregister.toggle();
+			this.$.registrationReportDialog.toggle();
+		}.bind(this), function(){});
 	}
 	
 });
