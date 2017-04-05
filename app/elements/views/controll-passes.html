@@ -94,52 +94,7 @@
 	</vaadin-grid>
 	</paper-material>
 	
-	<paper-dialog id="registrationReportDialog" modal style="width: 80%">
-		<paper-item>Registrations:</paper-item>
-		<paper-button raised on-tap="registrationReportDone"><iron-icon icon="close"></iron-icon>Close</paper-button>
-		<vaadin-grid items="[[passToReport.tickets]]" multi-sort>
-			<vaadin-grid-column flex-grow="1">
-				<template class="header"><iron-icon icon="label-outline"></iron-icon></template>
-				<template><span title="[[item.event.title]]">[[item.timeslot.event.title]]</span></template>
-			</vaadin-grid-column>
-		
-			<vaadin-grid-column flex-grow="1">
-				<template class="header"><iron-icon icon="home"></iron-icon></template>
-				<template>[[item.timeslot.displayLocation]]</template>
-			</vaadin-grid-column>
-		
-			<vaadin-grid-column flex-grow="0" width="15em">
-				<template class="header"><iron-icon icon="today"></iron-icon></template>
-				<template>[[item.timeslot.start_time]]</template>
-			</vaadin-grid-column>
-		
-			<vaadin-grid-column flex-grow="0">
-				<template class="header"><iron-icon icon="schedule"></iron-icon></template>
-				<template>[[item.timeslot.duration]] min</template>
-			</vaadin-grid-column>
-		
-			<vaadin-grid-column flex-grow="1">
-				<template class="header"><iron-icon icon="face"></iron-icon></template>
-				<template>[[item.timeslot.displayHosts]]</template>
-			</vaadin-grid-column>
-			<vaadin-grid-column flex-grow="0" width="45px">
-				<template class="header"><iron-icon icon="delete"></iron-icon></template>
-				<template>
-					<paper-icon-button icon="delete" on-tap="deregister" title="Un-register"></paper-icon-button>
-				</template>
-			</vaadin-grid-column>
-		</vaadin-grid>
-	</paper-dialog>
-	
-	<paper-dialog id="confirmDeregister" modal>
-		<paper-item>
-			Cancel registration to [[deregisterTicket.timeslot.event.title]]?
-		</paper-item>
-		<paper-item class="container flex-horizontal">
-			<paper-button raised on-tap="deregisterOK"><iron-icon icon="check"></iron-icon>Yes</paper-button>
-			<paper-button raised on-tap="deregister"><iron-icon icon="close"></iron-icon>No</paper-button>
-		</paper-item>
-	</paper-dialog>
+	<controll-registration-report pass="{{passToReport}}"></controll-registration-report>
 	
 </template>
 </dom-module>
@@ -237,36 +192,6 @@ Polymer({
 	
 	registrationReport : function(event) {
 		this.set('passToReport', event.model.item);
-		ConTroll.tickets.forUser(this.passToReport.user.id, function(tickets){
-			this.set('passToReport.tickets', tickets.filter(function(ticket){
-				return ticket.user_pass.id == this.passToReport.id;
-			}.bind(this)).map(function(ticket){
-				ticket.timeslot.start_time = new Date(Date.parse(ticket.timeslot.start));
-				ticket.timeslot.end_time = new Date(Date.parse(ticket.timeslot.end));
-				ticket.timeslot.displayHosts = ticket.timeslot.hosts.map(function(h){return h.name;}).join(", ");
-				ticket.timeslot.displayLocation = ticket.timeslot.locations.map(function(l){ return l.title; }).join(", ");
-				return ticket;
-			}));
-			this.$.registrationReportDialog.toggle();
-		}.bind(this));
-	},
-	
-	registrationReportDone : function() {
-		this.$.registrationReportDialog.toggle();
-	},
-	
-	deregister : function(event) {
-		if (event && event.model && event.model.item) {
-			this.set('deregisterTicket', event.model.item);
-		}
-		this.$.confirmDeregister.toggle();
-	},
-	
-	deregisterOK : function() {
-		ConTroll.tickets.remove(this.deregisterTicket.id, null, function(){
-			this.$.confirmDeregister.toggle();
-			this.$.registrationReportDialog.toggle();
-		}.bind(this), function(){});
 	}
 	
 });

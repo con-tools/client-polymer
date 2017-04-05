@@ -67,6 +67,7 @@
 						<paper-item-body class="passtext flexchild">[[pass.name]]</paper-item-body>
 						<paper-item-body>: </paper-item-body>
 						<paper-item-body class="passtext flexchild">[[pass.pass.title]]</paper-item-body>
+						<paper-icon-button icon="assignment" on-tap="registrationReport" title="Registration report"></paper-icon-button>
 					</paper-item>
 				</template>
 				<div hidden$="[[isEmpty(availableCoupons)]]">
@@ -157,6 +158,8 @@
 			<paper-button raised on-tap="registerClose"><iron-icon icon="close"></iron-icon>Cancel</paper-button>
 		</paper-item>
 	</paper-dialog>
+	
+	<controll-registration-report pass="{{passToReport}}"></controll-registration-report>
 
 </template>
 </dom-module>
@@ -198,6 +201,10 @@ Polymer({
 		},
 		availableCoupons : {
 			type: Array,
+			notify: true
+		},
+		passToReport : {
+			type: Object,
 			notify: true
 		}
 	},
@@ -291,6 +298,10 @@ Polymer({
 	
 	clearFilter : function() {
 		this.$.eventFilter.value = '';
+	},
+	
+	registrationReport : function(event) {
+		this.set('passToReport', event.model.pass);
 	},
 	
 	_onActiveItemChanged : function(event) {
