@@ -211,8 +211,11 @@ Polymer({
 			this.cancelPasses(passes.filter(function(pass){
 				return [ 'reserved', 'processing' ].indexOf(pass.status) >= 0;
 			}).map(function(pass){ return pass.id; }), function(){
-				// now list coupoons
-				ConTroll.users.get(this.get('user').id, function(user){
+				var user = this.get('user');
+				if (!user)
+					return app.doneLoading(); // someone cleared the user while we were loading? apparently it happened
+				// now list coupons
+				ConTroll.users.get(user.id, function(user){
 					this.set('availableCoupons', user.coupons.filter(function(c) {
 						return !c.used;
 					}));
