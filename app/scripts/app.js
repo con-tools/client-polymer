@@ -166,7 +166,11 @@
 	};
 	
 	app.watchRouteChanges = function(route) {
-		this.set('viewTitle', document.querySelector('[data-route="'+ app.route+'"] h2').textContent);
+		var header = document.querySelector('[data-route="'+ app.route+'"] h2');
+		if (header)
+			this.set('viewTitle', header.textContent);
+		else
+			this.set('viewTitle', 'ConTroll');
 	};
 	
 	app.onSelectedConvention = function(selected, previous) {
