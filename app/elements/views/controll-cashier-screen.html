@@ -134,7 +134,9 @@
 					<vaadin-grid-column flex-grow="0" width="45px">
 						<template class="header"><iron-icon icon="check"></iron-icon></template>
 						<template>
-							<paper-icon-button icon="add-circle" on-tap="registerTimeslot" disabled$="[[!user]]" title="Register"></paper-icon-button>
+							<paper-icon-button icon="add-circle" on-tap="registerTimeslot"
+							 	hidden$="[[disableRegistration(user, item)]]" 
+								title="Register"></paper-icon-button>
 						</template>
 					</vaadin-grid-column>
 				</vaadin-grid>
@@ -252,6 +254,10 @@ Polymer({
 			return a.start_time.getTime() - b.start_time.getTime();
 		}));
 		this.runFilter();
+	},
+	
+	disableRegistration : function(user, timeslot) {
+		return !(this.user && timeslot && timeslot.available_tickets > 0)
 	},
 	
 	registerTimeslot : function(event) {
