@@ -42,7 +42,7 @@
 	</paper-material>
 	
 	<paper-material elevation="1">
-	<template is="dom-repeat" items="{{events}}" as="event">
+	<template is="dom-repeat" items="[[events]]" as="event">
 		<paper-item class="container flex-horizontal">
 			<paper-item class="flexchild">
 				<paper-input class="large-field" label="Title" readonly value="{{event.title}}"></paper-input>
