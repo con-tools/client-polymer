@@ -116,7 +116,7 @@ Polymer({
 		},
 		unlessManager : {
 			type: Boolean,
-			value: function() { return app.unlessManager(app.role); }
+			value: true
 		},
 		passTypes : {
 			type: Array,
@@ -148,6 +148,7 @@ Polymer({
 	},
 	
 	refreshData : function() {
+		this.set('unlessManager', app.unlessManager(app.role));
 		if (!this.start)
 			return;
 		app.getCatalog('userpasses', function(userpasses){
